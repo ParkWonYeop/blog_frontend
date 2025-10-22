@@ -1,0 +1,598 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --font-apple-sans:
+    var(--font-pretendard),
+    "Pretendard Variable",
+    Pretendard,
+    "Apple SD Gothic Neo",
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Helvetica Neue",
+    "Noto Sans KR",
+    system-ui,
+    sans-serif;
+  --font-apple-mono:
+    "SF Mono",
+    ui-monospace,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  --color-page: #edf4ff;
+  --desktop-bg:
+    linear-gradient(118deg, rgba(95, 174, 255, 0.22) 0%, rgba(95, 174, 255, 0) 35%),
+    linear-gradient(152deg, rgba(255, 158, 194, 0.2) 10%, rgba(255, 158, 194, 0) 48%),
+    linear-gradient(46deg, rgba(124, 220, 185, 0.18) 46%, rgba(124, 220, 185, 0) 82%),
+    linear-gradient(180deg, #f9fcff 0%, #eaf3ff 48%, #f8f2ff 100%);
+  --desktop-sheen:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.48) 0 1px, transparent 1px 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 18px);
+  --desktop-icon-bg: rgba(255, 255, 255, 0.44);
+  --desktop-icon-bg-hover: rgba(255, 255, 255, 0.64);
+  --desktop-icon-border: rgba(255, 255, 255, 0.62);
+  --window-bg: rgba(255, 255, 255, 0.66);
+  --window-bg-strong: rgba(255, 255, 255, 0.86);
+  --window-titlebar: rgba(255, 255, 255, 0.58);
+  --window-border: rgba(255, 255, 255, 0.74);
+  --window-titlebar-border: rgba(39, 54, 82, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.46);
+  --card-bg-strong: rgba(255, 255, 255, 0.68);
+  --card-border: rgba(39, 54, 82, 0.11);
+  --card-border-hover: rgba(39, 54, 82, 0.18);
+  --control-border: rgba(39, 54, 82, 0.12);
+  --menubar-bg: rgba(255, 255, 255, 0.58);
+  --menubar-border: rgba(255, 255, 255, 0.72);
+  --dock-bg: rgba(248, 250, 252, 0.54);
+  --dock-border: rgba(255, 255, 255, 0.68);
+  --sidebar-bg: rgba(255, 255, 255, 0.58);
+  --sidebar-border: rgba(255, 255, 255, 0.68);
+  --color-surface: var(--card-bg);
+  --color-surface-strong: var(--card-bg-strong);
+  --color-control: rgba(255, 255, 255, 0.56);
+  --color-line: rgba(39, 54, 82, 0.13);
+  --color-text: #1d1d1f;
+  --color-text-muted: #62646d;
+  --color-text-subtle: #858892;
+  --color-accent: #0066cc;
+  --color-accent-hover: #0071e3;
+  --color-accent-soft: rgba(0, 102, 204, 0.1);
+  --color-danger-soft: rgba(255, 59, 48, 0.1);
+  --shadow-window: 0 34px 96px rgba(47, 74, 112, 0.22), 0 16px 34px rgba(47, 74, 112, 0.1), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  --shadow-sidebar: 18px 20px 64px rgba(47, 74, 112, 0.16), 0 1px 0 rgba(255, 255, 255, 0.56) inset;
+  --shadow-menubar: 0 12px 32px rgba(47, 74, 112, 0.13), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
+  --shadow-panel: var(--shadow-sidebar);
+  --shadow-card: 0 14px 34px rgba(70, 92, 130, 0.09), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  --shadow-dock: 0 28px 78px rgba(15, 23, 42, 0.18), 0 12px 32px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.68) inset, 0 -1px 0 rgba(15, 23, 42, 0.06) inset;
+  --shadow-control: 0 12px 26px rgba(70, 92, 130, 0.1), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
+  --focus-ring: 0 0 0 4px rgba(0, 102, 204, 0.14);
+  --background: var(--color-page);
+  --foreground: var(--color-text);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-apple-sans);
+  --font-mono: var(--font-apple-mono);
+}
+
+html[data-theme="dark"] {
+  --color-page: #0c101a;
+  --desktop-bg:
+    linear-gradient(118deg, rgba(44, 128, 204, 0.34) 0%, rgba(44, 128, 204, 0) 38%),
+    linear-gradient(150deg, rgba(125, 66, 139, 0.3) 12%, rgba(125, 66, 139, 0) 55%),
+    linear-gradient(46deg, rgba(30, 118, 89, 0.26) 46%, rgba(30, 118, 89, 0) 84%),
+    linear-gradient(180deg, #111827 0%, #080b12 100%);
+  --desktop-sheen:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 18px);
+  --desktop-icon-bg: rgba(22, 25, 34, 0.5);
+  --desktop-icon-bg-hover: rgba(40, 44, 58, 0.72);
+  --desktop-icon-border: rgba(255, 255, 255, 0.16);
+  --window-bg: rgba(25, 29, 40, 0.72);
+  --window-bg-strong: rgba(39, 43, 58, 0.88);
+  --window-titlebar: rgba(255, 255, 255, 0.09);
+  --window-border: rgba(255, 255, 255, 0.18);
+  --window-titlebar-border: rgba(255, 255, 255, 0.13);
+  --card-bg: rgba(43, 46, 60, 0.5);
+  --card-bg-strong: rgba(52, 55, 70, 0.66);
+  --card-border: rgba(255, 255, 255, 0.14);
+  --card-border-hover: rgba(255, 255, 255, 0.22);
+  --control-border: rgba(255, 255, 255, 0.13);
+  --menubar-bg: rgba(14, 17, 26, 0.68);
+  --menubar-border: rgba(255, 255, 255, 0.16);
+  --dock-bg: rgba(18, 20, 28, 0.56);
+  --dock-border: rgba(255, 255, 255, 0.16);
+  --sidebar-bg: rgba(21, 24, 34, 0.64);
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+  --color-surface: var(--card-bg);
+  --color-surface-strong: var(--card-bg-strong);
+  --color-control: rgba(255, 255, 255, 0.085);
+  --color-line: rgba(255, 255, 255, 0.13);
+  --color-text: #f5f5f7;
+  --color-text-muted: #b2b5bf;
+  --color-text-subtle: #8f939f;
+  --color-accent: #2997ff;
+  --color-accent-hover: #46a6ff;
+  --color-accent-soft: rgba(41, 151, 255, 0.16);
+  --color-danger-soft: rgba(255, 69, 58, 0.16);
+  --shadow-window: 0 32px 100px rgba(0, 0, 0, 0.54), 0 14px 36px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  --shadow-sidebar: 18px 0 46px rgba(0, 0, 0, 0.38), -1px 0 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-menubar: 0 18px 46px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.09) inset;
+  --shadow-panel: var(--shadow-sidebar);
+  --shadow-card: 0 16px 34px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-dock: 0 30px 86px rgba(0, 0, 0, 0.48), 0 12px 34px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.14) inset, 0 -1px 0 rgba(0, 0, 0, 0.36) inset;
+  --shadow-control: 0 14px 30px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --focus-ring: 0 0 0 4px rgba(41, 151, 255, 0.18);
+  --background: var(--color-page);
+  --foreground: var(--color-text);
+  color-scheme: dark;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--desktop-bg);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-apple-sans);
+  font-feature-settings: "kern", "ss05";
+  font-size: 16px;
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.desktop-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: var(--desktop-bg);
+}
+
+.desktop-shell::before,
+.desktop-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.desktop-shell::before {
+  z-index: 0;
+  background:
+    var(--desktop-sheen),
+    radial-gradient(ellipse at 20% 15%, rgba(255, 255, 255, 0.42), transparent 42%),
+    var(--desktop-bg);
+}
+
+.desktop-shell::after {
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.18));
+  opacity: 0.32;
+  mix-blend-mode: soft-light;
+}
+
+html[data-theme="dark"] .desktop-shell::after {
+  opacity: 0.22;
+}
+
+.window-surface {
+  position: relative;
+}
+
+.window-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 22rem),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 28%);
+  opacity: 0.52;
+}
+
+html[data-theme="dark"] .window-surface::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 22rem),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent 28%);
+  opacity: 0.72;
+}
+
+.window-surface > * {
+  position: relative;
+}
+
+pre,
+code,
+table {
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+}
+
+code,
+kbd,
+pre,
+samp,
+.tabular-nums {
+  font-family: var(--font-apple-mono);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.bg-white {
+  background-color: var(--window-bg-strong);
+}
+
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+.bg-blue-50,
+.bg-blue-100 {
+  background-color: var(--color-accent-soft);
+}
+
+.bg-red-50,
+.bg-red-100 {
+  background-color: var(--color-danger-soft);
+}
+
+.bg-green-100 {
+  background-color: rgba(52, 199, 89, 0.14);
+}
+
+.bg-blue-600 {
+  background-color: var(--color-accent);
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.border-gray-100,
+.border-gray-200,
+.border-gray-300 {
+  border-color: var(--color-line);
+}
+
+.border-blue-100 {
+  border-color: rgba(0, 102, 204, 0.22);
+}
+
+.border-red-100 {
+  border-color: rgba(255, 59, 48, 0.22);
+}
+
+.text-gray-950,
+.text-gray-900,
+.text-gray-800,
+.text-gray-700 {
+  color: var(--color-text);
+}
+
+.text-gray-600,
+.text-gray-500 {
+  color: var(--color-text-muted);
+}
+
+.text-gray-400,
+.text-gray-300 {
+  color: var(--color-text-subtle);
+}
+
+.text-blue-700,
+.text-blue-600 {
+  color: var(--color-accent);
+}
+
+.text-red-950,
+.text-red-700,
+.text-red-600 {
+  color: #d9362e;
+}
+
+.text-green-600 {
+  color: #22863a;
+}
+
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-line);
+}
+
+.hover\:bg-white:hover,
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover,
+.hover\:bg-gray-200:hover,
+.focus\:bg-white:focus {
+  background-color: var(--card-bg-strong);
+}
+
+.hover\:bg-blue-50:hover {
+  background-color: rgba(0, 102, 204, 0.12);
+}
+
+.hover\:bg-red-50:hover {
+  background-color: rgba(255, 59, 48, 0.12);
+}
+
+.hover\:text-gray-600:hover,
+.hover\:text-gray-700:hover,
+.hover\:text-gray-800:hover {
+  color: var(--color-text);
+}
+
+.placeholder\:text-gray-300::placeholder,
+.placeholder\:text-gray-400::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.disabled\:bg-gray-50:disabled,
+.disabled\:bg-gray-300:disabled,
+.disabled\:bg-gray-400:disabled {
+  background-color: rgba(255, 255, 255, 0.32);
+  color: var(--color-text-subtle);
+}
+
+.shadow-xl,
+.shadow-md,
+.shadow-sm {
+  box-shadow: var(--shadow-card);
+}
+
+.rounded-xl {
+  border-radius: 0.5rem;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: var(--color-control);
+  border-color: var(--control-border);
+  color: var(--color-text);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.42) inset;
+  backdrop-filter: blur(18px);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  background-color: var(--card-bg-strong);
+  border-color: var(--color-accent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-subtle);
+}
+
+option {
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+}
+
+html[data-theme="dark"] .bg-gray-50,
+html[data-theme="dark"] .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .bg-blue-50,
+html[data-theme="dark"] .bg-blue-100 {
+  background-color: rgba(10, 132, 255, 0.14);
+}
+
+html[data-theme="dark"] .bg-red-50,
+html[data-theme="dark"] .bg-red-100 {
+  background-color: rgba(255, 69, 58, 0.13);
+}
+
+html[data-theme="dark"] .border-blue-100 {
+  border-color: rgba(10, 132, 255, 0.28);
+}
+
+html[data-theme="dark"] .border-red-100 {
+  border-color: rgba(255, 105, 97, 0.28);
+}
+
+html[data-theme="dark"] .text-blue-700,
+html[data-theme="dark"] .text-blue-600 {
+  color: #8ecbff;
+}
+
+html[data-theme="dark"] .text-red-950,
+html[data-theme="dark"] .text-red-700,
+html[data-theme="dark"] .text-red-600 {
+  color: #ffb4ad;
+}
+
+html[data-theme="dark"] .text-green-600 {
+  color: #8ff0a4;
+}
+
+html[data-theme="dark"] .hover\:bg-white:hover,
+html[data-theme="dark"] .hover\:bg-gray-50:hover,
+html[data-theme="dark"] .hover\:bg-gray-100:hover,
+html[data-theme="dark"] .hover\:bg-gray-200:hover,
+html[data-theme="dark"] .focus\:bg-white:focus {
+  background-color: var(--card-bg-strong);
+}
+
+html[data-theme="dark"] .hover\:bg-blue-50:hover {
+  background-color: rgba(10, 132, 255, 0.16);
+}
+
+html[data-theme="dark"] .hover\:bg-red-50:hover {
+  background-color: rgba(255, 69, 58, 0.16);
+}
+
+html[data-theme="dark"] .disabled\:bg-gray-50:disabled,
+html[data-theme="dark"] .disabled\:bg-gray-300:disabled,
+html[data-theme="dark"] .disabled\:bg-gray-400:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-subtle);
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: var(--color-control);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus {
+  background-color: var(--card-bg-strong);
+}
+
+.w-md-editor {
+  border-radius: 0.5rem !important;
+  border-color: var(--card-border) !important;
+  background-color: var(--card-bg-strong) !important;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(20px);
+}
+
+.w-md-editor-toolbar {
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  border-color: var(--window-titlebar-border) !important;
+  background-color: var(--window-titlebar) !important;
+}
+
+html[data-theme="dark"] .w-md-editor {
+  background-color: var(--card-bg-strong) !important;
+  border-color: var(--card-border) !important;
+}
+
+html[data-theme="dark"] .w-md-editor-toolbar {
+  background-color: var(--window-titlebar) !important;
+  border-color: var(--window-titlebar-border) !important;
+}
+
+.wy-editor-shell {
+  --color-canvas-default: transparent;
+  --color-canvas-subtle: transparent;
+  --color-border-default: var(--card-border);
+  --color-border-muted: var(--card-border);
+  --color-fg-default: var(--color-text);
+  --color-fg-muted: var(--color-text-muted);
+  --color-accent-fg: var(--color-accent);
+  color: var(--color-text);
+}
+
+.wy-editor-shell .w-md-editor {
+  min-height: 520px;
+  overflow: hidden;
+  border-radius: 0.5rem !important;
+  border: 1px solid var(--card-border) !important;
+  background-color: var(--card-bg-strong) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-card) !important;
+  backdrop-filter: blur(20px);
+}
+
+.wy-editor-shell .w-md-editor-toolbar {
+  border-color: var(--window-titlebar-border) !important;
+  background-color: var(--window-titlebar) !important;
+}
+
+.wy-editor-shell .w-md-editor-toolbar button,
+.wy-editor-shell .w-md-editor-toolbar li,
+.wy-editor-shell .w-md-editor-toolbar svg {
+  color: var(--color-text-muted) !important;
+}
+
+.wy-editor-shell .w-md-editor-toolbar button:hover {
+  background-color: var(--color-control) !important;
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-content,
+.wy-editor-shell .w-md-editor-area,
+.wy-editor-shell .w-md-editor-text,
+.wy-editor-shell .w-md-editor-text-pre,
+.wy-editor-shell .w-md-editor-text-input,
+.wy-editor-shell .w-md-editor-preview,
+.wy-editor-shell .wmde-markdown {
+  background: transparent !important;
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-text {
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-text-pre,
+.wy-editor-shell .w-md-editor-text-pre *,
+.wy-editor-shell .w-md-editor-text-pre > code,
+.wy-editor-shell .w-md-editor-text-pre code,
+.wy-editor-shell .w-md-editor-text-pre .token,
+.wy-editor-shell .w-md-editor-text-pre .punctuation {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.wy-editor-shell .w-md-editor-text-input {
+  opacity: 1 !important;
+  background: transparent !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent);
+  text-shadow: none !important;
+}
+
+.wy-editor-shell .w-md-editor-text-input::placeholder {
+  color: var(--color-text-subtle) !important;
+  -webkit-text-fill-color: var(--color-text-subtle) !important;
+}
+
+.wy-editor-shell .wmde-markdown,
+.wy-editor-shell .wmde-markdown p,
+.wy-editor-shell .wmde-markdown li,
+.wy-editor-shell .wmde-markdown h1,
+.wy-editor-shell .wmde-markdown h2,
+.wy-editor-shell .wmde-markdown h3,
+.wy-editor-shell .wmde-markdown h4,
+.wy-editor-shell .wmde-markdown h5,
+.wy-editor-shell .wmde-markdown h6 {
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .wmde-markdown a {
+  color: var(--color-accent) !important;
+}
+
+.wy-editor-shell .wmde-markdown blockquote {
+  color: var(--color-text-muted) !important;
+  border-left-color: var(--color-line) !important;
+}
+
+.wy-editor-shell .wmde-markdown pre,
+.wy-editor-shell .wmde-markdown code {
+  background-color: rgba(30, 30, 30, 0.9) !important;
+  color: #f4f4f5 !important;
+}
