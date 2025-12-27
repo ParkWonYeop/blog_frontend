@@ -42,8 +42,10 @@ export default function ArchivePage() {
     return Object.keys(archiveGroups).sort((a, b) => Number(b) - Number(a));
   }, [archiveGroups]);
 
-  // 총 게시글 수
-  const totalPosts = data?.totalElements || 0;
+  // 🛠️ 총 게시글 수 수정 (백엔드 PagedModel 대응)
+  // page 정보가 data 안에 직접 있거나, page 객체 안에 있을 수 있음
+  const meta = (data as any)?.page || data;
+  const totalPosts = meta?.totalElements || 0;
 
   if (isLoading) {
     return (
