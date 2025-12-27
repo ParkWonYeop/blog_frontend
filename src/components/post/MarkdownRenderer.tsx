@@ -22,7 +22,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         // 🛡️ 중요: 여기서 HTML 태그를 소독하여 XSS 공격 방지
         rehypePlugins={[rehypeSanitize]} 
         components={{
-          // 1. 코드 블록 커스텀 (Mac 스타일 윈도우 + 문법 강조)
+          // 1. 코드 블록 커스텀
           code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
@@ -44,7 +44,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
 
-          // 2. 인용구 (Blockquote) 스타일
+          // 2. 인용구
           blockquote({ children }) {
             return (
               <blockquote className="border-l-4 border-blue-500 bg-blue-50 pl-4 py-3 my-6 text-gray-700 rounded-r-lg italic shadow-sm">
@@ -53,7 +53,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
 
-          // 3. 링크 (a) 스타일
+          // 3. 링크
           a({ href, children }) {
             const isExternal = href?.startsWith('http');
             return (
@@ -69,7 +69,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
 
-          // 4. 테이블 스타일
+          // 4. 테이블
           table({ children }) {
             return (
               <div className="overflow-x-auto my-8 rounded-lg border border-gray-200 shadow-sm">
@@ -89,10 +89,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return <td className="px-6 py-4 border-b border-gray-100 whitespace-pre-wrap">{children}</td>;
           },
 
-          // 5. 이미지 스타일
+          // 5. 이미지
           img({ src, alt }) {
-            // rehype-sanitize가 적용되면 기본적으로 img 태그가 허용되지만,
-            // onError 핸들링 등을 위해 커스텀 컴포넌트 유지는 좋음.
             return (
               <span className="block my-8">
                 <img 
@@ -101,7 +99,6 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                   className="rounded-xl shadow-lg border border-gray-100 w-full object-cover max-h-[600px] hover:scale-[1.01] transition-transform duration-300" 
                   loading="lazy"
                   onError={(e) => {
-                    // 이미지 로드 실패 시 숨김 처리 혹은 플레이스홀더
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -110,12 +107,20 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
 
-          // 6. 리스트 스타일
+          // 6. 리스트 스타일 (여기가 문제였음)
           ul({ children }) {
             return <ul className="list-disc pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-400">{children}</ul>;
           },
-          ol({ children }) {
-            return <ol className="list-decimal pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-500 font-medium">{children}</ol>;
+          // 🛠️ 수정됨: ...props를 전달하여 start 속성을 적용
+          ol({ children, ...props }: any) {
+            return (
+              <ol 
+                className="list-decimal pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-500 font-medium" 
+                {...props} // 👈 이게 있어야 start="3" 같은 속성이 적용됨
+              >
+                {children}
+              </ol>
+            );
           },
           li({ children }) {
             return <li className="pl-1">{children}</li>;
@@ -139,7 +144,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
-// 코드 블록 컴포넌트 (변경 없음)
+// 코드 블록 컴포넌트
 function CodeBlock({ language, code }: { language: string; code: string }) {
   const [isCopied, setIsCopied] = useState(false);
 
