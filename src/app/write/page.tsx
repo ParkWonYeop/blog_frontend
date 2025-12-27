@@ -202,7 +202,7 @@ function WritePageContent() {
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 shadow-md hover:shadow-lg transform active:scale-95 duration-200"
         >
           {mutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-          {isEditMode ? '수정하기' : '발행하기'}
+          {isEditMode ? '수정하기' : '작성하기'}
         </button>
       </div>
 
