@@ -56,13 +56,21 @@ jobs:
         run: |
           echo "Building Docker image..."
           
-          # 파일 존재 여부 재확인
-          if [ ! -f Dockerfile ]; then
+          # 파일 존재 여부 재확인 (대소문자 이슈 처리)
+          if [ -f Dockerfile ]; then
+            DOCKERFILE_NAME="Dockerfile"
+          elif [ -f DockerFile ]; then
+            DOCKERFILE_NAME="DockerFile"
+          else
             echo "❌ Dockerfile not found!"
             exit 1
           fi
           
+          echo "✅ Found $DOCKERFILE_NAME"
+          
+          # -f 옵션으로 찾은 파일명을 지정합니다.
           docker build \
+            -f $DOCKERFILE_NAME \
             --build-arg NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
             -t blog-frontend:latest .
 
