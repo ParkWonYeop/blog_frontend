@@ -39,7 +39,7 @@ function AuthInitializer() {
 
       // 토큰이 만료되었는지 확인
       if (isTokenExpired(accessToken)) {
-        console.log('🔄 AccessToken expired on init, refreshing...');
+        // console.log('🔄 AccessToken expired on init, refreshing...');
         
         try {
           const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -57,12 +57,12 @@ function AuthInitializer() {
           if (data.code === 'SUCCESS' && data.data) {
             // 갱신 성공: 스토어 업데이트
             login(data.data.accessToken, data.data.refreshToken);
-            console.log('✅ Token refreshed successfully on init');
+            // console.log('✅ Token refreshed successfully on init');
           } else {
             throw new Error('Token refresh response invalid');
           }
         } catch (error) {
-          console.error('❌ Failed to refresh token on init:', error);
+          // console.error('❌ Failed to refresh token on init:', error);
           // 갱신 실패 시 깔끔하게 로그아웃 처리하여 꼬임 방지
           logout();
           // 필요 시 로그인 페이지로 이동 (선택 사항)

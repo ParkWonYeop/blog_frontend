@@ -126,7 +126,7 @@ function WritePageContent() {
 
     // 3. 만료되었다면 갱신 시도
     try {
-      console.log('🔄 Access token expired during write. Refreshing...');
+      // console.log('🔄 Access token expired during write. Refreshing...');
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
       
       const { data } = await axios.post(
@@ -137,12 +137,12 @@ function WritePageContent() {
 
       if (data.code === 'SUCCESS' && data.data) {
         login(data.data.accessToken, data.data.refreshToken);
-        console.log('✅ Token refreshed successfully before save.');
+        // console.log('✅ Token refreshed successfully before save.');
         return true;
       }
       return false;
     } catch (error) {
-      console.error('❌ Failed to refresh token before save:', error);
+      // console.error('❌ Failed to refresh token before save:', error);
       // 갱신 실패: 사용자가 내용을 백업할 수 있도록 경고
       toast.error('세션이 만료되었습니다.\n작성 중인 글을 복사해두고 다시 로그인해주세요!', { duration: 5000 });
       return false;
