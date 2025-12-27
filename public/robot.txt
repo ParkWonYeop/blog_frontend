@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://blog.wypark.me/sitemap.xml
