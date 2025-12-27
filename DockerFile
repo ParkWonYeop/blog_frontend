@@ -32,5 +32,8 @@ COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
 ENV PORT 3000
+# 호스트네임도 0.0.0.0으로 명시해야 외부 접속이 원활합니다.
+ENV HOSTNAME "0.0.0.0"
 
+# 🛠️ 수정됨: server.js 실행
 CMD ["node", "server.js"]
