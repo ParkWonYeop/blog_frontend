@@ -14,6 +14,7 @@ export interface Post {
   viewCount: number;
   createdAt: string;
   content?: string;
+  tags: string[]; // 🆕 태그 배열 속성 추가
 }
 
 // 3. 게시글 목록 페이징 응답
@@ -36,6 +37,7 @@ export interface AuthResponse {
 export interface Category {
   id: number;
   name: string;
+  parentId?: number | null; // 🆕 부모 카테고리 ID 추가
   children: Category[];
 }
 

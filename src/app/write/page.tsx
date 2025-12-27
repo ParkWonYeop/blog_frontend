@@ -11,29 +11,50 @@ import { Loader2, Save, Image as ImageIcon, ArrowLeft, Folder, UploadCloud } fro
 // 🎨 UX 개선: 토스트 알림 사용
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
+import axios from 'axios'; // 🆕 직접 갱신 요청을 위해 추가
 
 const MDEditor = dynamic(
   () => import('@uiw/react-md-editor').then((mod) => mod.default), 
   { ssr: false }
 );
 
+// 🛠️ 1. 토큰 만료 체크 유틸리티 (JWT 디코딩)
+function isTokenExpired(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const { exp } = JSON.parse(jsonPayload);
+    // 현재 시간보다 만료 시간이 적게 남았거나 지났으면 true (여유시간 30초)
+    return Date.now() / 1000 >= exp - 30;
+  } catch (e) {
+    return true; // 파싱 실패 시 만료된 것으로 간주
+  }
+}
+
 function WritePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { role, _hasHydrated } = useAuthStore();
+  const { role, _hasHydrated, accessToken, refreshToken, login } = useAuthStore(); // 🆕 토큰 관련 상태 가져오기
 
   const editSlug = searchParams.get('slug');
   const isEditMode = !!editSlug;
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('**Hello world!**');
+  const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | ''>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🆕 제출 중 상태 관리
 
   useEffect(() => {
     if (_hasHydrated && (!role || !role.includes('ADMIN'))) {
-      toast.error('관리자 권한이 필요합니다.'); // 🎨 Alert 대체
+      toast.error('관리자 권한이 필요합니다.');
       router.push('/');
     }
   }, [role, _hasHydrated, router]);
@@ -51,7 +72,8 @@ function WritePageContent() {
 
   useEffect(() => {
     if (existingPost) {
-      setTitle(existingPost.title);
+      // 🛠️ undefined 방지 처리 추가
+      setTitle(existingPost.title || '');
       setContent(existingPost.content || '');
       if (categories && existingPost.categoryName) {
         const found = findCategoryByName(categories, existingPost.categoryName);
@@ -78,15 +100,54 @@ function WritePageContent() {
       if (isEditMode) {
         queryClient.invalidateQueries({ queryKey: ['post', editSlug] });
       }
-      // 🎨 UX 개선: 성공 메시지 토스트
       toast.success(isEditMode ? '게시글이 수정되었습니다.' : '게시글이 발행되었습니다!');
       router.push(isEditMode ? `/posts/${editSlug}` : '/');
     },
     onError: (err: any) => {
-      // 🎨 UX 개선: 에러 메시지 토스트
       toast.error('저장 실패: ' + (err.response?.data?.message || err.message));
     },
+    onSettled: () => {
+        setIsSubmitting(false); // 🆕 완료 시 로딩 해제
+    }
   });
+
+  // 🛡️ 2. [핵심 로직] 토큰 검사 및 갱신 보장 함수
+  const ensureAuthToken = async (): Promise<boolean> => {
+    // 1. 토큰이 아예 없으면 실패
+    if (!accessToken || !refreshToken) {
+      toast.error('로그인이 필요합니다.');
+      return false;
+    }
+
+    // 2. 토큰이 아직 싱싱하면 바로 통과
+    if (!isTokenExpired(accessToken)) {
+      return true;
+    }
+
+    // 3. 만료되었다면 갱신 시도
+    try {
+      console.log('🔄 Access token expired during write. Refreshing...');
+      const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      
+      const { data } = await axios.post(
+        `${BASE_URL}/api/auth/reissue`,
+        { accessToken, refreshToken },
+        { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+      );
+
+      if (data.code === 'SUCCESS' && data.data) {
+        login(data.data.accessToken, data.data.refreshToken);
+        console.log('✅ Token refreshed successfully before save.');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('❌ Failed to refresh token before save:', error);
+      // 갱신 실패: 사용자가 내용을 백업할 수 있도록 경고
+      toast.error('세션이 만료되었습니다.\n작성 중인 글을 복사해두고 다시 로그인해주세요!', { duration: 5000 });
+      return false;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -98,10 +159,20 @@ function WritePageContent() {
       return;
     }
 
+    setIsSubmitting(true); // 버튼 비활성화
+
+    // 🛡️ 저장 전 토큰 체크!
+    const isTokenValid = await ensureAuthToken();
+    if (!isTokenValid) {
+      setIsSubmitting(false);
+      return; // 토큰 갱신 실패 시 중단
+    }
+
     mutation.mutate({
       title,
       content,
       categoryId: Number(categoryId),
+      tags: [], // 🆕 타입 오류 방지용 빈 배열 (필요 시 태그 입력 기능 추가)
     });
   };
 
@@ -110,15 +181,18 @@ function WritePageContent() {
     if (!file) return;
 
     setIsUploading(true);
-    const uploadToast = toast.loading('이미지 업로드 중...'); // 🎨 업로드 로딩 표시
+    const uploadToast = toast.loading('이미지 업로드 중...');
 
     try {
+      // 이미지 업로드 전에도 토큰 체크 (선택 사항이지만 안전함)
+      await ensureAuthToken();
+      
       const res = await uploadImage(file);
       if (res.code === 'SUCCESS' && res.data) {
         const imageUrl = res.data;
         const markdownImage = `![image](${imageUrl})`;
         setContent((prev) => prev + '\n' + markdownImage);
-        toast.success('이미지가 업로드되었습니다.', { id: uploadToast }); // 로딩 토스트를 성공으로 변경
+        toast.success('이미지가 업로드되었습니다.', { id: uploadToast });
       }
     } catch (error) {
       toast.error('이미지 업로드 실패', { id: uploadToast });
@@ -142,6 +216,8 @@ function WritePageContent() {
         const uploadToast = toast.loading('이미지 업로드 중...');
 
         try {
+          await ensureAuthToken(); // 토큰 체크
+
           const res = await uploadImage(file);
           if (res.code === 'SUCCESS' && res.data) {
             const imageUrl = res.data;
@@ -198,10 +274,10 @@ function WritePageContent() {
         </div>
         <button
           onClick={handleSubmit}
-          disabled={mutation.isPending || isUploading}
+          disabled={isSubmitting || isUploading}
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 shadow-md hover:shadow-lg transform active:scale-95 duration-200"
         >
-          {mutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+          {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
           {isEditMode ? '수정하기' : '작성하기'}
         </button>
       </div>
