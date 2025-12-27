@@ -40,13 +40,81 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// 2. 응답 인터셉터: 401 발생 시 토큰 갱신 (RTR 적용 + 멀티탭 동기화 안전장치)
+// 실제 토큰 갱신을 수행하는 함수 (Lock 안에서 실행됨)
+async function handleTokenRefresh() {
+  try {
+    const { accessToken: currentAccessToken, refreshToken: currentRefreshToken, login, logout } = useAuthStore.getState();
+    
+    // [1] 로컬 스토리지 확인 (다른 탭에서 이미 갱신했는지 체크)
+    let actualRefreshToken = currentRefreshToken;
+    let actualAccessToken = currentAccessToken;
+
+    if (typeof window !== 'undefined') {
+      const storageData = localStorage.getItem('auth-storage');
+      if (storageData) {
+        try {
+          const parsed = JSON.parse(storageData);
+          const storedRefreshToken = parsed.state?.refreshToken;
+          const storedAccessToken = parsed.state?.accessToken;
+
+          // 저장된 토큰이 현재 메모리의 토큰과 다르다면? => 이미 다른 탭/요청이 갱신을 완료함!
+          if (storedRefreshToken && currentRefreshToken && storedRefreshToken !== currentRefreshToken) {
+            // 현재 탭의 스토어 상태를 스토리지와 동기화
+            login(storedAccessToken, storedRefreshToken);
+            // 대기 중인 요청들 해소
+            processQueue(null, storedAccessToken);
+            // 갱신 API 호출 없이 새 토큰 반환
+            return storedAccessToken;
+          }
+          
+          // 갱신 시도할 토큰 정보를 최신 스토리지 값으로 설정
+          if (storedRefreshToken) actualRefreshToken = storedRefreshToken;
+          if (storedAccessToken) actualAccessToken = storedAccessToken;
+        } catch (e) {
+          console.error('Storage parse error', e);
+        }
+      }
+    }
+
+    if (!actualAccessToken || !actualRefreshToken) {
+      throw new Error('No tokens found for reissue');
+    }
+
+    // [2] 서버에 토큰 갱신 요청 (Backend: POST /api/auth/reissue)
+    const { data } = await axios.post(
+      `${BASE_URL}/api/auth/reissue`,
+      { accessToken: actualAccessToken, refreshToken: actualRefreshToken },
+      { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+    );
+
+    const newAccessToken = data.data.accessToken;
+    const newRefreshToken = data.data.refreshToken;
+
+    // [3] 상태 업데이트
+    login(newAccessToken, newRefreshToken);
+    processQueue(null, newAccessToken);
+    
+    return newAccessToken;
+
+  } catch (error) {
+    // 갱신 실패 (RefreshToken 만료/위변조/재사용 감지 등) -> 로그아웃
+    processQueue(error, null);
+    useAuthStore.getState().logout();
+    
+    if (typeof window !== 'undefined') {
+       // 데이터 보호를 위해 confirm을 띄우거나, 조용히 로그인 페이지로 이동
+       // window.location.href = '/login';
+    }
+    throw error;
+  }
+}
+
+// 2. 응답 인터셉터: 401 발생 시 토큰 갱신 (Web Lock 적용)
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 응답 자체가 없는 네트워크 에러 등은 바로 reject
     if (!error.response) return Promise.reject(error);
     
     const status = error.response.status;
@@ -54,30 +122,15 @@ http.interceptors.response.use(
     // 401(Unauthorized) 에러이고, 아직 재시도하지 않은 요청인 경우
     if ((status === 401 || status === 403) && !originalRequest._retry) {
       
-      // [안전장치 1] 이미 갱신된 토큰이 있는지 스토어 메모리 확인 (동시성 요청 제어)
-      const { accessToken: currentAccessToken, refreshToken: currentRefreshToken, login, logout } = useAuthStore.getState();
-      const requestAccessToken = originalRequest.headers['Authorization']?.split(' ')[1];
-
-      // 요청 보낼 때 쓴 토큰과 현재 스토어 토큰이 다르다면? => 이미 누군가 갱신함!
-      if (currentAccessToken && requestAccessToken && currentAccessToken !== requestAccessToken) {
-        originalRequest.headers['Authorization'] = `Bearer ${currentAccessToken}`;
-        return http(originalRequest);
-      }
-
-      // 이미 갱신 프로세스가 진행 중이라면 큐에 넣고 대기
+      // [Case 1] 이미 같은 탭 내에서 갱신이 진행 중이라면 큐에 대기
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            const newConfig = {
-              ...originalRequest,
-              headers: {
-                ...originalRequest.headers,
-                'Authorization': `Bearer ${token}`
-              }
-            };
-            return http(newConfig);
+             if (!originalRequest.headers) originalRequest.headers = {};
+             originalRequest.headers['Authorization'] = `Bearer ${token}`;
+             return http(originalRequest);
           })
           .catch((err) => Promise.reject(err));
       }
@@ -85,93 +138,27 @@ http.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
+      // [Case 2] 브라우저 탭 간 동기화를 위한 Web Locks API 사용
+      // 'navigator.locks'를 통해 여러 탭이 동시에 갱신을 시도해도 순차적으로 처리되도록 보장
       try {
-        // [안전장치 2] 로컬 스토리지 직접 확인 (멀티 탭 이슈 해결의 핵심!)
-        // 다른 탭에서 리프레시를 했다면 localStorage에는 최신 값이 있지만, 
-        // 현재 탭의 메모리(Zustand)에는 옛날 값이 있을 수 있음.
-        // 옛날 RefreshToken을 보내면 백엔드가 "토큰 탈취"로 간주하고 로그아웃 시키므로 이를 방지해야 함.
-        let actualRefreshToken = currentRefreshToken;
-        let actualAccessToken = currentAccessToken;
-
-        if (typeof window !== 'undefined') {
-          const storageData = localStorage.getItem('auth-storage'); // Zustand persist 키
-          if (storageData) {
-            const parsed = JSON.parse(storageData);
-            const storedRefreshToken = parsed.state?.refreshToken;
-            const storedAccessToken = parsed.state?.accessToken;
-
-            // 로컬 스토리지의 토큰이 현재 메모리보다 최신(다름)이라면?
-            if (storedRefreshToken && storedRefreshToken !== currentRefreshToken) {
-              // 갱신 요청 보내지 말고 스토어를 최신화하고 재시도
-              login(storedAccessToken, storedRefreshToken);
-              processQueue(null, storedAccessToken);
-              
-              const newConfig = {
-                ...originalRequest,
-                headers: { ...originalRequest.headers, 'Authorization': `Bearer ${storedAccessToken}` }
-              };
-              return http(newConfig);
-            }
-            // 최신 토큰 정보를 변수에 업데이트 (갱신 요청에 사용)
-            if (storedRefreshToken) actualRefreshToken = storedRefreshToken;
-            if (storedAccessToken) actualAccessToken = storedAccessToken;
-          }
+        let newToken;
+        
+        if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+          // Lock을 획득한 놈만 handleTokenRefresh 실행
+          newToken = await (navigator as any).locks.request('auth-refresh-lock', async () => {
+             return await handleTokenRefresh();
+          });
+        } else {
+          // Web Locks 미지원 브라우저 폴백 (거의 없겠지만 안전장치)
+          newToken = await handleTokenRefresh();
         }
 
-        // 토큰이 아예 없으면 갱신 시도 불가 -> 로그아웃
-        if (!actualAccessToken || !actualRefreshToken) {
-          throw new Error('Tokens are missing for reissue');
-        }
-
-        // 🛠️ 토큰 갱신 요청 (Backend: POST /api/auth/reissue)
-        const { data } = await axios.post(
-          `${BASE_URL}/api/auth/reissue`,
-          { 
-            accessToken: actualAccessToken, 
-            refreshToken: actualRefreshToken 
-          },
-          { 
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true 
-          }
-        );
-
-        // RTR(Refresh Token Rotation): 새 토큰 받기
-        const newAccessToken = data.data.accessToken;
-        const newRefreshToken = data.data.refreshToken;
-
-        // 스토어 업데이트
-        login(newAccessToken, newRefreshToken);
-
-        // 큐에 대기 중이던 요청들 처리
-        processQueue(null, newAccessToken);
-
-        // 실패했던 원래 요청 재시도
-        const newConfig = {
-            ...originalRequest,
-            headers: {
-              ...originalRequest.headers,
-              'Authorization': `Bearer ${newAccessToken}`
-            }
-        };
-        return http(newConfig);
+        if (!originalRequest.headers) originalRequest.headers = {};
+        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+        return http(originalRequest);
 
       } catch (refreshError) {
-        // 갱신 실패 (RefreshToken 만료/위변조 등) -> 로그아웃 처리
-        processQueue(refreshError, null);
-        useAuthStore.getState().logout();
-        
-        // 🚨 작성 중인 데이터 보호를 위해 강제 리다이렉트는 최소화
-        // 401/403 등 명확한 인증 실패일 때만 로그인 페이지로 이동
-        // (단, 페이지 새로고침은 하지 않음 -> SPA 라우팅이 더 안전하지만 여기선 href 사용 시 주의)
-        if (typeof window !== 'undefined') {
-           // 글쓰기 페이지 등에서 갑자기 튕기는 것보다, 저장이 안 된다는 걸 알리는게 나음
-           console.error('Session expired. Please login again.');
-           // window.location.href = '/login'; // 👈 이 코드가 강제 새로고침을 유발하여 데이터를 날립니다.
-           // 대신 메인화면으로 튕기거나 모달을 띄우는게 좋지만, 일단 주석 처리하거나 신중히 사용하세요.
-           // 정말 만료되어 갱신 불가할 때만 이동:
-           alert('세션이 만료되었습니다. 새 창에서 로그인해주세요.');
-        }
+        // 갱신 실패 시
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
