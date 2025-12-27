@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: home-server
+    runs-on: blog-frontend
     steps:
       # 👇 [추가] Docker CLI 설치 단계
       - name: Install Docker CLI
