@@ -1,5 +1,5 @@
-name: Deploy Next.js to Home Server
-run-name: ${{ gitea.actor }} is deploying Blog 🚀
+name: Deploy blog-frontend
+run-name: ${{ gitea.actor }} is deploying Blog
 
 # 1. 언제 실행할까요? -> main 브랜치에 코드가 푸시될 때
 on:
