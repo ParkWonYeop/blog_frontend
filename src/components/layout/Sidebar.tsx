@@ -368,8 +368,11 @@ function SidebarContent() {
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
-      <aside className={clsx('fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out overflow-y-auto scrollbar-hide', isOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full md:w-20 md:translate-x-0', 'flex flex-col')}>
-        <div className={clsx('p-6 text-center transition-opacity duration-200 relative group', !isOpen && 'md:opacity-0 md:hidden')}>
+      {/* 🛠️ [수정] overflow-y-auto 제거, overflow-hidden 추가 */}
+      <aside className={clsx('fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out flex flex-col overflow-hidden', isOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full md:w-20 md:translate-x-0')}>
+        
+        {/* 🛠️ [수정] 고정 영역: 프로필 (shrink-0 추가) */}
+        <div className={clsx('p-6 text-center transition-opacity duration-200 relative group shrink-0', !isOpen && 'md:opacity-0 md:hidden')}>
           {isAdmin && (
             <button onClick={handleEditClick} className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10" title="프로필 수정">
               <Edit3 size={16} />
@@ -402,96 +405,104 @@ function SidebarContent() {
           </Link>
         </div>
 
-        <nav className="flex-1 px-4 py-2 flex flex-col">
-          <div className={clsx('flex flex-col items-center gap-4 mt-4', isOpen && 'hidden')}><Folder size={24} className="text-gray-400" /></div>
+        {/* 🛠️ [수정] min-h-0 추가하여 내부 스크롤 동작 보장 */}
+        <nav className="flex-1 px-4 py-2 flex flex-col min-h-0">
+          <div className={clsx('flex flex-col items-center gap-4 mt-4 shrink-0', isOpen && 'hidden')}><Folder size={24} className="text-gray-400" /></div>
           
-          <div className={clsx('space-y-1 flex-1', !isOpen && 'md:hidden')}>
+          <div className={clsx('flex flex-col h-full', !isOpen && 'md:hidden')}>
             
-            {/* 🆕 전체 검색바 (Archives 위) - 수정됨: 그림자 제거 */}
-            <div className="px-1 mb-6 mt-2">
-              <PostSearch 
-                onSearch={handleSearch} 
-                placeholder="검색..." 
-                initialKeyword={keyword}
-                // className="shadow-sm" // 🎨 제거됨: 배경 박스처럼 보이는 문제 해결
-              />
-            </div>
+            {/* 🛠️ [수정] 상단 고정 네비게이션 영역 (shrink-0) */}
+            <div className="shrink-0 space-y-1">
+              {/* 🆕 전체 검색바 (Archives 위) */}
+              <div className="px-1 mb-6 mt-2">
+                <PostSearch 
+                  onSearch={handleSearch} 
+                  placeholder="검색..." 
+                  initialKeyword={keyword}
+                />
+              </div>
 
-            {/* 2. 아카이브 링크 */}
-            <div className="mb-4">
-              <Link 
-                href="/archive"
-                className={clsx(
-                  'flex items-center gap-2.5 px-4 py-2 text-sm rounded-lg transition-all group',
-                  pathname === '/archive'
-                    ? 'bg-blue-50 text-blue-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                )}
-              >
-                <Archive size={16} />
-                <span>Archives</span>
-              </Link>
-            </div>
-
-            {/* 구분선 */}
-            <div className="border-t border-gray-100 mb-4" />
-
-            {/* 1. 카테고리 섹션 */}
-            <div className="flex items-center justify-between px-4 mb-3 h-8">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Categories</p>
-              {isAdmin && (
-                <div className="flex items-center gap-1">
-                  {!isCategoryEditMode ? (
-                    <button onClick={() => setIsCategoryEditMode(true)} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="카테고리 관리"><Settings size={14} /></button>
-                  ) : (
-                    <>
-                      <button onClick={() => handleAddCategory(null)} className="p-1 text-green-600 hover:bg-green-100 rounded" title="최상위 카테고리 추가"><Plus size={16} /></button>
-                      <button onClick={() => setIsCategoryEditMode(false)} className="p-1 text-gray-500 hover:bg-gray-100 rounded" title="관리 종료"><X size={16} /></button>
-                    </>
+              {/* 2. 아카이브 링크 */}
+              <div className="mb-4">
+                <Link 
+                  href="/archive"
+                  className={clsx(
+                    'flex items-center gap-2.5 px-4 py-2 text-sm rounded-lg transition-all group',
+                    pathname === '/archive'
+                      ? 'bg-blue-50 text-blue-600 font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
                   )}
-                </div>
-              )}
+                >
+                  <Archive size={16} />
+                  <span>Archives</span>
+                </Link>
+              </div>
+
+              {/* 구분선 */}
+              <div className="border-t border-gray-100 mb-4" />
+
+              {/* 1. 카테고리 섹션 헤더 (고정) */}
+              <div className="flex items-center justify-between px-4 mb-3 h-8">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Categories</p>
+                {isAdmin && (
+                  <div className="flex items-center gap-1">
+                    {!isCategoryEditMode ? (
+                      <button onClick={() => setIsCategoryEditMode(true)} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="카테고리 관리"><Settings size={14} /></button>
+                    ) : (
+                      <>
+                        <button onClick={() => handleAddCategory(null)} className="p-1 text-green-600 hover:bg-green-100 rounded" title="최상위 카테고리 추가"><Plus size={16} /></button>
+                        <button onClick={() => setIsCategoryEditMode(false)} className="p-1 text-gray-500 hover:bg-gray-100 rounded" title="관리 종료"><X size={16} /></button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             
-            {!categories && <div className="space-y-2 px-4">{[1, 2, 3].map((i) => <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />)}</div>}
+            {/* 🛠️ [수정] 스크롤 가능한 카테고리 리스트 영역 (flex-1, overflow-y-auto) */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide -mx-2 px-2">
+              {!categories && <div className="space-y-2 px-4">{[1, 2, 3].map((i) => <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />)}</div>}
 
-            <div 
-              className={clsx("min-h-[50px] transition-colors rounded-lg mb-6", isCategoryEditMode && "border-2 border-dashed", isRootDragOver ? "border-blue-500 bg-blue-50" : "border-transparent")}
-              onDragOver={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(true); e.dataTransfer.dropEffect = 'move'; } : undefined}
-              onDragLeave={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(false); } : undefined}
-              onDrop={isCategoryEditMode ? handleRootDrop : undefined}
-            >
-              {sortedCategories?.map((cat) => (
-                <CategoryItem key={cat.id} category={cat} depth={0} pathname={pathname} isEditMode={isCategoryEditMode} onDrop={handleMoveCategory} onAdd={handleAddCategory} onDelete={handleDeleteCategory} />
-              ))}
-              
-              {!isCategoryEditMode && (
-                <div className="mb-1 mt-2">
-                  <Link
-                    href="/category/uncategorized"
-                    className={clsx(
-                      'flex items-center gap-2.5 px-4 py-2 text-sm rounded-lg transition-all',
-                      pathname === '/category/uncategorized'
-                        ? 'bg-blue-50 text-blue-600 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    )}
-                  >
-                    <FileQuestion size={16} />
-                    <span>미분류</span>
-                  </Link>
-                </div>
-              )}
-              {isCategoryEditMode && categories?.length === 0 && <div className="text-center text-xs text-gray-400 py-4">+ 버튼을 눌러 카테고리를 추가하세요.</div>}
+              <div 
+                className={clsx("min-h-[50px] transition-colors rounded-lg mb-6", isCategoryEditMode && "border-2 border-dashed", isRootDragOver ? "border-blue-500 bg-blue-50" : "border-transparent")}
+                onDragOver={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(true); e.dataTransfer.dropEffect = 'move'; } : undefined}
+                onDragLeave={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(false); } : undefined}
+                onDrop={isCategoryEditMode ? handleRootDrop : undefined}
+              >
+                {sortedCategories?.map((cat) => (
+                  <CategoryItem key={cat.id} category={cat} depth={0} pathname={pathname} isEditMode={isCategoryEditMode} onDrop={handleMoveCategory} onAdd={handleAddCategory} onDelete={handleDeleteCategory} />
+                ))}
+                
+                {!isCategoryEditMode && (
+                  <div className="mb-1 mt-2">
+                    <Link
+                      href="/category/uncategorized"
+                      className={clsx(
+                        'flex items-center gap-2.5 px-4 py-2 text-sm rounded-lg transition-all',
+                        pathname === '/category/uncategorized'
+                          ? 'bg-blue-50 text-blue-600 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      )}
+                    >
+                      <FileQuestion size={16} />
+                      <span>미분류</span>
+                    </Link>
+                  </div>
+                )}
+                {isCategoryEditMode && categories?.length === 0 && <div className="text-center text-xs text-gray-400 py-4">+ 버튼을 눌러 카테고리를 추가하세요.</div>}
+              </div>
             </div>
+
           </div>
         </nav>
 
-        <div className={clsx('p-6 border-t border-gray-100 bg-white', !isOpen && 'hidden')}>
+        {/* 🛠️ [수정] 고정 영역: 푸터 (shrink-0 추가) */}
+        <div className={clsx('p-6 border-t border-gray-100 bg-white shrink-0', !isOpen && 'hidden')}>
           <div className="flex justify-center gap-3">
             <a href={displayProfile.githubUrl || '#'} target="_blank" rel="noreferrer" className="p-2.5 text-gray-500 bg-gray-50 rounded-full hover:bg-gray-800 hover:text-white transition-all shadow-sm"><Github size={18} /></a>
             <a href={`mailto:${displayProfile.email}`} className="p-2.5 text-gray-500 bg-gray-50 rounded-full hover:bg-blue-500 hover:text-white transition-all shadow-sm"><Mail size={18} /></a>
           </div>
-          <p className="text-center text-[10px] text-gray-300 mt-4 font-light">© 2024 {displayProfile.name}. All rights reserved.</p>
+          <p className="text-center text-[10px] text-gray-300 mt-4 font-light">© {new Date().getFullYear()} {displayProfile.name}. All rights reserved.</p>
         </div>
       </aside>
 
