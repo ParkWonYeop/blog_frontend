@@ -1,247 +1,277 @@
 'use client';
 
-import { useState, useEffect, Fragment, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createPost, updatePost, getPost } from '@/api/posts';
 import { getCategories } from '@/api/category';
-import { createPost } from '@/api/posts';
-import { uploadImage } from '@/api/image'; // 👈 추가
+import { uploadImage } from '@/api/image';
 import { useAuthStore } from '@/store/authStore';
-import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon, PhotoIcon } from '@heroicons/react/20/solid'; // 👈 아이콘 추가
-import { clsx } from 'clsx';
+import { Loader2, Save, Image as ImageIcon, ArrowLeft, Folder, UploadCloud } from 'lucide-react';
+// 🎨 UX 개선: 토스트 알림 사용
+import toast from 'react-hot-toast';
+import dynamic from 'next/dynamic';
 
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+const MDEditor = dynamic(
+  () => import('@uiw/react-md-editor').then((mod) => mod.default), 
+  { ssr: false }
+);
 
-export default function WritePage() {
+function WritePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const { role, _hasHydrated } = useAuthStore();
-  const fileInputRef = useRef<HTMLInputElement>(null); // 👈 파일 입력 참조
-  
+
+  const editSlug = searchParams.get('slug');
+  const isEditMode = !!editSlug;
+
   const [title, setTitle] = useState('');
-  const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [content, setContent] = useState<string>('**여기에 내용을 작성하세요.**');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false); // 👈 이미지 업로드 상태
+  const [content, setContent] = useState('**Hello world!**');
+  const [categoryId, setCategoryId] = useState<number | ''>('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    if (_hasHydrated && (!role || !role.includes('ADMIN'))) {
+      toast.error('관리자 권한이 필요합니다.'); // 🎨 Alert 대체
+      router.push('/');
+    }
+  }, [role, _hasHydrated, router]);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   });
 
-  const selectedCategoryName = (() => {
-    if (!categoryId || !categories) return '카테고리 선택';
-    for (const cat of categories) {
-      if (cat.id === categoryId) return cat.name;
-      if (cat.children) {
-        const child = cat.children.find(c => c.id === categoryId);
-        if (child) return child.name;
-      }
-    }
-    return '카테고리 선택';
-  })();
+  const { data: existingPost, isLoading: isLoadingPost } = useQuery({
+    queryKey: ['post', editSlug],
+    queryFn: () => getPost(editSlug!),
+    enabled: isEditMode,
+  });
 
   useEffect(() => {
-    if (!_hasHydrated) return;
-    if (!role || !role.includes('ADMIN')) {
-      alert('관리자만 접근 가능합니다.');
-      router.replace('/');
+    if (existingPost) {
+      setTitle(existingPost.title);
+      setContent(existingPost.content || '');
+      if (categories && existingPost.categoryName) {
+        const found = findCategoryByName(categories, existingPost.categoryName);
+        if (found) setCategoryId(found.id);
+      }
     }
-  }, [role, _hasHydrated, router]);
+  }, [existingPost, categories]);
 
-  // 👇 이미지 업로드 핸들러
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const findCategoryByName = (cats: any[], name: string): any => {
+    for (const cat of cats) {
+      if (cat.name === name) return cat;
+      if (cat.children) {
+        const found = findCategoryByName(cat.children, name);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const mutation = useMutation({
+    mutationFn: (data: any) => isEditMode ? updatePost(existingPost!.id, data) : createPost(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      if (isEditMode) {
+        queryClient.invalidateQueries({ queryKey: ['post', editSlug] });
+      }
+      // 🎨 UX 개선: 성공 메시지 토스트
+      toast.success(isEditMode ? '게시글이 수정되었습니다.' : '게시글이 발행되었습니다!');
+      router.push(isEditMode ? `/posts/${editSlug}` : '/');
+    },
+    onError: (err: any) => {
+      // 🎨 UX 개선: 에러 메시지 토스트
+      toast.error('저장 실패: ' + (err.response?.data?.message || err.message));
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      toast.error('제목과 내용을 입력해주세요.');
+      return;
+    }
+    if (categoryId === '') {
+      toast.error('카테고리를 선택해주세요.');
+      return;
+    }
+
+    mutation.mutate({
+      title,
+      content,
+      categoryId: Number(categoryId),
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
+    const uploadToast = toast.loading('이미지 업로드 중...'); // 🎨 업로드 로딩 표시
+
     try {
-      // 1. 서버로 이미지 전송
       const res = await uploadImage(file);
-      
       if (res.code === 'SUCCESS' && res.data) {
-        const imageUrl = res.data; // 서버가 준 이미지 URL
-        
-        // 2. 본문에 마크다운 이미지 문법 삽입
-        // 현재 내용 뒤에 추가하거나, 커서 위치를 찾아서 넣을 수 있습니다.
-        // 여기서는 간단히 맨 뒤에 한 줄 띄우고 추가합니다.
-        const imageMarkdown = `\n![${file.name}](${imageUrl})\n`;
-        setContent((prev) => prev + imageMarkdown);
-      } else {
-        alert('이미지 업로드 실패: ' + res.message);
+        const imageUrl = res.data;
+        const markdownImage = `![image](${imageUrl})`;
+        setContent((prev) => prev + '\n' + markdownImage);
+        toast.success('이미지가 업로드되었습니다.', { id: uploadToast }); // 로딩 토스트를 성공으로 변경
       }
     } catch (error) {
-      console.error(error);
-      alert('이미지 업로드 중 오류가 발생했습니다.');
+      toast.error('이미지 업로드 실패', { id: uploadToast });
     } finally {
       setIsUploading(false);
-      // 같은 파일을 다시 선택할 수 있도록 input 초기화
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      e.target.value = '';
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return alert('제목을 입력해주세요.');
-    if (!categoryId) return alert('카테고리를 선택해주세요.');
-    if (!content.trim()) return alert('내용을 입력해주세요.');
-    if (!confirm('글을 발행하시겠습니까?')) return;
+  const onPaste = async (event: any) => {
+    const items = event.clipboardData?.items;
+    if (!items) return;
 
-    setIsSubmitting(true);
-    try {
-      await createPost({ title, content, categoryId });
-      alert('글이 성공적으로 발행되었습니다! 🎉');
-      router.push('/');
-    } catch (error: any) {
-      console.error(error);
-      alert('에러 발생: ' + (error.response?.data?.message || '서버 오류'));
-    } finally {
-      setIsSubmitting(false);
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (!file) return;
+
+        setIsUploading(true);
+        const uploadToast = toast.loading('이미지 업로드 중...');
+
+        try {
+          const res = await uploadImage(file);
+          if (res.code === 'SUCCESS' && res.data) {
+            const imageUrl = res.data;
+            const markdownImage = `![image](${imageUrl})`;
+            setContent((prev) => prev + '\n' + markdownImage);
+            toast.success('이미지 붙여넣기 완료!', { id: uploadToast });
+          }
+        } catch (error) {
+          toast.error('이미지 업로드 실패', { id: uploadToast });
+        } finally {
+          setIsUploading(false);
+        }
+      }
     }
   };
 
-  if (!_hasHydrated || !role) {
-    return <div className="min-h-screen flex justify-center items-center">로딩 중...</div>;
+  if (isEditMode && isLoadingPost) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin text-blue-500" size={40} />
+      </div>
+    );
   }
 
+  const renderCategoryOptions = (cats: any[], depth = 0) => {
+    return cats.map((cat) => (
+      <div key={cat.id}>
+        <label className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded transition-colors">
+          <input
+            type="radio"
+            name="category"
+            value={cat.id}
+            checked={categoryId === cat.id}
+            onChange={(e) => setCategoryId(Number(e.target.value))}
+            className="text-blue-600 focus:ring-blue-500"
+          />
+          <span style={{ marginLeft: depth * 10 + 'px' }} className={depth === 0 ? 'font-medium' : 'text-gray-600'}>
+            {depth > 0 && '- '} {cat.name}
+          </span>
+        </label>
+        {cat.children && renderCategoryOptions(cat.children, depth + 1)}
+      </div>
+    ));
+  };
+
   return (
-    <div className="max-w-4xl mx-auto pb-20 z-10 relative">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">새 글 작성 ✍️</h1>
+    <div className="max-w-5xl mx-auto px-4 py-8" onPaste={onPaste}>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-800">{isEditMode ? '게시글 수정' : '새 글 작성'}</h1>
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={mutation.isPending || isUploading}
+          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 shadow-md hover:shadow-lg transform active:scale-95 duration-200"
+        >
+          {mutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+          {isEditMode ? '수정하기' : '발행하기'}
+        </button>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-20">
-          <div className="col-span-1">
-            <Listbox value={categoryId} onChange={setCategoryId}>
-              <div className="relative mt-1">
-                <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-3 pl-4 pr-10 text-left border border-gray-300 focus:outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300 sm:text-sm transition-all shadow-sm">
-                  <span className={clsx("block truncate", !categoryId && "text-gray-400")}>
-                    {selectedCategoryName}
-                  </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <ChevronUpDownIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </Listbox.Button>
-                
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options className="absolute mt-2 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-50">
-                    {categories?.map((cat) => (
-                      <Fragment key={cat.id}>
-                        <div className="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-50 uppercase tracking-wider">
-                          {cat.name}
-                        </div>
-                        
-                        <Listbox.Option
-                          value={cat.id}
-                          className={({ active }) =>
-                            clsx(
-                              'relative cursor-default select-none py-2.5 pl-10 pr-4',
-                              active ? 'bg-blue-50 text-blue-600' : 'text-gray-900'
-                            )
-                          }
-                        >
-                          {({ selected }) => (
-                            <>
-                              <span className={clsx('block truncate font-medium', selected && 'text-blue-600')}>
-                                {cat.name} (전체)
-                              </span>
-                              {selected && (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
-                                  <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </Listbox.Option>
-
-                        {cat.children?.map((child) => (
-                          <Listbox.Option
-                            key={child.id}
-                            value={child.id}
-                            className={({ active }) =>
-                              clsx(
-                                'relative cursor-default select-none py-2.5 pl-10 pr-4',
-                                active ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                              )
-                            }
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span className={clsx('block truncate ml-4 border-l-2 border-gray-200 pl-3', selected && 'font-semibold text-blue-600 border-blue-600')}>
-                                  {child.name}
-                                </span>
-                                {selected && (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
-                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
-              </div>
-            </Listbox>
-          </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3 space-y-4">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
-            className="col-span-3 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg shadow-sm"
+            className="w-full text-3xl font-bold placeholder:text-gray-300 border-none outline-none py-2 bg-transparent"
           />
-        </div>
-
-        <div className="relative z-10">
-          {/* 👇 이미지 업로드 버튼 영역 추가 */}
-          <div className="flex justify-end mb-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageUpload}
+          <div data-color-mode="light">
+            <MDEditor
+              value={content}
+              onChange={(val) => setContent(val || '')}
+              height={600}
+              preview="edit"
+              className="border border-gray-200 rounded-lg shadow-sm !font-sans"
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm"
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm sticky top-6">
+            <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <Folder size={18} /> 카테고리
+            </h3>
+            <div className="max-h-60 overflow-y-auto space-y-1 text-sm border-t border-gray-100 pt-2 scrollbar-thin scrollbar-thumb-gray-200">
+              {categories ? renderCategoryOptions(categories) : <p className="text-gray-400 text-sm">로딩 중...</p>}
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm sticky top-[300px]">
+            <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <ImageIcon size={18} /> 이미지 업로드
+            </h3>
+            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+              에디터에 이미지를 <br/><strong>복사 & 붙여넣기(Ctrl+V)</strong> 하거나<br/> 아래 버튼을 사용하세요.
+            </p>
+            
+            <label 
+              className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-400 transition-all duration-200 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
             >
-              {isUploading ? (
-                <span className="animate-pulse">업로드 중...</span>
-              ) : (
-                <>
-                  <PhotoIcon className="w-4 h-4" />
-                  <span>이미지 추가</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          <div data-color-mode="light" className="editor-container">
-            <MDEditor value={content} onChange={(val) => setContent(val || '')} height={500} preview="live" className="rounded-lg border border-gray-200 shadow-sm" />
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <UploadCloud className="w-8 h-8 text-gray-400 mb-2 group-hover:text-blue-500" />
+                <p className="text-xs text-gray-500 font-medium">
+                  {isUploading ? '업로드 중...' : '클릭하여 이미지 선택'}
+                </p>
+              </div>
+              <input 
+                type="file" 
+                className="hidden" 
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={isUploading}
+              />
+            </label>
           </div>
         </div>
-
-        <div className="flex justify-end gap-4 mt-8 relative z-10">
-           <button type="button" onClick={() => router.back()} className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-medium transition-colors">취소</button>
-           <button type="submit" disabled={isSubmitting || isUploading} className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold shadow-md transition-all transform hover:-translate-y-1 disabled:bg-gray-400">{isSubmitting ? '발행 중...' : '글 발행하기 🚀'}</button>
-        </div>
-      </form>
+      </div>
     </div>
+  );
+}
+
+export default function WritePage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-blue-500" /></div>}>
+      <WritePageContent />
+    </Suspense>
   );
 }

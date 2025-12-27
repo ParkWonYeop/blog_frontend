@@ -43,9 +43,6 @@ export default function PostCard({ post }: { post: Post }) {
 
         {/* 하단 정보 */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <span>By Dev Park</span>
-          </div>
           <span className="text-xs font-medium text-blue-500 flex items-center gap-1">
             Read more <span className="group-hover:translate-x-1 transition-transform">→</span>
           </span>

@@ -46,7 +46,7 @@ export default function SignupPage() {
     try {
       const res = await verifyEmail({ email: registeredEmail, code: verifyCode });
       if (res.code === 'SUCCESS') {
-        alert('✅ 인증되었습니다! 로그인 페이지로 이동합니다.');
+        alert('인증되었습니다! 로그인 페이지로 이동합니다.');
         router.push('/login');
       } else {
         alert('인증 실패: ' + res.message);
@@ -64,9 +64,9 @@ export default function SignupPage() {
         
         {/* 헤더 */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">회원가입 🚀</h1>
+          <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
           <p className="text-sm text-gray-500 mt-2">
-            {step === 'FORM' ? '정보를 입력하고 인증 메일을 받으세요.' : '이메일로 전송된 6자리 코드를 입력하세요.'}
+            {step === 'FORM' ? '' : '이메일로 전송된 6자리 코드를 입력하세요.'}
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export default function SignupPage() {
               <input
                 {...register('nickname', { required: '닉네임을 입력해주세요.' })}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="개발자박씨"
+                placeholder="개발자"
               />
               {errors.nickname && <p className="text-red-500 text-xs mt-1">{errors.nickname.message}</p>}
             </div>

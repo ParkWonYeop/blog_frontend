@@ -1,86 +1,92 @@
-// src/app/login/page.tsx
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { login } from '@/api/auth';
-import { useAuthStore } from '@/store/authStore';
-import { LoginRequest } from '@/types';
-import Link from 'next/link'; // 👈 추가
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
+import { login } from '@/api/auth';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login: setLoginState } = useAuthStore();
-  const [loading, setLoading] = useState(false); // 로딩 상태 추가
+  
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginRequest>();
-
-  const onSubmit = async (data: LoginRequest) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
-      const res = await login(data);
-      
+      const res = await login(formData);
       if (res.code === 'SUCCESS' && res.data) {
-        setLoginState(res.data.accessToken);
-        // alert('환영합니다! 😎');
+        // ✨ 수정됨: AccessToken과 RefreshToken 모두 저장
+        setLoginState(res.data.accessToken, res.data.refreshToken);
+        
+        // 로그인 성공 후 메인으로 이동
         router.push('/');
       } else {
-        alert('로그인 실패: ' + res.message);
+        setError(res.message || '로그인에 실패했습니다.');
       }
-    } catch (error: any) {
-      console.error(error);
-      alert('로그인 중 오류가 발생했습니다: ' + (error.response?.data?.message || '서버 오류'));
+    } catch (err: any) {
+      setError(err.response?.data?.message || '로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">로그인 🔐</h1>
-          <p className="text-sm text-gray-500 mt-2">블로그 관리자 및 회원 로그인</p>
+          <h1 className="text-3xl font-bold text-gray-900">로그인</h1>
+          <p className="text-gray-500 mt-2">블로그에 오신 것을 환영합니다.</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
             <input
-              {...register('email', { required: '이메일을 입력해주세요.' })}
               type="email"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              placeholder="user@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              placeholder="example@email.com"
+              required
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
             <input
-              {...register('password', { required: '비밀번호를 입력해주세요.' })}
               type="password"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               placeholder="••••••••"
+              required
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
+
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors disabled:bg-gray-400"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-blue-400 flex justify-center items-center gap-2"
           >
-            {loading ? '로그인 중...' : '로그인하기'}
+            {loading && <Loader2 className="animate-spin" size={20} />}
+            로그인
           </button>
         </form>
-        
-        {/* 회원가입 링크 추가 */}
+
         <div className="mt-6 text-center text-sm text-gray-500">
           계정이 없으신가요?{' '}
-          <Link href="/signup" className="text-blue-600 font-semibold hover:underline">
-            회원가입하기
+          <Link href="/signup" className="text-blue-600 font-medium hover:underline">
+            회원가입
           </Link>
         </div>
       </div>

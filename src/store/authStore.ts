@@ -1,30 +1,58 @@
-// src/store/authStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+// 🛠️ 보안 개선: jwt-decode 라이브러리 사용 (npm install jwt-decode 필요)
+import { jwtDecode } from 'jwt-decode';
+
+// 토큰에서 추출할 사용자 정보 타입
+interface UserInfo {
+  memberId: number;
+  nickname: string;
+  email: string;
+}
+
+// JWT Payload 타입 정의
+interface JwtPayload {
+  userId?: number;
+  memberId?: number;
+  id?: number;
+  role?: string;
+  roles?: string;
+  auth?: string;
+  nickname?: string;
+  name?: string;
+  sub?: string;
+  [key: string]: any;
+}
 
 interface AuthState {
   accessToken: string | null;
+  refreshToken: string | null;
   isLoggedIn: boolean;
   role: string | null;
-  _hasHydrated: boolean; // 👈 추가: 데이터 로딩 완료 여부
-  
-  login: (token: string) => void;
+  user: UserInfo | null;
+  _hasHydrated: boolean;
+  login: (accessToken: string, refreshToken?: string) => void;
   logout: () => void;
-  setHydrated: () => void; // 👈 추가: 로딩 완료 상태 변경 함수
+  setHydrated: () => void;
 }
 
-// ... (getRoleFromToken 함수는 기존과 동일하게 유지하거나, 아래에 포함시켰습니다) ...
-const getRoleFromToken = (token: string): string => {
+// 🛠️ 개선됨: 라이브러리를 사용한 안전한 파싱
+const parseToken = (token: string): { role: string; user: UserInfo | null } => {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    const decoded = JSON.parse(jsonPayload);
-    return decoded.role || decoded.roles || decoded.auth || 'USER';
+    const decoded = jwtDecode<JwtPayload>(token);
+
+    return {
+      // 권한 정보 매핑 (백엔드 키값에 따라 유동적 대응)
+      role: decoded.role || decoded.roles || decoded.auth || 'USER',
+      user: {
+        memberId: Number(decoded.userId || decoded.memberId || decoded.id || 0),
+        nickname: decoded.nickname || decoded.name || 'User',
+        email: decoded.sub || '',
+      }
+    };
   } catch (e) {
-    return 'USER';
+    // console.error('Token parsing error:', e);
+    return { role: 'USER', user: null };
   }
 };
 
@@ -32,28 +60,42 @@ export const useAuthStore = create(
   persist<AuthState>(
     (set) => ({
       accessToken: null,
+      refreshToken: null,
       isLoggedIn: false,
       role: null,
-      _hasHydrated: false, // 초기값은 로딩 안됨
-
-      login: (token: string) => {
-        const role = getRoleFromToken(token);
-        const finalRole = Array.isArray(role) ? role[0] : role;
-        set({ accessToken: token, isLoggedIn: true, role: finalRole });
+      user: null,
+      _hasHydrated: false,
+      
+      login: (accessToken: string, refreshToken?: string) => {
+        const { role, user } = parseToken(accessToken);
+        set({ 
+          accessToken, 
+          refreshToken: refreshToken || null, 
+          isLoggedIn: true, 
+          role,
+          user 
+        });
       },
-
-      logout: () => set({ accessToken: null, isLoggedIn: false, role: null }),
-
+      
+      logout: () => set({ 
+        accessToken: null, 
+        refreshToken: null, 
+        isLoggedIn: false, 
+        role: null,
+        user: null 
+      }),
+      
       setHydrated: () => set({ _hasHydrated: true }),
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage), // 명시적 스토리지 설정
-      
-      // 👇 핵심: 데이터를 다 불러오면(rehydrate) 실행되는 함수
+      storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },
+      // 💡 추가 팁: 보안상 민감한 refreshToken은 localStorage 저장을 제외하고 싶다면
+      // partial settings를 사용할 수 있습니다. (로그인 유지를 위해선 백엔드 쿠키가 필요)
+      // partialize: (state) => ({ accessToken: state.accessToken, isLoggedIn: state.isLoggedIn, user: state.user, role: state.role }),
     }
   )
 );
