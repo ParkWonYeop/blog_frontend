@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // 🎨 이미지 최적화를 위해 next/image 사용
@@ -79,6 +79,12 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
     }
   };
 
+  // 🆕 하위 카테고리도 ID 순으로 정렬
+  const sortedChildren = useMemo(() => {
+    if (!category.children) return [];
+    return [...category.children].sort((a, b) => a.id - b.id);
+  }, [category.children]);
+
   return (
     <div className="mb-1">
       <div 
@@ -131,9 +137,9 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
         )}
       </div>
 
-      {category.children && category.children.length > 0 && (
+      {sortedChildren.length > 0 && (
         <div className="border-l-2 border-gray-100 ml-4">
-          {category.children.map((child) => (
+          {sortedChildren.map((child) => (
             <CategoryItem 
               key={child.id} 
               category={child} 
@@ -180,6 +186,12 @@ export default function Sidebar() {
     queryKey: ['categories'],
     queryFn: getCategories,
   });
+
+  // 🆕 최상위 카테고리 ID 순 정렬
+  const sortedCategories = useMemo(() => {
+    if (!categories) return undefined;
+    return [...categories].sort((a, b) => a.id - b.id);
+  }, [categories]);
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile'],
@@ -373,7 +385,7 @@ export default function Sidebar() {
               onDragLeave={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(false); } : undefined}
               onDrop={isCategoryEditMode ? handleRootDrop : undefined}
             >
-              {categories?.map((cat) => (
+              {sortedCategories?.map((cat) => (
                 <CategoryItem key={cat.id} category={cat} depth={0} pathname={pathname} isEditMode={isCategoryEditMode} onDrop={handleMoveCategory} onAdd={handleAddCategory} onDelete={handleDeleteCategory} />
               ))}
               
