@@ -3,7 +3,7 @@ import './globals.css';
 import Providers from './providers';
 import Sidebar from '@/components/layout/Sidebar';
 import TopHeader from '@/components/layout/TopHeader';
-import Script from 'next/script'; // 👈 Script 컴포넌트 임포트
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'WYPark Blog',
@@ -21,8 +21,7 @@ export default function RootLayout({
         <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
       </head>
       <body className="bg-[#f8f9fa] text-gray-800">
-        {/* 🌟 Google Analytics 스크립트 추가 */}
-        {/* strategy="afterInteractive"는 페이지가 로드된 직후 스크립트를 실행하여 성능을 최적화합니다. */}
+        {/* 🌟 Google Analytics 스크립트 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2GLCM9ZKMK"
           strategy="afterInteractive"
@@ -46,7 +45,9 @@ export default function RootLayout({
             <main className="flex-1 transition-all duration-300 md:ml-72 w-full relative">
               <TopHeader />
 
-              <div className="max-w-4xl mx-auto p-6 md:p-12 pt-20">
+              {/* 🛠️ 수정됨: max-w-4xl 제한을 제거하고 w-full로 변경 */}
+              {/* 이제 각 페이지(page.tsx)에서 원하는 너비를 설정할 수 있습니다. */}
+              <div className="w-full mx-auto p-4 md:p-8 pt-20">
                 {children}
               </div>
             </main>

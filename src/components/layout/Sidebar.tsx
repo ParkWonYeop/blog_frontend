@@ -194,6 +194,8 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
 
 function SidebarContent() {
   const [isOpen, setIsOpen] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // 🛠️ [Fix] 하이드레이션 매칭을 위한 상태 추가
+
   const pathname = usePathname();
   const { role, _hasHydrated } = useAuthStore();
   const queryClient = useQueryClient();
@@ -202,6 +204,10 @@ function SidebarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
+
+  useEffect(() => {
+    setIsMounted(true); // 🛠️ [Fix] 클라이언트 마운트 후 true로 설정
+  }, []);
 
   const handleSearch = (newKeyword: string) => {
     if (newKeyword.trim()) {
@@ -380,7 +386,8 @@ function SidebarContent() {
           )}
           <Link href="/" className="block hover:opacity-80 transition-opacity">
             <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full mb-4 overflow-hidden shadow-inner ring-4 ring-gray-50 relative">
-              {isProfileLoading ? (
+              {/* 🛠️ [Fix] isMounted를 체크하여 첫 렌더링 시 무조건 스켈레톤을 보여줍니다. (서버와 일치시킴) */}
+              {!isMounted || isProfileLoading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />
               ) : (
                 <Image 
@@ -394,7 +401,8 @@ function SidebarContent() {
                 />
               )}
             </div>
-            {isProfileLoading ? (
+            {/* 🛠️ [Fix] 텍스트 영역도 동일하게 처리 */}
+            {!isMounted || isProfileLoading ? (
               <div className="space-y-2 flex flex-col items-center"><div className="h-6 w-24 bg-gray-200 rounded animate-pulse" /><div className="h-4 w-32 bg-gray-100 rounded animate-pulse" /></div>
             ) : (
               <>

@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-// 🛠️ 보안 패치: rehype-sanitize 추가 (반드시 npm install rehype-sanitize 실행 필요)
 import rehypeSanitize from 'rehype-sanitize'; 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check, Terminal, ExternalLink } from 'lucide-react';
 import { clsx } from 'clsx';
+import rehypeSlug from 'rehype-slug';
 
 interface MarkdownRendererProps {
   content: string;
@@ -19,8 +19,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        // 🛡️ 중요: 여기서 HTML 태그를 소독하여 XSS 공격 방지
-        rehypePlugins={[rehypeSanitize]} 
+        rehypePlugins={[rehypeSanitize, rehypeSlug]}
         components={{
           // 1. 코드 블록 커스텀
           code({ node, inline, className, children, ...props }: any) {
@@ -89,34 +88,35 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return <td className="px-6 py-4 border-b border-gray-100 whitespace-pre-wrap">{children}</td>;
           },
 
-          // 5. 이미지
+          // 5. 이미지 (비율 유지 및 중앙 정렬)
           img({ src, alt }) {
             return (
-              <span className="block my-8">
+              // 🛠️ [Fix] flex-col 추가: 이미지와 캡션을 세로로 정렬
+              // items-center 추가: 가로축 중앙 정렬
+              <span className="block my-8 flex flex-col items-center justify-center">
                 <img 
                   src={src} 
                   alt={alt} 
-                  className="rounded-xl shadow-lg border border-gray-100 w-full object-cover max-h-[600px] hover:scale-[1.01] transition-transform duration-300" 
+                  className="rounded-xl shadow-lg border border-gray-100 max-w-full h-auto max-h-[700px] mx-auto hover:scale-[1.01] transition-transform duration-300" 
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-                {alt && <span className="block text-center text-sm text-gray-400 mt-2">{alt}</span>}
+                {alt && <span className="block text-center text-sm text-gray-400 mt-2 w-full">{alt}</span>}
               </span>
             );
           },
 
-          // 6. 리스트 스타일 (여기가 문제였음)
+          // 6. 리스트 스타일
           ul({ children }) {
             return <ul className="list-disc pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-400">{children}</ul>;
           },
-          // 🛠️ 수정됨: ...props를 전달하여 start 속성을 적용
           ol({ children, ...props }: any) {
             return (
               <ol 
                 className="list-decimal pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-500 font-medium" 
-                {...props} // 👈 이게 있어야 start="3" 같은 속성이 적용됨
+                {...props}
               >
                 {children}
               </ol>
@@ -126,15 +126,15 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return <li className="pl-1">{children}</li>;
           },
 
-          // 7. 헤딩 스타일
-          h1({ children }) {
-            return <h1 className="text-3xl font-extrabold mt-12 mb-6 pb-4 border-b border-gray-100 text-gray-900">{children}</h1>;
+          // 7. 헤딩 스타일 (🛠️ 수정: ...props를 전달해야 id가 붙어서 목차 이동이 작동함)
+          h1({ children, ...props }: any) {
+            return <h1 className="text-3xl font-extrabold mt-12 mb-6 pb-4 border-b border-gray-100 text-gray-900" {...props}>{children}</h1>;
           },
-          h2({ children }) {
-            return <h2 className="text-2xl font-bold mt-10 mb-5 pb-2 text-gray-800">{children}</h2>;
+          h2({ children, ...props }: any) {
+            return <h2 className="text-2xl font-bold mt-10 mb-5 pb-2 text-gray-800" {...props}>{children}</h2>;
           },
-          h3({ children }) {
-            return <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center gap-2 before:content-[''] before:w-1.5 before:h-6 before:bg-blue-500 before:rounded-full before:mr-1">{children}</h3>;
+          h3({ children, ...props }: any) {
+            return <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center gap-2 before:content-[''] before:w-1.5 before:h-6 before:bg-blue-500 before:rounded-full before:mr-1" {...props}>{children}</h3>;
           },
         }}
       >

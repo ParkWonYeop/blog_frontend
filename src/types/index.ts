@@ -5,6 +5,12 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+// 🆕 인접 게시글 정보 (이전글/다음글)
+export interface PostNeighbor {
+  slug: string;
+  title: string;
+}
+
 // 2. 게시글 (Post) 타입
 export interface Post {
   id: number;
@@ -14,7 +20,10 @@ export interface Post {
   viewCount: number;
   createdAt: string;
   content?: string;
-  tags: string[]; // 🆕 태그 배열 속성 추가
+  tags: string[];
+  // 🆕 백엔드 변경 사항 반영: 이전글/다음글 정보 추가
+  prevPost?: PostNeighbor | null;
+  nextPost?: PostNeighbor | null;
 }
 
 // 3. 게시글 목록 페이징 응답
@@ -37,7 +46,7 @@ export interface AuthResponse {
 export interface Category {
   id: number;
   name: string;
-  parentId?: number | null; // 🆕 부모 카테고리 ID 추가
+  parentId?: number | null;
   children: Category[];
 }
 
