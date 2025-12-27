@@ -1,4 +1,3 @@
-// src/app/signup/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -59,7 +58,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+    // 🎨 배경색 수정: bg-gray-50 -> bg-white
+    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
         
         {/* 헤더 */}
@@ -137,7 +137,7 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors disabled:bg-gray-400"
             >
-              {loading ? '확인 중...' : '인증 완료'}
+              {loading ? '처리 중...' : '인증 완료'}
             </button>
             
             <button

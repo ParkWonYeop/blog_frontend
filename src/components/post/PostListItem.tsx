@@ -2,23 +2,42 @@ import Link from 'next/link';
 import { Post } from '@/types';
 import { format } from 'date-fns';
 import { Eye } from 'lucide-react';
+import { clsx } from 'clsx';
 
 interface PostListItemProps {
   post: Post;
 }
 
 export default function PostListItem({ post }: PostListItemProps) {
+  // 📢 공지 카테고리 여부 확인
+  const isNotice = post.categoryName === '공지' || post.categoryName.toLowerCase() === 'notice';
+
   return (
     <Link href={`/posts/${post.slug}`} className="block group">
-      <div className="flex items-center justify-between py-4 border-b border-gray-100 hover:bg-gray-50 px-4 -mx-4 rounded-lg transition-colors">
+      <div className={clsx(
+        "flex items-center justify-between py-4 border-b px-4 -mx-4 rounded-lg transition-colors",
+        isNotice 
+          ? "border-red-50 hover:bg-red-50/30" // 공지일 때 배경색 살짝 붉게
+          : "border-gray-100 hover:bg-gray-50"
+      )}>
         <div className="flex items-center gap-4 flex-1 min-w-0">
-            {/* 카테고리 라벨 (작은 화면에선 숨김 처리 가능) */}
-            <span className="hidden sm:inline-block px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-medium whitespace-nowrap">
-              {post.categoryName}
+            {/* 카테고리 라벨 */}
+            <span className={clsx(
+              "hidden sm:inline-block px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap",
+              isNotice 
+                ? "bg-red-100 text-red-600 font-bold" // 🔴 공지 스타일 강조
+                : "bg-slate-100 text-slate-600"
+            )}>
+              {isNotice && '📢 '}{post.categoryName}
             </span>
 
             {/* 제목 */}
-            <h3 className="text-base font-medium text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className={clsx(
+              "text-base font-medium truncate transition-colors",
+              isNotice 
+                ? "text-gray-900 group-hover:text-red-600 font-semibold" 
+                : "text-gray-800 group-hover:text-blue-600"
+            )}>
               {post.title}
             </h3>
         </div>

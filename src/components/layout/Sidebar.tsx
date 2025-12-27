@@ -11,12 +11,13 @@ import { getProfile, updateProfile } from '@/api/profile';
 import { uploadImage } from '@/api/image';
 import { 
   Github, Mail, Menu, X, ChevronRight, Folder, FolderOpen, 
-  Edit3, Camera, Save, XCircle, Plus, Trash2, Move, Settings, FileQuestion 
+  Edit3, Camera, Save, XCircle, Plus, Trash2, Move, Settings, FileQuestion,
+  Archive
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Profile, ProfileUpdateRequest, Category } from '@/types';
 import { useAuthStore } from '@/store/authStore';
-import toast from 'react-hot-toast'; // 🎨 Toast 추가
+import toast from 'react-hot-toast'; 
 
 const findCategoryNameById = (categories: Category[], id: number): string | undefined => {
   for (const cat of categories) {
@@ -41,6 +42,28 @@ interface CategoryItemProps {
 
 function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, onDelete }: CategoryItemProps) {
   const isActive = decodeURIComponent(pathname) === `/category/${category.name}`;
+  
+  // 🆕 1. 하위 항목 중에 현재 활성화된 페이지가 있는지 확인 (재귀 체크)
+  const hasActiveChild = useMemo(() => {
+    const check = (cats: Category[] | undefined): boolean => {
+      if (!cats) return false;
+      return cats.some(c => 
+        decodeURIComponent(pathname) === `/category/${c.name}` || check(c.children)
+      );
+    };
+    return check(category.children);
+  }, [category.children, pathname]);
+
+  // 🆕 2. 펼침 상태 관리 (자신이 활성화됐거나 하위가 활성화됐으면 기본값 true)
+  const [isExpanded, setIsExpanded] = useState(isActive || hasActiveChild);
+
+  // 🆕 3. 페이지 이동으로 활성화 상태가 바뀌면 자동으로 펼치기
+  useEffect(() => {
+    if (isActive || hasActiveChild) {
+      setIsExpanded(true);
+    }
+  }, [isActive, hasActiveChild]);
+
   const [isDragOver, setIsDragOver] = useState(false);
   
   const handleDragStart = (e: React.DragEvent) => {
@@ -79,7 +102,6 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
     }
   };
 
-  // 🆕 하위 카테고리도 ID 순으로 정렬
   const sortedChildren = useMemo(() => {
     if (!category.children) return [];
     return [...category.children].sort((a, b) => a.id - b.id);
@@ -133,12 +155,27 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
         )}
 
         {!isEditMode && category.children && category.children.length > 0 && (
-          <ChevronRight size={14} className={clsx("text-gray-300 transition-transform", isActive && "rotate-90")} />
+          <button
+            onClick={(e) => {
+              e.preventDefault(); // Link 이동 막기
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-1 hover:bg-gray-200/50 rounded-full transition-colors ml-1"
+          >
+            <ChevronRight 
+              size={14} 
+              className={clsx(
+                "text-gray-400 transition-transform duration-200", 
+                isExpanded && "rotate-90"
+              )} 
+            />
+          </button>
         )}
       </div>
 
-      {sortedChildren.length > 0 && (
-        <div className="border-l-2 border-gray-100 ml-4">
+      {isExpanded && sortedChildren.length > 0 && (
+        <div className="border-l-2 border-gray-100 ml-4 animate-in slide-in-from-top-1 duration-200 fade-in">
           {sortedChildren.map((child) => (
             <CategoryItem 
               key={child.id} 
@@ -172,7 +209,7 @@ export default function Sidebar() {
 
   const [isCategoryEditMode, setIsCategoryEditMode] = useState(false);
   const [isRootDragOver, setIsRootDragOver] = useState(false);
-
+  
   const isAdmin = _hasHydrated && role?.includes('ADMIN');
 
   useEffect(() => {
@@ -187,7 +224,6 @@ export default function Sidebar() {
     queryFn: getCategories,
   });
 
-  // 🆕 최상위 카테고리 ID 순 정렬
   const sortedCategories = useMemo(() => {
     if (!categories) return undefined;
     return [...categories].sort((a, b) => a.id - b.id);
@@ -234,8 +270,6 @@ export default function Sidebar() {
   });
 
   const handleAddCategory = (parentId: number | null) => {
-    // 🎨 Prompt 대신 간단한 로직 유지 (복잡도 증가 방지) 
-    // 실제로는 모달로 바꾸는게 좋지만, 여기선 일단 Toast만 적용
     const name = prompt('새 카테고리 이름을 입력하세요:'); 
     if (!name || !name.trim()) return;
     createCategoryMutation.mutate({ name, parentId });
@@ -332,7 +366,6 @@ export default function Sidebar() {
           )}
           <Link href="/" className="block hover:opacity-80 transition-opacity">
             <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full mb-4 overflow-hidden shadow-inner ring-4 ring-gray-50 relative">
-              {/* 🛠️ 수정됨: 로딩 중일 때는 이미지 대신 스켈레톤 표시 */}
               {isProfileLoading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />
               ) : (
@@ -360,8 +393,30 @@ export default function Sidebar() {
 
         <nav className="flex-1 px-4 py-2 flex flex-col">
           <div className={clsx('flex flex-col items-center gap-4 mt-4', isOpen && 'hidden')}><Folder size={24} className="text-gray-400" /></div>
+          
           <div className={clsx('space-y-1 flex-1', !isOpen && 'md:hidden')}>
-            <div className="flex items-center justify-between px-4 mb-3 mt-4 h-8">
+            
+            {/* 🆕 2. 아카이브 링크 (페이지 이동) - 위로 이동 */}
+            <div className="mb-4 mt-2">
+              <Link 
+                href="/archive"
+                className={clsx(
+                  'flex items-center gap-2.5 px-4 py-2 text-sm rounded-lg transition-all group',
+                  pathname === '/archive'
+                    ? 'bg-blue-50 text-blue-600 font-medium'
+                    : 'text-gray-600 hover:bg-gray-50'
+                )}
+              >
+                <Archive size={16} />
+                <span>Archives</span>
+              </Link>
+            </div>
+
+            {/* 구분선 추가 */}
+            <div className="border-t border-gray-100 mb-4" />
+
+            {/* 1. 카테고리 섹션 */}
+            <div className="flex items-center justify-between px-4 mb-3 h-8">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Categories</p>
               {isAdmin && (
                 <div className="flex items-center gap-1">
@@ -380,7 +435,7 @@ export default function Sidebar() {
             {!categories && <div className="space-y-2 px-4">{[1, 2, 3].map((i) => <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />)}</div>}
 
             <div 
-              className={clsx("min-h-[100px] pb-10 transition-colors rounded-lg", isCategoryEditMode && "border-2 border-dashed", isRootDragOver ? "border-blue-500 bg-blue-50" : "border-transparent")}
+              className={clsx("min-h-[50px] transition-colors rounded-lg mb-6", isCategoryEditMode && "border-2 border-dashed", isRootDragOver ? "border-blue-500 bg-blue-50" : "border-transparent")}
               onDragOver={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(true); e.dataTransfer.dropEffect = 'move'; } : undefined}
               onDragLeave={isCategoryEditMode ? (e) => { e.preventDefault(); setIsRootDragOver(false); } : undefined}
               onDrop={isCategoryEditMode ? handleRootDrop : undefined}
@@ -405,7 +460,6 @@ export default function Sidebar() {
                   </Link>
                 </div>
               )}
-
               {isCategoryEditMode && categories?.length === 0 && <div className="text-center text-xs text-gray-400 py-4">+ 버튼을 눌러 카테고리를 추가하세요.</div>}
             </div>
           </div>

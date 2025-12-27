@@ -39,8 +39,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-8">
+    // 🎨 배경색 수정: bg-gray-50 -> bg-white
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-8 border border-gray-100">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">로그인</h1>
           <p className="text-gray-500 mt-2">블로그에 오신 것을 환영합니다.</p>

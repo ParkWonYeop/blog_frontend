@@ -4,7 +4,7 @@ import { use, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPostsByCategory } from '@/api/posts';
 import PostCard from '@/components/post/PostCard';
-import PostListItem from '@/components/post/PostListItem'; // 추가
+import PostListItem from '@/components/post/PostListItem'; 
 import { Loader2, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -13,20 +13,34 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params);
   const categoryName = decodeURIComponent(id);
   const apiCategoryName = categoryName === 'uncategorized' ? '미분류' : categoryName;
+  
+  // 📢 공지 카테고리인지 판별
+  const isNoticeCategory = apiCategoryName === '공지' || apiCategoryName.toLowerCase() === 'notice';
 
   const [page, setPage] = useState(0);
+  
+  // 공지사항이면 기본값을 'list'로 설정
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const PAGE_SIZE = 10;
 
-  // 💡 로컬 스토리지에서 뷰 모드 불러오기
   useEffect(() => {
+    // 📢 공지 카테고리는 강제로 리스트 뷰 적용
+    if (isNoticeCategory) {
+      setViewMode('list');
+      return;
+    }
+
+    // 그 외에는 로컬 스토리지 설정 따름
     const savedMode = localStorage.getItem('postViewMode') as 'grid' | 'list';
     if (savedMode) setViewMode(savedMode);
-  }, []);
+  }, [isNoticeCategory]);
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
     setViewMode(mode);
-    localStorage.setItem('postViewMode', mode);
+    // 공지 카테고리가 아닐 때만 사용자 설정을 저장 (공지는 뷰 강제이므로 저장 안 함)
+    if (!isNoticeCategory) {
+      localStorage.setItem('postViewMode', mode);
+    }
   };
 
   const { data: postsData, isLoading, error, isPlaceholderData } = useQuery({
