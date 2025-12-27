@@ -17,6 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head>
+        <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
+      </head>
       <body className="bg-[#f8f9fa] text-gray-800">
         <Providers>
           <div className="min-h-screen flex">
