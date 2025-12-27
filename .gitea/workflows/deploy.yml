@@ -29,6 +29,19 @@ jobs:
           docker --version
           git --version
 
+      - name: Clone Repository
+        run: |
+          # 현재 디렉토리가 비어있는지 확인
+          ls -al
+          
+          # Gitea 토큰을 사용하여 레포지토리 클론
+          # ${{ gitea.token }}과 ${{ gitea.repository }} 변수 사용
+          git clone https://user:${{ secrets.GITHUB_TOKEN }}@${{ gitea.server_url | replace 'http://' '' | replace 'https://' '' }}/${{ gitea.repository }}.git .
+          
+          # 클론 후 파일 목록 확인 (디버깅)
+          echo "📂 File List after clone:"
+          ls -al
+
       # 단계 2: 도커 이미지를 빌드합니다.
       # docker.sock을 공유했으므로, Runner 컨테이너 안에서 docker 명령어를 치면
       # 실제로는 호스트(VM)의 도커 데몬이 일을 수행합니다.
