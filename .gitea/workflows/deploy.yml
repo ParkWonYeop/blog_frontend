@@ -1,0 +1,54 @@
+name: Deploy Next.js to Home Server
+run-name: ${{ gitea.actor }} is deploying Blog 🚀
+
+# 1. 언제 실행할까요? -> main 브랜치에 코드가 푸시될 때
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    # 2. 누가 실행할까요? -> 아까 설정한 'home-server' 라벨을 가진 Runner만 실행!
+    runs-on: blog-frontend
+    
+    steps:
+      # 단계 1: Gitea 저장소에서 최신 코드를 내려받습니다.
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      # 단계 2: 도커 이미지를 빌드합니다.
+      # docker.sock을 공유했으므로, Runner 컨테이너 안에서 docker 명령어를 치면
+      # 실제로는 호스트(VM)의 도커 데몬이 일을 수행합니다.
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker image..."
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
+            -t blog-frontend:latest .
+
+      # 단계 3: 기존 컨테이너를 끄고 새 컨테이너를 실행합니다.
+      - name: Deploy Container
+        run: |
+          echo "Deploying new container..."
+          
+          # 기존에 돌고 있는 'blog-frontend' 컨테이너가 있다면 중지하고 삭제합니다.
+          # (|| true는 에러가 나도 무시하고 다음 줄로 넘어가라는 뜻입니다)
+          docker stop blog-frontend || true
+          docker rm blog-frontend || true
+          
+          # 새 이미지를 기반으로 컨테이너를 실행합니다.
+          # -d: 백그라운드 실행
+          # -p 3005:3000: 호스트의 3005번 포트를 컨테이너의 3000번 포트에 연결 (NPM용)
+          # --restart unless-stopped: 서버 재부팅 시 자동 실행
+          docker run -d \
+            --name blog-frontend \
+            --restart unless-stopped \
+            -p 3005:3000 \
+            -e NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
+            blog-frontend:latest
+
+      # 단계 4: 빌드 과정에서 생긴 임시 이미지들을 청소합니다. (용량 관리)
+      - name: Cleanup Old Images
+        run: |
+          docker image prune -f
