@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 // 🎨 이미지 최적화를 위해 next/image 사용
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +17,8 @@ import {
 import { clsx } from 'clsx';
 import { Profile, ProfileUpdateRequest, Category } from '@/types';
 import { useAuthStore } from '@/store/authStore';
-import toast from 'react-hot-toast'; 
+import toast from 'react-hot-toast';
+import PostSearch from '@/components/post/PostSearch'; // 🆕 검색 컴포넌트 추가
 
 const findCategoryNameById = (categories: Category[], id: number): string | undefined => {
   for (const cat of categories) {
@@ -43,7 +44,6 @@ interface CategoryItemProps {
 function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, onDelete }: CategoryItemProps) {
   const isActive = decodeURIComponent(pathname) === `/category/${category.name}`;
   
-  // 🆕 1. 하위 항목 중에 현재 활성화된 페이지가 있는지 확인 (재귀 체크)
   const hasActiveChild = useMemo(() => {
     const check = (cats: Category[] | undefined): boolean => {
       if (!cats) return false;
@@ -54,10 +54,8 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
     return check(category.children);
   }, [category.children, pathname]);
 
-  // 🆕 2. 펼침 상태 관리 (자신이 활성화됐거나 하위가 활성화됐으면 기본값 true)
   const [isExpanded, setIsExpanded] = useState(isActive || hasActiveChild);
 
-  // 🆕 3. 페이지 이동으로 활성화 상태가 바뀌면 자동으로 펼치기
   useEffect(() => {
     if (isActive || hasActiveChild) {
       setIsExpanded(true);
@@ -157,7 +155,7 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
         {!isEditMode && category.children && category.children.length > 0 && (
           <button
             onClick={(e) => {
-              e.preventDefault(); // Link 이동 막기
+              e.preventDefault(); 
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
@@ -194,11 +192,24 @@ function CategoryItem({ category, depth, pathname, isEditMode, onDrop, onAdd, on
   );
 }
 
-export default function Sidebar() {
+function SidebarContent() {
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
   const { role, _hasHydrated } = useAuthStore();
   const queryClient = useQueryClient();
+  
+  // 🆕 검색 로직 추가
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+
+  const handleSearch = (newKeyword: string) => {
+    if (newKeyword.trim()) {
+      router.push(`/?keyword=${encodeURIComponent(newKeyword.trim())}`);
+    } else {
+      router.push('/');
+    }
+  };
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<ProfileUpdateRequest>({
@@ -396,8 +407,18 @@ export default function Sidebar() {
           
           <div className={clsx('space-y-1 flex-1', !isOpen && 'md:hidden')}>
             
-            {/* 🆕 2. 아카이브 링크 (페이지 이동) - 위로 이동 */}
-            <div className="mb-4 mt-2">
+            {/* 🆕 전체 검색바 (Archives 위) - 수정됨: 그림자 제거 */}
+            <div className="px-1 mb-6 mt-2">
+              <PostSearch 
+                onSearch={handleSearch} 
+                placeholder="검색..." 
+                initialKeyword={keyword}
+                // className="shadow-sm" // 🎨 제거됨: 배경 박스처럼 보이는 문제 해결
+              />
+            </div>
+
+            {/* 2. 아카이브 링크 */}
+            <div className="mb-4">
               <Link 
                 href="/archive"
                 className={clsx(
@@ -412,7 +433,7 @@ export default function Sidebar() {
               </Link>
             </div>
 
-            {/* 구분선 추가 */}
+            {/* 구분선 */}
             <div className="border-t border-gray-100 mb-4" />
 
             {/* 1. 카테고리 섹션 */}
@@ -484,7 +505,6 @@ export default function Sidebar() {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-24 h-24 mb-3 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                   {/* 🎨 모달 내부 프리뷰 이미지에도 적용 */}
                   <Image src={editForm.imageUrl || defaultProfile.imageUrl!} alt="Preview" fill className="rounded-full object-cover border-2 border-gray-100 group-hover:border-blue-300 transition-colors" unoptimized />
                   <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"><Camera className="text-white" size={24} /></div>
                 </div>
@@ -506,5 +526,13 @@ export default function Sidebar() {
         </div>
       )}
     </>
+  );
+}
+
+export default function Sidebar() {
+  return (
+    <Suspense fallback={<div className="w-72 h-screen bg-white border-r border-gray-100" />}>
+      <SidebarContent />
+    </Suspense>
   );
 }

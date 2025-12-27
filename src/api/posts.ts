@@ -8,7 +8,7 @@ export const getPosts = async (params?: {
   keyword?: string; 
   category?: string; 
   tag?: string; 
-  sort?: string; // 🆕 정렬 옵션 추가 (예: 'viewCount,desc')
+  sort?: string; 
 }) => {
   const response = await http.get<ApiResponse<PostListResponse>>('/api/posts', {
     params: {
@@ -20,12 +20,13 @@ export const getPosts = async (params?: {
   return response.data.data;
 };
 
-// 2. 카테고리별 게시글 조회
-export const getPostsByCategory = async (categoryName: string, page = 0, size = 10) => {
+// 2. 카테고리별 게시글 조회 (🛠️ keyword 파라미터 추가)
+export const getPostsByCategory = async (categoryName: string, page = 0, size = 10, keyword?: string) => {
   return getPosts({ 
     page, 
     size, 
-    category: categoryName 
+    category: categoryName,
+    keyword // 🆕 검색어 전달
   });
 };
 
