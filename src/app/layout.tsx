@@ -6,8 +6,8 @@ import Sidebar from '@/components/layout/Sidebar';
 import TopHeader from '@/components/layout/TopHeader'; // 👈 import 추가
 
 export const metadata: Metadata = {
-  title: 'Dev Park Blog',
-  description: '개발 기록 블로그',
+  title: 'WYPark Blog',
+  description: '개발 블로그',
 };
 
 export default function RootLayout({
