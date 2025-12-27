@@ -9,11 +9,14 @@ on:
 
 jobs:
   build-and-deploy:
-    # 2. 누가 실행할까요? -> 아까 설정한 'home-server' 라벨을 가진 Runner만 실행!
-    runs-on: blog-frontend
-    
+    runs-on: home-server
     steps:
-      # 단계 1: Gitea 저장소에서 최신 코드를 내려받습니다.
+      # 👇 [추가] Docker CLI 설치 단계
+      - name: Install Docker CLI
+        run: |
+          apt-get update
+          apt-get install -y docker.io
+
       - name: Check out repository code
         uses: actions/checkout@v3
 
