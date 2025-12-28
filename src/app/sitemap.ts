@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const postRoutes = posts.map((post: any) => ({
       // 🛠️ 핵심 수정: slug를 encodeURIComponent로 감싸서 특수문자(&, 한글 등)를 안전하게 처리합니다.
       url: `${baseUrl}/posts/${encodeURIComponent(post.slug)}`,
-      lastModified: new Date(post.createdAt),
+      lastModified: new Date(post.updatedAt),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }));
