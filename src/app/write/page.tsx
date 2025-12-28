@@ -7,7 +7,7 @@ import { createPost, updatePost, getPost } from '@/api/posts';
 import { getCategories } from '@/api/category';
 import { uploadImage } from '@/api/image';
 import { useAuthStore } from '@/store/authStore';
-import { Loader2, Save, Image as ImageIcon, ArrowLeft, Folder, UploadCloud } from 'lucide-react';
+import { Loader2, Save, Image as ImageIcon, ArrowLeft, Folder, UploadCloud, FileText, Trash2, X, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
@@ -16,6 +16,14 @@ const MDEditor = dynamic(
   () => import('@uiw/react-md-editor').then((mod) => mod.default), 
   { ssr: false }
 );
+
+// 🛠️ 임시저장 데이터 타입 정의
+interface DraftPost {
+  id: number;
+  title: string;
+  content: string;
+  savedAt: string;
+}
 
 // 🛠️ 1. 토큰 만료 체크 유틸리티
 function isTokenExpired(token: string) {
@@ -51,12 +59,28 @@ function WritePageContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 💾 임시저장 관련 상태
+  const [drafts, setDrafts] = useState<DraftPost[]>([]);
+  const [showDraftList, setShowDraftList] = useState(false);
+
   useEffect(() => {
     if (_hasHydrated && (!role || !role.includes('ADMIN'))) {
       toast.error('관리자 권한이 필요합니다.');
       router.push('/');
     }
   }, [role, _hasHydrated, router]);
+
+  // 컴포넌트 마운트 시 로컬스토리지에서 임시저장 목록 불러오기
+  useEffect(() => {
+    const savedDrafts = localStorage.getItem('temp_drafts');
+    if (savedDrafts) {
+      try {
+        setDrafts(JSON.parse(savedDrafts));
+      } catch (e) {
+        console.error('Failed to parse drafts', e);
+      }
+    }
+  }, []);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -96,21 +120,59 @@ function WritePageContent() {
     return null;
   };
 
+  // 💾 임시저장 기능
+  const handleTempSave = () => {
+    if (!title.trim() && !content.trim()) {
+      toast.error('제목이나 내용을 입력해주세요.');
+      return;
+    }
+
+    if (drafts.length >= 10) {
+      toast.error('임시저장은 최대 10개까지만 가능합니다.\n기존 저장분을 삭제해주세요.');
+      setShowDraftList(true); // 목록 열어주기
+      return;
+    }
+
+    const newDraft: DraftPost = {
+      id: Date.now(),
+      title: title || '(제목 없음)',
+      content: content,
+      savedAt: new Date().toLocaleString(),
+    };
+
+    const newDrafts = [newDraft, ...drafts];
+    setDrafts(newDrafts);
+    localStorage.setItem('temp_drafts', JSON.stringify(newDrafts));
+    toast.success('임시저장 되었습니다!');
+  };
+
+  // 💾 임시저장 불러오기
+  const handleLoadDraft = (draft: DraftPost) => {
+    if (confirm('현재 작성 중인 내용이 사라집니다.\n선택한 임시저장 글을 불러오시겠습니까?')) {
+      setTitle(draft.title === '(제목 없음)' ? '' : draft.title);
+      setContent(draft.content);
+      setShowDraftList(false);
+      toast.success('불러오기 완료');
+    }
+  };
+
+  // 💾 임시저장 삭제
+  const handleDeleteDraft = (id: number) => {
+    const newDrafts = drafts.filter(d => d.id !== id);
+    setDrafts(newDrafts);
+    localStorage.setItem('temp_drafts', JSON.stringify(newDrafts));
+    toast.success('삭제되었습니다.');
+  };
+
   const mutation = useMutation({
     mutationFn: (data: any) => isEditMode ? updatePost(existingPost!.id, data) : createPost(data),
     onSuccess: async (response: any) => { 
       const savedPost = response?.data;
       const newSlug = savedPost?.slug || editSlug;
 
-      // 🚨 [핵심 수정] 목록 캐시를 '초기화(Reset)'합니다.
-      // 이렇게 하면 목록 페이지(Home, Category 등)로 이동했을 때 
-      // 기존 캐시(옛날 글 목록)를 보여주지 않고, 즉시 서버에서 새 데이터를 가져옵니다.
       await queryClient.resetQueries({ queryKey: ['posts'] });
-      
-      // 카테고리 데이터(글 개수 등)도 갱신
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
       
-      // 상세 페이지 캐시 삭제 (다시 들어가면 새로 받도록)
       if (editSlug) {
         queryClient.removeQueries({ queryKey: ['post', editSlug] });
       }
@@ -119,7 +181,6 @@ function WritePageContent() {
       }
 
       toast.success(isEditMode ? '게시글이 수정되었습니다.' : '게시글이 발행되었습니다!');
-      
       router.push(isEditMode ? `/posts/${newSlug}` : '/');
     },
     onError: (err: any) => {
@@ -277,6 +338,7 @@ function WritePageContent() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8" onPaste={onPaste}>
+      {/* 상단 헤더 영역 */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors">
@@ -284,14 +346,92 @@ function WritePageContent() {
           </button>
           <h1 className="text-2xl font-bold text-gray-800">{isEditMode ? '게시글 수정' : '새 글 작성'}</h1>
         </div>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting || isUploading}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 shadow-md hover:shadow-lg transform active:scale-95 duration-200"
-        >
-          {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-          {isEditMode ? '수정하기' : '작성하기'}
-        </button>
+        
+        <div className="flex items-center gap-3">
+          {/* 💾 임시저장 버튼 그룹 */}
+          <div className="relative">
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm">
+              <button
+                onClick={handleTempSave}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-r border-gray-300 rounded-l-lg transition-colors"
+                title="현재 내용 임시저장"
+              >
+                <FileText size={16} className="text-gray-500" />
+                <span className="hidden sm:inline">임시저장</span>
+              </button>
+              <button
+                onClick={() => setShowDraftList(!showDraftList)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-lg transition-colors flex items-center gap-1"
+                title="임시저장 목록 보기"
+              >
+                <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs font-bold">
+                  {drafts.length}
+                </span>
+              </button>
+            </div>
+
+            {/* 💾 임시저장 목록 팝업 */}
+            {showDraftList && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowDraftList(false)} 
+                />
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+                    <h3 className="font-bold text-gray-700 text-sm">임시저장 목록 ({drafts.length}/10)</h3>
+                    <button onClick={() => setShowDraftList(false)}><X size={16} className="text-gray-400 hover:text-gray-600" /></button>
+                  </div>
+                  
+                  <div className="max-h-80 overflow-y-auto">
+                    {drafts.length === 0 ? (
+                      <div className="p-8 text-center text-gray-400 text-sm">
+                        저장된 글이 없습니다.
+                      </div>
+                    ) : (
+                      <ul className="divide-y divide-gray-100">
+                        {drafts.map((draft) => (
+                          <li key={draft.id} className="p-3 hover:bg-blue-50 transition-colors group">
+                            <div className="flex justify-between items-start gap-2">
+                              <button 
+                                onClick={() => handleLoadDraft(draft)}
+                                className="flex-1 text-left"
+                              >
+                                <p className="font-medium text-gray-800 text-sm line-clamp-1 mb-1 group-hover:text-blue-600">
+                                  {draft.title}
+                                </p>
+                                <div className="flex items-center gap-1 text-xs text-gray-400">
+                                  <Clock size={12} />
+                                  {draft.savedAt}
+                                </div>
+                              </button>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleDeleteDraft(draft.id); }}
+                                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                title="삭제"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || isUploading}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 shadow-md hover:shadow-lg transform active:scale-95 duration-200"
+          >
+            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+            {isEditMode ? '수정하기' : '작성하기'}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -324,6 +464,10 @@ function WritePageContent() {
             </div>
           </div>
           
+          {/* 🛠️ [Legacy] 태그 입력 UI 비활성화
+            사용자 요청으로 UI에서 숨김 처리 (데이터 구조는 유지)
+          */}
+          {/*
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm sticky top-[280px]">
             <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
               🏷️ 태그
@@ -337,8 +481,9 @@ function WritePageContent() {
             />
              <p className="text-xs text-gray-400 mt-2">예: React, Next.js, 튜토리얼</p>
           </div>
+          */}
 
-          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm sticky top-[450px]">
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm sticky top-[280px]">
             <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
               <ImageIcon size={18} /> 이미지 업로드
             </h3>
