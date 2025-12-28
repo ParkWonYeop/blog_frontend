@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPost, deletePost } from '@/api/posts'; // 🛠️ getPostsByCategory 제거
+import { getPost, deletePost } from '@/api/posts';
 import { getProfile } from '@/api/profile';
 import MarkdownRenderer from '@/components/post/MarkdownRenderer';
 import CommentList from '@/components/comment/CommentList';
@@ -10,33 +10,27 @@ import { Loader2, Calendar, Eye, Folder, User, Edit2, Trash2, ArrowLeft, AlertCi
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import { Post } from '@/types'; // 타입 임포트
 
 interface PostDetailClientProps {
   slug: string;
+  initialPost: Post; // 🌟 서버에서 넘겨받는 초기 데이터 (필수)
 }
 
-export default function PostDetailClient({ slug }: PostDetailClientProps) {
+export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { role, _hasHydrated } = useAuthStore();
   const isAdmin = _hasHydrated && role?.includes('ADMIN');
 
-  // 1. 게시글 상세 조회 (이제 여기에 prevPost, nextPost가 포함됨)
+  // 1. 게시글 상세 조회
   const { data: post, isLoading: isPostLoading, error } = useQuery({
     queryKey: ['post', slug],
     queryFn: () => getPost(slug),
     enabled: !!slug,
-    retry: 1,
+    // 🌟 핵심: 서버에서 가져온 데이터를 초기값으로 사용하여 즉시 렌더링 (Hydration)
+    initialData: initialPost,
   });
-
-  // 🗑️ 삭제됨: 더 이상 프론트에서 앞뒤 글을 찾기 위해 목록을 조회할 필요가 없음!
-  /* const { data: neighborPosts } = useQuery({
-    queryKey: ['posts', 'category', post?.categoryName],
-    queryFn: () => getPostsByCategory(post!.categoryName, 0, 100),
-    enabled: !!post?.categoryName,
-    staleTime: 1000 * 60 * 5,
-  });
-  */
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -55,6 +49,8 @@ export default function PostDetailClient({ slug }: PostDetailClientProps) {
     },
   });
 
+  // 🌟 Loading 상태 처리를 제거하거나 조건을 완화합니다.
+  // initialData가 있으면 isLoading은 false가 되므로 바로 아래 컨텐츠가 렌더링됩니다.
   if (isPostLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -63,6 +59,7 @@ export default function PostDetailClient({ slug }: PostDetailClientProps) {
     );
   }
 
+  // 에러 처리
   if (error || !post) {
     const errorStatus = (error as any)?.response?.status;
     const errorMessage = (error as any)?.response?.data?.message || error?.message || '게시글을 찾을 수 없습니다.';
@@ -86,18 +83,9 @@ export default function PostDetailClient({ slug }: PostDetailClientProps) {
     );
   }
 
-  // 🗑️ 삭제됨: 인덱스 계산 로직 제거
-  /*
-  const currentIndex = neighborPosts?.content.findIndex((p) => p.id === post.id) ?? -1;
-  const newerPost = ...
-  const olderPost = ...
-  */
-
-  // 🆕 백엔드 데이터 직접 사용
-  // 보통 '이전 글'은 과거 글(prev), '다음 글'은 최신 글(next)입니다.
-  // 백엔드 구현에 따라 prevPost/nextPost 위치가 반대일 수 있으니 확인 후 위치만 바꿔주세요.
-  const prevPost = post.prevPost; // 이전 글 (왼쪽 버튼)
-  const nextPost = post.nextPost; // 다음 글 (오른쪽 버튼)
+  // 백엔드 데이터 사용 (이전글/다음글)
+  const prevPost = post.prevPost;
+  const nextPost = post.nextPost;
 
   const handleDelete = () => {
     if (confirm('정말로 이 게시글을 삭제하시겠습니까? 복구할 수 없습니다.')) {
@@ -149,7 +137,6 @@ export default function PostDetailClient({ slug }: PostDetailClientProps) {
             </div>
           </article>
 
-          {/* 🛠️ 네비게이션 영역 수정: prevPost / nextPost 직접 사용 */}
           <nav className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-b border-gray-100 py-8 mb-16">
             {prevPost ? (
               <Link href={`/posts/${prevPost.slug}`} className="group flex flex-col items-start gap-1 p-5 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors w-full border border-transparent hover:border-blue-100">
