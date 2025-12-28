@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks'; // 엔터 한 번으로 줄바꿈 되도록 추가
 import rehypeSanitize from 'rehype-sanitize'; 
+import rehypeSlug from 'rehype-slug';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check, Terminal, ExternalLink } from 'lucide-react';
 import { clsx } from 'clsx';
-import rehypeSlug from 'rehype-slug';
 
 interface MarkdownRendererProps {
   content: string;
@@ -18,7 +19,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="markdown-content">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        // remarkBreaks: 일반 텍스트에서 엔터 한 번을 <br/>로 변환해줍니다.
+        remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[rehypeSanitize, rehypeSlug]}
         components={{
           // 1. 코드 블록 커스텀
@@ -43,7 +45,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
 
-          // 2. 인용구
+          // 2. 인용구 (Blockquote)
           blockquote({ children }) {
             return (
               <blockquote className="border-l-4 border-blue-500 bg-blue-50 pl-4 py-3 my-6 text-gray-700 rounded-r-lg italic shadow-sm">
@@ -82,29 +84,27 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">{children}</thead>;
           },
           th({ children }) {
-            return <th className="px-6 py-3 font-bold text-gray-900">{children}</th>;
+            return <th className="px-6 py-3 font-bold text-gray-900 whitespace-nowrap">{children}</th>;
           },
           td({ children }) {
             return <td className="px-6 py-4 border-b border-gray-100 whitespace-pre-wrap">{children}</td>;
           },
 
-          // 5. 이미지 (비율 유지 및 중앙 정렬)
+          // 5. 이미지 (figure 태그 사용으로 시멘틱 개선)
           img({ src, alt }) {
             return (
-              // 🛠️ [Fix] flex-col 추가: 이미지와 캡션을 세로로 정렬
-              // items-center 추가: 가로축 중앙 정렬
-              <span className="block my-8 flex flex-col items-center justify-center">
+              <figure className="block my-8 flex flex-col items-center justify-center">
                 <img 
                   src={src} 
                   alt={alt} 
-                  className="rounded-xl shadow-lg border border-gray-100 max-w-full h-auto max-h-[700px] mx-auto hover:scale-[1.01] transition-transform duration-300" 
+                  className="rounded-xl shadow-lg border border-gray-100 max-w-full h-auto max-h-[700px] mx-auto hover:scale-[1.01] transition-transform duration-300 object-contain" 
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-                {alt && <span className="block text-center text-sm text-gray-400 mt-2 w-full">{alt}</span>}
-              </span>
+                {alt && <figcaption className="text-center text-sm text-gray-400 mt-2 w-full">{alt}</figcaption>}
+              </figure>
             );
           },
 
@@ -123,19 +123,24 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
           li({ children }) {
-            return <li className="pl-1">{children}</li>;
+            // p 태그가 내부에 생길 경우 margin 상쇄를 위해 items-start 등 조정
+            return <li className="pl-1 leading-relaxed">{children}</li>;
           },
 
-          // 7. 헤딩 스타일 (🛠️ 수정: ...props를 전달해야 id가 붙어서 목차 이동이 작동함)
+          // 7. 헤딩 스타일
           h1({ children, ...props }: any) {
-            return <h1 className="text-3xl font-extrabold mt-12 mb-6 pb-4 border-b border-gray-100 text-gray-900" {...props}>{children}</h1>;
+            return <h1 className="text-3xl font-extrabold mt-12 mb-6 pb-4 border-b border-gray-100 text-gray-900 scroll-mt-20" {...props}>{children}</h1>;
           },
           h2({ children, ...props }: any) {
-            return <h2 className="text-2xl font-bold mt-10 mb-5 pb-2 text-gray-800" {...props}>{children}</h2>;
+            return <h2 className="text-2xl font-bold mt-10 mb-5 pb-2 text-gray-800 scroll-mt-20" {...props}>{children}</h2>;
           },
           h3({ children, ...props }: any) {
-            return <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center gap-2 before:content-[''] before:w-1.5 before:h-6 before:bg-blue-500 before:rounded-full before:mr-1" {...props}>{children}</h3>;
+            return <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center gap-2 before:content-[''] before:w-1.5 before:h-6 before:bg-blue-500 before:rounded-full before:mr-1 scroll-mt-20" {...props}>{children}</h3>;
           },
+          // p 태그 스타일 추가 (일반 텍스트 가독성)
+          p({ children }) {
+             return <p className="mb-4 leading-7 text-gray-700">{children}</p>;
+          }
         }}
       >
         {content}
