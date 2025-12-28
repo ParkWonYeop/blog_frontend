@@ -161,14 +161,14 @@ function HomeContent() {
           </section>
 
           {/* 하단 아카이브 링크 */}
-          <div className="pt-8 pb-4 text-center">
+          {/* <div className="pt-8 pb-4 text-center">
             <Link 
               href="/archive" 
               className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors font-medium text-sm"
             >
               모든 글 보러가기 <ChevronRight size={16} />
             </Link>
-          </div>
+          </div> */}
         </div>
       )}
     </main>
