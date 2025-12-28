@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
       ],
       type: 'article',
-      publishedTime: post.createdAt,
+      publishedTime: post.updatedAt,
       authors: ['WYPark'],
     },
     twitter: {
