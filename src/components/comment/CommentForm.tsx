@@ -1,0 +1,102 @@
+'use client';
+
+import { useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createComment } from '@/api/comments';
+import { Loader2, Send } from 'lucide-react';
+import { getErrorMessage } from '@/lib/errors';
+import { queryKeys } from '@/lib/queryKeys';
+
+interface CommentFormProps {
+  postSlug: string;
+  parentId?: number | null;
+  onSuccess?: () => void; // 작성 완료 후 콜백 (답글창 닫기 등)
+  placeholder?: string;
+}
+
+export default function CommentForm({ postSlug, parentId = null, onSuccess, placeholder = '댓글을 남겨보세요.' }: CommentFormProps) {
+  const { isLoggedIn } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  const [content, setContent] = useState('');
+  const [guestInfo, setGuestInfo] = useState({ nickname: '', password: '' });
+
+  const mutation = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => {
+      setContent('');
+      setGuestInfo({ nickname: '', password: '' });
+      queryClient.invalidateQueries({ queryKey: queryKeys.comments.post(postSlug) });
+      if (onSuccess) onSuccess();
+    },
+    onError: (error: unknown) => {
+      alert(`댓글 작성 실패: ${getErrorMessage(error, '알 수 없는 오류가 발생했습니다.')}`);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim()) return;
+
+    if (!isLoggedIn) {
+      if (!guestInfo.nickname.trim() || !guestInfo.password.trim()) {
+        alert('닉네임과 비밀번호를 입력해주세요.');
+        return;
+      }
+    }
+
+    mutation.mutate({
+      postSlug,
+      content,
+      parentId,
+      guestNickname: isLoggedIn ? undefined : guestInfo.nickname,
+      guestPassword: isLoggedIn ? undefined : guestInfo.password,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+      {/* 비회원 입력 필드 */}
+      {!isLoggedIn && (
+        <div className="flex gap-2 mb-3">
+          <input
+            type="text"
+            placeholder="닉네임"
+            value={guestInfo.nickname}
+            onChange={(e) => setGuestInfo({ ...guestInfo, nickname: e.target.value })}
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
+            required
+          />
+          <input
+            type="password"
+            placeholder="비밀번호"
+            value={guestInfo.password}
+            onChange={(e) => setGuestInfo({ ...guestInfo, password: e.target.value })}
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
+            required
+          />
+        </div>
+      )}
+
+      {/* 댓글 내용 입력 */}
+      <div className="relative">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder={isLoggedIn ? placeholder : '댓글을 남겨보세요.'}
+          className="h-24 w-full resize-none rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3 pr-12 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
+          required
+        />
+        <button
+          type="submit"
+          disabled={mutation.isPending}
+          className="absolute bottom-3 right-3 rounded-lg bg-[var(--color-accent)] p-2 text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          title="등록"
+        >
+          {mutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+        </button>
+      </div>
+    </form>
+  );
+}
