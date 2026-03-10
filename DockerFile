@@ -1,0 +1,39 @@
+# 1. 의존성 설치 (Deps)
+# 👇 [수정됨] node:18 -> node:20 (Next.js 16 호환을 위해 버전 업그레이드)
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# 2. 빌드 (Builder)
+# 👇 [수정됨] node:18 -> node:20
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# 환경 변수 (빌드 타임)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+RUN npm run build
+
+# 3. 실행 (Runner)
+# 👇 [수정됨] node:18 -> node:20
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+ENV PORT 3000
+# 호스트네임도 0.0.0.0으로 명시해야 외부 접속이 원활합니다.
+ENV HOSTNAME "0.0.0.0"
+
+# 🛠️ 수정됨: server.js 실행
+CMD ["node", "server.js"]
