@@ -2,6 +2,16 @@
 
 ## 2026-05-28
 
+- `npx getdesign@latest add apple`로 Apple 참고용 `DESIGN.md`를 추가했다.
+- `ThemeProvider`/`ThemeToggle`을 추가해 `wyp-theme-mode` 기반 `라이트/시스템/다크` 3단 토글을 TopHeader 우측에 배치했다.
+- `html[data-theme]`, `html[data-theme-mode]` DOM 계약과 beforeInteractive 초기화 스크립트를 추가해 강제 라이트/다크와 시스템 설정 따르기를 분리했다.
+- 전역 폰트를 Apple 우선 sans/mono stack으로 정리하고, Tailwind `dark:` variant를 `data-theme="dark"` 기준으로 전환했다.
+- 홈, 아카이브, 카테고리, 로그인/회원가입, 글 상세, 댓글, 관리자 shell/dashboard 일부 surface를 Apple/macOS식 토큰과 control 색상으로 맞췄다.
+- 검증: `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 sandbox 네트워크 제한으로 기존처럼 경고를 출력했지만 실패하지 않았다. `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run dev` 후 Browser로 `/`, `/archive`, `/category/잡담`, `/posts/rtr-(refresh-token-rotation)`, `/login`, 로그아웃 상태 `/admin` 리다이렉트와 테마 전환/새로고침 유지 동작을 확인했다. localhost에서 배포 API를 직접 호출하는 카테고리 데이터는 백엔드 접근 제한으로 에러 상태 UI를 확인했다.
+- 다음 추천 작업: 실제 배포 Origin에서 테마 토글 저장값과 관리자 로그인 상태의 하위 관리 화면 hover/focus를 최종 확인한다.
+
+## 2026-05-28
+
 - `docs/apple-style-frontend-development-guide.md` Phase 1 + Phase 2 기준으로 Apple 스타일 1차 MVP 프론트 리뉴얼을 적용했다.
 - 전역 디자인 토큰과 작은 UI 컴포넌트(`Surface`, `StatusBadge`, `SegmentedControl`, `MetricCard`, `EmptyState`)를 추가했다.
 - 공개 홈을 intro, notice, featured/latest, category shelves, popular reading, archive CTA 구조로 재구성하고 공개 운영 집계 노출을 피했다.

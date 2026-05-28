@@ -27,7 +27,7 @@ export default function CommentList({ postSlug }: CommentListProps) {
   const totalCount = comments ? countComments(comments) : 0;
 
   if (isLoading) {
-    return <div className="py-10 flex justify-center"><Loader2 className="animate-spin text-blue-500" /></div>;
+    return <div className="flex justify-center py-10"><Loader2 className="animate-spin text-[var(--color-accent)]" /></div>;
   }
 
   if (error) {
@@ -37,9 +37,9 @@ export default function CommentList({ postSlug }: CommentListProps) {
   return (
     <div className="mt-16 border-t border-[var(--color-line)] pt-10">
       <div className="flex items-center gap-2 mb-6">
-        <MessageCircle className="text-blue-600" size={24} />
+        <MessageCircle className="text-[var(--color-accent)]" size={24} />
         <h3 className="text-xl font-bold text-[var(--color-text)]">
-          댓글 <span className="text-blue-600">{totalCount}</span>
+          댓글 <span className="text-[var(--color-accent)]">{totalCount}</span>
         </h3>
       </div>
 
@@ -55,7 +55,7 @@ export default function CommentList({ postSlug }: CommentListProps) {
             <CommentItem key={comment.id} comment={comment} postSlug={postSlug} />
           ))
         ) : (
-          <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-white/45 py-10 text-center text-sm text-[var(--color-text-muted)] dark:bg-white/5">
+          <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-surface)] py-10 text-center text-sm text-[var(--color-text-muted)]">
             아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
           </div>
         )}

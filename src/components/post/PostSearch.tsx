@@ -48,7 +48,7 @@ export default function PostSearch({
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-full border border-[var(--color-line)] bg-white/70 py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-sm outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-white focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10 dark:focus:bg-white/15"
+          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-control)] py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-[var(--shadow-control)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-[var(--color-surface-strong)]"
         />
         <Search 
           className="absolute left-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-accent)]" 

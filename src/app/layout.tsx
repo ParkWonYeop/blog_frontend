@@ -4,6 +4,7 @@ import Providers from './providers';
 import Sidebar from '@/components/layout/Sidebar';
 import TopHeader from '@/components/layout/TopHeader';
 import Script from 'next/script';
+import { THEME_INIT_SCRIPT } from '@/components/theme/theme';
 
 export const metadata: Metadata = {
   title: 'WYPark Blog',
@@ -16,11 +17,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    <html lang="ko" data-theme="light" data-theme-mode="system" suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
       </head>
       <body className="bg-[var(--color-page)] text-[var(--color-text)]">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
+
         {/* 🌟 Google Analytics 스크립트 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2GLCM9ZKMK"

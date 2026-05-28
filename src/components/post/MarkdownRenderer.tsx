@@ -67,7 +67,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // 4. 테이블
     table({ children }) {
       return (
-        <div className="my-8 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-white/70 shadow-sm dark:bg-white/10">
+        <div className="my-8 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
           <table className="w-full text-left text-sm text-[var(--color-text-muted)]">
             {children}
           </table>

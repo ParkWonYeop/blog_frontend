@@ -8,6 +8,9 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { PostListResponse } from '@/types';
+import EmptyState from '@/components/ui/EmptyState';
+import StatusBadge from '@/components/ui/StatusBadge';
+import Surface from '@/components/ui/Surface';
 
 const getTotalElements = (data?: PostListResponse) => {
   return data?.page?.totalElements ?? data?.totalElements ?? 0;
@@ -53,29 +56,29 @@ export default function ArchivePage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <Loader2 className="animate-spin text-blue-500" size={40} />
+        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4">
+    <div className="mx-auto max-w-5xl px-4 py-10">
       {/* 헤더 섹션 */}
-      <div className="mb-12 text-center md:text-left border-b border-gray-100 pb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center md:justify-start gap-3 mb-3">
-          <Archive className="text-blue-600" size={32} />
+      <div className="mb-12 border-b border-[var(--color-line)] pb-8 text-center md:text-left">
+        <h1 className="mb-3 flex items-center justify-center gap-3 text-3xl font-bold tracking-normal text-[var(--color-text)] md:justify-start">
+          <Archive className="text-[var(--color-accent)]" size={32} />
           <span>아카이브</span>
         </h1>
-        <p className="text-gray-500">
-          지금까지 작성한 <span className="text-blue-600 font-bold">{totalPosts}</span>개의 글이 기록되어 있습니다.
+        <p className="text-[var(--color-text-muted)]">
+          지금까지 작성한 <span className="font-bold text-[var(--color-accent)]">{totalPosts}</span>개의 글이 기록되어 있습니다.
         </p>
       </div>
 
       {/* 타임라인 컨텐츠 */}
       {sortedYears.length > 0 ? (
-        <div className="space-y-12 relative">
+        <div className="relative space-y-12">
           {/* 타임라인 수직선 (좌측 장식) */}
-          <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-100 hidden md:block" />
+          <div className="absolute bottom-4 left-4 top-4 hidden w-px bg-[var(--color-line)] md:block" />
 
           {sortedYears.map((year) => {
             const months = archiveGroups[year];
@@ -85,11 +88,11 @@ export default function ArchivePage() {
             return (
               <div key={year} className="relative">
                 {/* 연도 헤더 */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="hidden md:flex items-center justify-center w-9 h-9 rounded-full bg-blue-50 border-4 border-white shadow-sm z-10">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <div className="mb-6 flex items-center gap-4">
+                  <div className="z-10 hidden h-9 w-9 items-center justify-center rounded-full border-4 border-[var(--color-page)] bg-[var(--color-accent-soft)] shadow-[var(--shadow-control)] md:flex">
+                    <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">{year}</h2>
+                  <h2 className="text-2xl font-bold text-[var(--color-text)]">{year}</h2>
                 </div>
 
                 {/* 월별 그룹 */}
@@ -101,12 +104,10 @@ export default function ArchivePage() {
 
                     return (
                       <div key={month} className="group">
-                        <h3 className="text-lg font-bold text-gray-600 mb-4 flex items-center gap-2">
-                          <Calendar size={18} className="text-gray-400" />
+                        <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--color-text-muted)]">
+                          <Calendar size={18} className="text-[var(--color-text-subtle)]" />
                           {month}월
-                          <span className="text-xs font-normal bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                            {posts.length}
-                          </span>
+                          <StatusBadge tone="neutral">{posts.length}</StatusBadge>
                         </h3>
 
                         <div className="grid gap-3">
@@ -114,25 +115,23 @@ export default function ArchivePage() {
                             <Link 
                               key={post.id} 
                               href={`/posts/${post.slug}`}
-                              className="block bg-white border border-gray-100 rounded-lg p-4 hover:border-blue-200 hover:shadow-md transition-all duration-200 group/item"
+                              className="group/item block"
                             >
-                              <div className="flex items-center justify-between gap-4">
+                              <Surface interactive className="flex items-center justify-between gap-4 p-4 shadow-none">
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-base font-medium text-gray-800 truncate group-hover/item:text-blue-600 transition-colors">
+                                  <h4 className="truncate text-base font-semibold text-[var(--color-text)] transition-colors group-hover/item:text-[var(--color-accent)]">
                                     {post.title}
                                   </h4>
-                                  <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">
-                                    <span className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-500">
-                                      {post.categoryName}
-                                    </span>
+                                  <div className="mt-1.5 flex items-center gap-2 text-xs text-[var(--color-text-subtle)]">
+                                    <StatusBadge tone="neutral" className="px-1.5 py-0.5">{post.categoryName || '미분류'}</StatusBadge>
                                     <span>•</span>
                                     <span className="tabular-nums">
                                       {format(new Date(post.createdAt), 'yyyy.MM.dd')}
                                     </span>
                                   </div>
                                 </div>
-                                <ChevronRight className="text-gray-300 group-hover/item:text-blue-400 transition-colors" size={20} />
-                              </div>
+                                <ChevronRight className="text-[var(--color-text-subtle)] transition-colors group-hover/item:text-[var(--color-accent)]" size={20} />
+                              </Surface>
                             </Link>
                           ))}
                         </div>
@@ -145,10 +144,11 @@ export default function ArchivePage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-          <FileText className="mx-auto text-gray-300 mb-3" size={48} />
-          <p className="text-gray-500">아직 작성된 기록이 없습니다.</p>
-        </div>
+        <EmptyState
+          title="아직 작성된 기록이 없습니다."
+          icon={<FileText size={48} />}
+          className="py-20"
+        />
       )}
     </div>
   );

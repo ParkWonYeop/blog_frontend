@@ -15,14 +15,14 @@ function LegacyWriteRedirect() {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Loader2 className="animate-spin text-blue-500" size={36} />
+      <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
     </div>
   );
 }
 
 export default function WritePage() {
   return (
-    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="animate-spin text-blue-500" /></div>}>
+    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="animate-spin text-[var(--color-accent)]" /></div>}>
       <LegacyWriteRedirect />
     </Suspense>
   );

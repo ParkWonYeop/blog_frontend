@@ -85,8 +85,8 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
         className={clsx(
           "relative p-4 rounded-xl transition-colors group",
           comment.isPostAuthor
-            ? "border border-blue-500/15 bg-blue-500/10"
-            : "border border-[var(--color-line)] bg-white/60 dark:bg-white/5"
+            ? "border border-blue-500/15 bg-[var(--color-accent-soft)]"
+            : "border border-[var(--color-line)] bg-[var(--color-surface)]"
         )}
       >
         <div className="flex items-center justify-between mb-2">
@@ -94,7 +94,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
             <div 
               className={clsx(
                 "flex items-center justify-center rounded-full p-1.5", 
-                comment.isPostAuthor ? "bg-blue-500/15 text-blue-600 dark:text-blue-300" : 
+                comment.isPostAuthor ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" :
                 !isGuestComment ? "bg-green-500/15 text-green-600 dark:text-green-300" : 
                 "bg-black/[0.05] text-[var(--color-text-muted)] dark:bg-white/10"
               )}
@@ -105,9 +105,9 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2">
-              <span className={clsx("flex items-center gap-1 text-sm font-bold", comment.isPostAuthor ? "text-blue-700 dark:text-blue-300" : "text-[var(--color-text)]")}>
+              <span className={clsx("flex items-center gap-1 text-sm font-bold", comment.isPostAuthor ? "text-[var(--color-accent)]" : "text-[var(--color-text)]")}>
                 {comment.author}
-                {comment.isPostAuthor && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full font-medium">작성자</span>}
+                {comment.isPostAuthor && <span className="rounded-full bg-[var(--color-accent-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">작성자</span>}
               </span>
               <span className="text-xs text-[var(--color-text-subtle)]">
                 {format(new Date(comment.createdAt), 'yyyy.MM.dd HH:mm')}
@@ -118,7 +118,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               onClick={() => setIsReplying(!isReplying)}
-              className="rounded p-1.5 text-[var(--color-text-subtle)] hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-300"
+              className="rounded p-1.5 text-[var(--color-text-subtle)] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)]"
               title="답글 달기"
             >
               <MessageSquare size={14} />
@@ -152,7 +152,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
                placeholder="비밀번호 입력"
                value={guestPassword}
                onChange={(e) => setGuestPassword(e.target.value)}
-               className="rounded border border-[var(--color-line)] bg-white/70 px-2 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-accent)] focus:outline-none dark:bg-white/10"
+               className="rounded border border-[var(--color-line)] bg-[var(--color-control)] px-2 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-accent)] focus:outline-none"
                autoFocus
              />
              <button

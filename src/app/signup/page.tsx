@@ -71,14 +71,13 @@ export default function SignupPage() {
   };
 
   return (
-    // 🎨 배경색 수정: bg-gray-50 -> bg-white
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-page)] px-4 py-12">
+      <div className="w-full max-w-md rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-panel)] backdrop-blur-xl">
         
         {/* 헤더 */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
-          <p className="text-sm text-gray-500 mt-2">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">회원가입</h1>
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">
             {step === 'FORM' ? '' : '이메일로 전송된 6자리 코드를 입력하세요.'}
           </p>
         </div>
@@ -87,34 +86,34 @@ export default function SignupPage() {
         {step === 'FORM' && (
           <form onSubmit={handleSubmit(onSignupSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">이메일</label>
               <input
                 {...register('email', { 
                   required: '이메일은 필수입니다.',
                   pattern: { value: /\S+@\S+\.\S+/, message: '이메일 형식이 올바르지 않습니다.' }
                 })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="user@example.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">닉네임</label>
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">닉네임</label>
               <input
                 {...register('nickname', { required: '닉네임을 입력해주세요.' })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="개발자"
               />
               {errors.nickname && <p className="text-red-500 text-xs mt-1">{errors.nickname.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">비밀번호</label>
               <input
                 type="password"
                 {...register('password', { required: '비밀번호를 입력해주세요.', minLength: { value: 6, message: '6자 이상 입력해주세요.' } })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
@@ -123,7 +122,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors disabled:bg-gray-400"
+              className="w-full rounded-lg bg-[var(--color-accent)] py-3 font-bold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? '처리 중...' : '인증 메일 받기'}
             </button>
@@ -134,13 +133,13 @@ export default function SignupPage() {
         {step === 'VERIFY' && (
           <form onSubmit={onVerifySubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">인증 코드 (6자리)</label>
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">인증 코드 (6자리)</label>
               <input
                 type="text"
                 value={verifyCode}
                 onChange={(e) => setVerifyCode(e.target.value)}
                 maxLength={6}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-center text-2xl tracking-widest"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-center text-2xl tracking-normal text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="000000"
               />
             </div>
@@ -148,7 +147,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors disabled:bg-gray-400"
+              className="w-full rounded-lg bg-[var(--color-accent)] py-3 font-bold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? '처리 중...' : '인증 완료'}
             </button>
@@ -156,7 +155,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setStep('FORM')}
-              className="w-full text-sm text-gray-500 hover:underline"
+              className="w-full text-sm text-[var(--color-text-muted)] hover:underline"
             >
               이메일 다시 입력하기
             </button>
@@ -164,9 +163,9 @@ export default function SignupPage() {
         )}
 
         {/* 하단 링크 */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
           이미 계정이 있으신가요?{' '}
-          <Link href="/login" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/login" className="font-semibold text-[var(--color-accent)] hover:underline">
             로그인하기
           </Link>
         </div>

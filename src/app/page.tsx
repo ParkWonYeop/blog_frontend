@@ -350,7 +350,7 @@ function HomeContent() {
             </Link>
             <Link
               href="#blog-search"
-              className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/70 px-4 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-white hover:text-[var(--color-text)] dark:bg-white/10"
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
             >
               검색으로 찾기
               <Search size={16} />
@@ -450,7 +450,7 @@ function HomeContent() {
           </div>
           <Link
             href="/archive"
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/70 px-4 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:bg-white dark:bg-white/10"
+            className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-2 text-sm font-semibold text-[var(--color-text)] shadow-[var(--shadow-control)] transition hover:bg-[var(--color-surface-strong)]"
           >
             아카이브 보기
             <ChevronRight size={16} />

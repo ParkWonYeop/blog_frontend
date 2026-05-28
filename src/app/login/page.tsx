@@ -72,7 +72,7 @@ function LoginForm() {
               type="email"
               value={formData.email}
               onChange={(event) => setFormData({ ...formData, email: event.target.value })}
-              className="w-full rounded-lg border border-[var(--color-line)] bg-white/70 px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
               placeholder="example@email.com"
               required
             />
@@ -84,7 +84,7 @@ function LoginForm() {
               type="password"
               value={formData.password}
               onChange={(event) => setFormData({ ...formData, password: event.target.value })}
-              className="w-full rounded-lg border border-[var(--color-line)] bg-white/70 px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
               placeholder="••••••••"
               required
             />
@@ -95,7 +95,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-bold text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] py-3 font-bold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading && <Loader2 className="animate-spin" size={20} />}
             로그인
@@ -104,7 +104,7 @@ function LoginForm() {
 
         <div className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
           계정이 없으신가요?{' '}
-          <Link href="/signup" className="font-medium text-blue-600 hover:underline">
+          <Link href="/signup" className="font-medium text-[var(--color-accent)] hover:underline">
             회원가입
           </Link>
         </div>

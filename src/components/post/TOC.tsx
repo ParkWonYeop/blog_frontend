@@ -104,7 +104,7 @@ export default function TOC({ content }: TOCProps) {
 
   return (
     <aside className="w-full">
-      <div className="rounded-lg border border-[var(--color-line)] bg-white/65 p-4 shadow-sm backdrop-blur-xl dark:bg-white/10">
+      <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-4 shadow-[var(--shadow-control)] backdrop-blur-2xl">
         <h4 className="mb-4 text-sm font-bold text-[var(--color-text)]">목차</h4>
         <ul className="space-y-2.5">
           {headings.map((heading, index) => (

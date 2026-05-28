@@ -56,7 +56,7 @@ export default function AdminDashboardTrafficChart({
       </div>
 
       {points.length > 0 ? (
-        <div className="flex h-64 items-end gap-1.5 overflow-hidden rounded-lg border border-[var(--color-line)] bg-white/50 px-3 py-4 dark:bg-white/5">
+        <div className="flex h-64 items-end gap-1.5 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-4">
           {points.map((point) => {
             const height = Math.max((point.views / maxViews) * 100, 4);
 

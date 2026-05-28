@@ -55,7 +55,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   if (isPostLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loader2 className="animate-spin text-blue-500" size={40} />
+        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
       </div>
     );
   }
@@ -78,7 +78,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
           {isAuthError ? '로그인이 필요하거나 비공개 게시글일 수 있습니다.' : errorMessage}
         </p>
         <div className="flex justify-center gap-3">
-          <button onClick={() => router.push('/')} className="rounded-lg border border-[var(--color-line)] bg-white/70 px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-white">메인으로</button>
+          <button onClick={() => router.push('/')} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-strong)]">메인으로</button>
         </div>
       </div>
     );
@@ -95,7 +95,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
         <span className="text-sm font-medium">목록으로</span>
       </Link>
 
-      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,820px)_220px] xl:justify-center xl:gap-16">
+      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,800px)_220px] xl:justify-center xl:gap-16">
         
         <main className="min-w-0">
           <article>
@@ -128,25 +128,25 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               </div>
             </header>
 
-            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-a:text-[var(--color-accent)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
+            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
               <MarkdownRenderer content={post.content || ''} />
             </div>
           </article>
 
           <nav className="mb-16 grid grid-cols-1 gap-4 border-y border-[var(--color-line)] py-8 md:grid-cols-2">
             {prevPost ? (
-              <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-transparent bg-white/60 p-5 transition-colors hover:border-[var(--color-line)] hover:bg-white dark:bg-white/10">
+              <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 transition-colors hover:bg-[var(--color-surface-strong)]">
                 <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]"><ChevronLeft size={16} /> 이전 글</span>
                 <span className="line-clamp-1 w-full text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{prevPost.title}</span>
               </Link>
-            ) : <div className="hidden w-full cursor-not-allowed rounded-lg bg-white/40 p-5 opacity-60 dark:bg-white/5 md:block"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]"><ChevronLeft size={16} /> 이전 글 없음</span></div>}
+            ) : <div className="hidden w-full cursor-not-allowed rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 opacity-60 md:block"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]"><ChevronLeft size={16} /> 이전 글 없음</span></div>}
 
             {nextPost ? (
-              <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-transparent bg-white/60 p-5 transition-colors hover:border-[var(--color-line)] hover:bg-white dark:bg-white/10">
+              <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 transition-colors hover:bg-[var(--color-surface-strong)]">
                 <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">다음 글 <ChevronRight size={16} /></span>
                 <span className="line-clamp-1 w-full text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{nextPost.title}</span>
               </Link>
-            ) : <div className="hidden w-full cursor-not-allowed flex-col items-end gap-1 rounded-lg bg-white/40 p-5 opacity-60 dark:bg-white/5 md:flex"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">다음 글 없음 <ChevronRight size={16} /></span></div>}
+            ) : <div className="hidden w-full cursor-not-allowed flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 opacity-60 md:flex"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">다음 글 없음 <ChevronRight size={16} /></span></div>}
           </nav>
 
           <CommentList postSlug={post.slug} />

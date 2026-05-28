@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { LogOut, PenLine, Settings, User, UserPlus } from 'lucide-react';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 export default function TopHeader() {
   const router = useRouter();
@@ -19,58 +20,60 @@ export default function TopHeader() {
     }
   };
 
-  if (!_hasHydrated) return null;
-
   return (
-    <div className="absolute top-6 right-6 z-30 flex items-center gap-3">
-      {isLoggedIn ? (
-        <>
-          {isAdmin && (
-            <>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] shadow-sm backdrop-blur-xl transition-colors hover:bg-white hover:text-[var(--color-accent)] dark:bg-white/10"
-              >
-                <Settings size={16} />
-                <span className="hidden sm:inline">관리자</span>
-              </Link>
+    <div className="absolute right-4 top-4 z-30 flex max-w-[calc(100vw-5.5rem)] flex-wrap items-center justify-end gap-2 md:right-6 md:top-6 md:max-w-none md:gap-3">
+      <ThemeToggle />
 
-              <Link
-                href="/admin/posts/new"
-                className="flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md"
-              >
-                <PenLine size={16} />
-                <span>새 글</span>
-              </Link>
-            </>
-          )}
-          
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-medium text-[var(--color-text-muted)] shadow-sm backdrop-blur-xl transition-colors hover:bg-white hover:text-red-500 dark:bg-white/10"
-          >
-            <LogOut size={16} />
-            <span className="hidden sm:inline">로그아웃</span>
-          </button>
-        </>
-      ) : (
-        <>
-          <Link
-            href="/login"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]"
-          >
-            <User size={18} />
-            <span>로그인</span>
-          </Link>
+      {_hasHydrated && (
+        isLoggedIn ? (
+          <>
+            {isAdmin && (
+              <>
+                <Link
+                  href="/admin"
+                  className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-accent)] sm:px-4"
+                >
+                  <Settings size={16} />
+                  <span className="hidden sm:inline">관리자</span>
+                </Link>
 
-          <Link
-            href="/signup"
-            className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-bold text-[var(--color-accent)] shadow-sm backdrop-blur-xl transition-all hover:bg-white hover:shadow-md dark:bg-white/10"
-          >
-            <UserPlus size={16} />
-            <span>회원가입</span>
-          </Link>
-        </>
+                <Link
+                  href="/admin/posts/new"
+                  className="flex h-10 items-center gap-2 rounded-full bg-[var(--color-accent)] px-3 text-sm font-bold text-white shadow-[var(--shadow-control)] transition-all hover:brightness-105 sm:px-4"
+                >
+                  <PenLine size={16} />
+                  <span>새 글</span>
+                </Link>
+              </>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-medium text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-red-500 sm:px-4"
+            >
+              <LogOut size={16} />
+              <span className="hidden sm:inline">로그아웃</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              href="/login"
+              className="flex h-10 items-center gap-2 rounded-full px-2 text-sm font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)] sm:px-4"
+            >
+              <User size={18} />
+              <span>로그인</span>
+            </Link>
+
+            <Link
+              href="/signup"
+              className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-bold text-[var(--color-accent)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-all hover:bg-[var(--color-surface-strong)] sm:px-4"
+            >
+              <UserPlus size={16} />
+              <span>회원가입</span>
+            </Link>
+          </>
+        )
       )}
     </div>
   );

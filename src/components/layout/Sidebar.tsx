@@ -149,7 +149,7 @@ function SidebarContent() {
       <button
         type="button"
         onClick={() => setIsOpen((previous) => !previous)}
-        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--color-line)] bg-[var(--color-surface-strong)] p-2 shadow-md transition-colors hover:bg-white md:hidden"
+        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2 shadow-[var(--shadow-control)] backdrop-blur-xl transition-colors hover:bg-[var(--color-surface-strong)] md:hidden"
         aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -274,14 +274,14 @@ function SidebarContent() {
               href={displayProfile.githubUrl || '#'}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-[var(--color-line)] bg-white/70 p-2.5 text-[var(--color-text-muted)] shadow-sm transition-all hover:bg-[var(--color-text)] hover:text-white dark:bg-white/10 dark:hover:bg-white dark:hover:text-black"
+              className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-text)] hover:text-white dark:hover:bg-white dark:hover:text-black"
               aria-label="GitHub"
             >
               <Github size={18} />
             </a>
             <a
               href={`mailto:${displayProfile.email}`}
-              className="rounded-full border border-[var(--color-line)] bg-white/70 p-2.5 text-[var(--color-text-muted)] shadow-sm transition-all hover:bg-[var(--color-accent)] hover:text-white dark:bg-white/10"
+              className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-accent)] hover:text-white"
               aria-label="이메일"
             >
               <Mail size={18} />

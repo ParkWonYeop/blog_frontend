@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import axios from 'axios';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 // 🛠️ JWT 토큰 만료 여부 체크 함수 (라이브러리 없이 구현)
 function isTokenExpired(token: string) {
@@ -93,13 +94,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthInitializer /> {/* 👈 앱 실행 시 토큰 자동 검사 */}
-      {children}
-      <Toaster position="top-right" />
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthInitializer /> {/* 👈 앱 실행 시 토큰 자동 검사 */}
+        {children}
+        <Toaster position="top-right" />
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

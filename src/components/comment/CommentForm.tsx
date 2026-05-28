@@ -62,7 +62,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-[var(--color-line)] bg-white/50 p-4 dark:bg-white/5">
+    <form onSubmit={handleSubmit} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
       {/* 비회원 입력 필드 */}
       {!isLoggedIn && (
         <div className="flex gap-2 mb-3">
@@ -71,7 +71,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
             placeholder="닉네임"
             value={guestInfo.nickname}
             onChange={(e) => setGuestInfo({ ...guestInfo, nickname: e.target.value })}
-            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-white/70 px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
             required
           />
           <input
@@ -79,7 +79,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
             placeholder="비밀번호"
             value={guestInfo.password}
             onChange={(e) => setGuestInfo({ ...guestInfo, password: e.target.value })}
-            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-white/70 px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
             required
           />
         </div>
@@ -91,13 +91,13 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={isLoggedIn ? placeholder : '댓글을 남겨보세요.'}
-          className="h-24 w-full resize-none rounded-lg border border-[var(--color-line)] bg-white/70 p-3 pr-12 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
+          className="h-24 w-full resize-none rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3 pr-12 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
           required
         />
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="absolute bottom-3 right-3 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300"
+          className="absolute bottom-3 right-3 rounded-lg bg-[var(--color-accent)] p-2 text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           title="등록"
         >
           {mutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
