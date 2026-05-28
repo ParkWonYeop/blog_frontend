@@ -1,5 +1,19 @@
 # LOG.md
 
+## 2026-05-29
+
+- 체스 퍼즐을 프론트 하드코딩 배열에서 백엔드 `GET /api/chess-puzzles/today?timezone=Asia/Seoul` 조회 방식으로 전환했다.
+- `../blog-backend`에 `chess_puzzle` Flyway migration, Lichess CC0 mate-in-1 seed 30개, 공개 오늘의 퍼즐 API, 날짜 자동 순환 로직, 통합 테스트를 추가했다.
+- 검증: 백엔드 `JAVA_HOME=/Users/wypark/Library/Java/JavaVirtualMachines/temurin-21.0.11/Contents/Home ./gradlew test` 통과, 프론트 `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 로컬 네트워크 제한으로 기존처럼 경고를 출력했지만 실패하지 않았다.
+- 다음 추천 작업: 배포 환경 DB에 Flyway migration이 정상 적용된 뒤 `https://blog.wypark.me/play/chess`에서 실제 API 응답과 CORS를 확인한다.
+
+## 2026-05-28
+
+- `/play/chess` 체스 퍼즐 페이지를 추가하고 `chess.js`로 합법수/체크메이트 판정을 처리하는 한 수 메이트 퍼즐 3개를 구현했다.
+- 왼쪽 사이드바 카테고리 영역 아래에 구분선과 `기타` 섹션을 추가하고, 그 안에 `체스` 메뉴를 연결했다.
+- 검증: `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 로컬 네트워크 제한으로 기존처럼 경고를 출력했지만 실패하지 않았다. Browser로 `/play/chess`에서 사이드바 `기타 > 체스` 노출, 보드 렌더링, 첫 퍼즐 `Qxf7#` 정답 판정을 확인했다.
+- 다음 추천 작업: 체스 퍼즐 기록을 localStorage나 로그인 사용자 서버 저장으로 확장해 완료한 퍼즐/연속 정답 수를 유지한다.
+
 ## 2026-05-28
 
 - 상단 메뉴의 관리자 `새 글` 버튼이 라이트/다크 모드에서 흑백 반전처럼 보이지 않도록 accent 색상 기반 primary 버튼으로 고정했다.

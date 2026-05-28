@@ -9,6 +9,7 @@ import { clsx } from 'clsx';
 import {
   Archive,
   ChevronRight,
+  Crown,
   FileQuestion,
   Folder,
   FolderOpen,
@@ -283,6 +284,26 @@ function SidebarContent() {
                   </Link>
                 </div>
               </div>
+            </div>
+
+            <div className="-mx-2 mt-3 shrink-0 border-t border-[var(--color-line)] px-2 pt-3">
+              <div className="mb-2 flex h-8 items-center px-3">
+                <p className="text-xs font-semibold uppercase text-[var(--color-text-subtle)]">기타</p>
+              </div>
+
+              <Link
+                href="/play/chess"
+                onClick={closeSidebar}
+                className={clsx(
+                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all',
+                  pathname === '/play/chess'
+                    ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
+                    : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                )}
+              >
+                <Crown size={16} />
+                <span>체스</span>
+              </Link>
             </div>
           </div>
         </nav>

@@ -47,6 +47,19 @@ export interface PostSaveRequest {
   tags: string[];
 }
 
+export interface ChessPuzzle {
+  id: number;
+  date: string;
+  title: string;
+  theme: string;
+  fen: string;
+  answer: string;
+  answerUci: string;
+  hint: string;
+  rating: number;
+  sourceUrl: string;
+}
+
 // 4. 로그인 응답
 export interface AuthResponse {
   grantType: string;
