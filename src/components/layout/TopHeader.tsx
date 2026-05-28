@@ -21,7 +21,7 @@ export default function TopHeader() {
   };
 
   return (
-    <div className="absolute right-4 top-4 z-30 flex max-w-[calc(100vw-5.5rem)] flex-wrap items-center justify-end gap-2 md:right-6 md:top-6 md:max-w-none md:gap-3">
+    <div className="absolute right-4 top-4 z-30 flex max-w-[calc(100vw-5.5rem)] flex-wrap items-center justify-end gap-2 md:right-6 md:top-6 md:max-w-none">
       <ThemeToggle />
 
       {_hasHydrated && (
@@ -31,7 +31,7 @@ export default function TopHeader() {
               <>
                 <Link
                   href="/admin"
-                  className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-accent)] sm:px-4"
+                  className="flex h-9 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-accent)]"
                 >
                   <Settings size={16} />
                   <span className="hidden sm:inline">관리자</span>
@@ -39,7 +39,7 @@ export default function TopHeader() {
 
                 <Link
                   href="/admin/posts/new"
-                  className="flex h-10 items-center gap-2 rounded-full bg-[var(--color-accent)] px-3 text-sm font-bold text-white shadow-[var(--shadow-control)] transition-all hover:brightness-105 sm:px-4"
+                  className="flex h-9 items-center gap-2 rounded-full bg-[var(--color-text)] px-3 text-sm font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition-all hover:opacity-90 dark:bg-white dark:text-black"
                 >
                   <PenLine size={16} />
                   <span>새 글</span>
@@ -49,7 +49,7 @@ export default function TopHeader() {
 
             <button
               onClick={handleLogout}
-              className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-medium text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-red-500 sm:px-4"
+              className="flex h-9 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-medium text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-red-500"
             >
               <LogOut size={16} />
               <span className="hidden sm:inline">로그아웃</span>
@@ -59,18 +59,18 @@ export default function TopHeader() {
           <>
             <Link
               href="/login"
-              className="flex h-10 items-center gap-2 rounded-full px-2 text-sm font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)] sm:px-4"
+              className="flex h-9 items-center gap-2 rounded-full border border-transparent px-2.5 text-sm font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)] sm:px-3"
             >
               <User size={18} />
-              <span>로그인</span>
+              <span className="hidden sm:inline">로그인</span>
             </Link>
 
             <Link
               href="/signup"
-              className="flex h-10 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-bold text-[var(--color-accent)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-all hover:bg-[var(--color-surface-strong)] sm:px-4"
+              className="flex h-9 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-all hover:bg-[var(--color-surface-strong)]"
             >
               <UserPlus size={16} />
-              <span>회원가입</span>
+              <span className="hidden sm:inline">회원가입</span>
             </Link>
           </>
         )

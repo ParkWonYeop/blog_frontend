@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import { Post } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Surface from '@/components/ui/Surface';
@@ -20,7 +19,7 @@ const formatDate = (value: string) => {
 };
 
 function getSummary(content?: string) {
-  if (!content) return '본문을 열어 전체 내용을 확인해 보세요.';
+  if (!content) return '';
 
   return content
     .replace(/```[\s\S]*?```/g, ' ')
@@ -34,13 +33,14 @@ function getSummary(content?: string) {
 
 export default function PostCard({ post }: { post: Post }) {
   const isNotice = isNoticePost(post);
+  const summary = getSummary(post.content);
 
   return (
     <Link href={`/posts/${post.slug}`} className="group block h-full">
       <Surface
         as="article"
         interactive
-        className="flex h-full flex-col p-5"
+        className="flex h-full flex-col p-5 shadow-none"
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <StatusBadge tone={isNotice ? 'danger' : 'neutral'} className="shrink-0">
@@ -55,16 +55,11 @@ export default function PostCard({ post }: { post: Post }) {
           {post.title}
         </h2>
 
-        <p className="mt-3 line-clamp-3 flex-1 break-words text-sm leading-6 text-[var(--color-text-muted)]">
-          {getSummary(post.content)}
-        </p>
-
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--color-line)] pt-4">
-          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)]">
-            읽기
-            <ChevronRight size={15} className="transition group-hover:translate-x-0.5" />
-          </span>
-        </div>
+        {summary && (
+          <p className="mt-3 line-clamp-3 flex-1 break-words text-sm leading-6 text-[var(--color-text-muted)]">
+            {summary}
+          </p>
+        )}
       </Surface>
     </Link>
   );

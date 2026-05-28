@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+- Pretendard Variable WOFF2를 `src/app/fonts`에 self-host로 추가하고 `next/font/local`로 전역 적용했다.
+- 홈을 Apple editorial 톤으로 정리해 히어로, 공지, 대표 글, 최신 글 중심으로 줄이고 최근 업데이트/카테고리 선반/인기 글/하단 아카이브 CTA를 제거했다.
+- TopHeader와 ThemeToggle을 아이콘 중심의 조용한 컨트롤로 낮추고, Sidebar는 모바일 기본 닫힘 + 오버레이 drawer로 바꿨다.
+- 카드/Surface 그림자와 `읽기` 같은 보조 문구를 줄이고, 글 상세의 조회수 메타와 TOC 카드감을 덜어 본문 집중도를 높였다.
+- 검증: `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 로컬 네트워크 제한으로 기존처럼 경고를 출력했지만 실패하지 않았다. Browser로 `http://localhost:3000/`, 모바일 홈/drawer, `/?keyword=network`, `/archive`, production API 환경의 `/posts/rtr-(refresh-token-rotation)`을 확인했고 Pretendard computed font 적용을 확인했다. 로컬 기본 API 상태에서는 posts/categories 데이터가 비어 보일 수 있어 production API 환경으로 글 상세를 추가 확인했다.
+- 다음 추천 작업: 배포 후 실제 Origin에서 홈 실데이터 카드 밀도와 모바일 상단 컨트롤 간격을 한 번 더 확인한다.
+
+## 2026-05-28
+
 - 홈의 `전체 글 둘러보기` CTA가 라이트/다크에서 반전 색상처럼 보이지 않도록 `color-text`/`dark:bg-white` 조합을 제거하고 Apple action blue 토큰으로 통일했다.
 - 검증: `npm run lint` 통과.
 - 다음 추천 작업: 배포 후 홈 첫 화면에서 primary/secondary CTA 대비가 라이트/다크 모두 자연스러운지 최종 확인한다.

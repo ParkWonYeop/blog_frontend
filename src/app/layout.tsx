@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 import './globals.css';
 import Providers from './providers';
 import Sidebar from '@/components/layout/Sidebar';
 import TopHeader from '@/components/layout/TopHeader';
 import Script from 'next/script';
 import { THEME_INIT_SCRIPT } from '@/components/theme/theme';
+
+const pretendard = localFont({
+  src: './fonts/PretendardVariable.woff2',
+  variable: '--font-pretendard',
+  weight: '45 920',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'WYPark Blog',
@@ -21,7 +29,7 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
       </head>
-      <body className="bg-[var(--color-page)] text-[var(--color-text)]">
+      <body className={`${pretendard.variable} ${pretendard.className} bg-[var(--color-page)] text-[var(--color-text)] antialiased`}>
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>

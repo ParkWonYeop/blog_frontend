@@ -6,10 +6,11 @@ import { getProfile } from '@/api/profile';
 import MarkdownRenderer from '@/components/post/MarkdownRenderer';
 import CommentList from '@/components/comment/CommentList';
 import TOC from '@/components/post/TOC';
-import { Loader2, Calendar, Eye, Folder, User, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Calendar, User, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import StatusBadge from '@/components/ui/StatusBadge';
 import { Post } from '@/types'; // 타입 임포트
 
 interface PostDetailClientProps {
@@ -89,25 +90,22 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   const nextPost = post.nextPost;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-      <Link href="/" className="mb-8 inline-flex items-center gap-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
+    <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
+      <Link href="/" className="mb-10 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
         <ArrowLeft size={18} />
-        <span className="text-sm font-medium">목록으로</span>
+        <span>목록으로</span>
       </Link>
 
-      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,800px)_220px] xl:justify-center xl:gap-16">
+      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,780px)_210px] xl:justify-center xl:gap-16">
         
         <main className="min-w-0">
           <article>
-            <header className="mb-10 border-b border-[var(--color-line)] pb-8">
-              <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-center gap-2 rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm font-semibold text-[var(--color-accent)]">
-                  <Folder size={14} />
-                  <span>{post.categoryName || '미분류'}</span>
-                </div>
-              </div>
-              <h1 className="mb-6 break-keep text-3xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-5xl">{post.title}</h1>
-              <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--color-text-muted)]">
+            <header className="mb-12 border-b border-[var(--color-line)] pb-8">
+              <StatusBadge tone="neutral" className="mb-5">
+                {post.categoryName || '미분류'}
+              </StatusBadge>
+              <h1 className="mb-7 break-keep text-4xl font-bold leading-[1.08] tracking-normal text-[var(--color-text)] md:text-6xl">{post.title}</h1>
+              <div className="flex flex-wrap items-center gap-5 text-sm text-[var(--color-text-muted)]">
                 <div className="flex items-center gap-2">
                   {profile?.imageUrl ? (
                     <Image
@@ -124,11 +122,10 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
                   <span className="font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
                 </div>
                 <div className="flex items-center gap-1.5"><Calendar size={16} />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</div>
-                <div className="flex items-center gap-1.5"><Eye size={16} />조회 {post.viewCount.toLocaleString()}</div>
               </div>
             </header>
 
-            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
+            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
               <MarkdownRenderer content={post.content || ''} />
             </div>
           </article>
@@ -152,7 +149,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
           <CommentList postSlug={post.slug} />
         </main>
 
-        <aside className="hidden w-[220px] shrink-0 xl:block">
+        <aside className="hidden w-[210px] shrink-0 xl:block">
           <div className="sticky top-24">
              <TOC content={post.content || ''} />
           </div>

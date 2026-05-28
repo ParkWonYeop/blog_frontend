@@ -20,8 +20,8 @@ export default function Surface({
     <Component
       className={clsx(
         'rounded-lg border border-[var(--color-line)] backdrop-blur-xl',
-        strong ? 'bg-[var(--color-surface-strong)] shadow-[var(--shadow-panel)]' : 'bg-[var(--color-surface)] shadow-[var(--shadow-card)]',
-        interactive && 'transition duration-150 hover:border-[var(--color-line)] hover:bg-[var(--color-surface-strong)] hover:shadow-[var(--shadow-panel)]',
+        strong ? 'bg-[var(--color-surface-strong)] shadow-[var(--shadow-card)]' : 'bg-[var(--color-surface)] shadow-[var(--shadow-card)]',
+        interactive && 'transition duration-150 hover:border-black/15 hover:bg-[var(--color-surface-strong)] hover:shadow-[var(--shadow-control)] dark:hover:border-white/20',
         className,
       )}
       {...props}
