@@ -2,6 +2,12 @@
 
 ## 2026-05-28
 
+- 홈의 `전체 글 둘러보기` CTA가 라이트/다크에서 반전 색상처럼 보이지 않도록 `color-text`/`dark:bg-white` 조합을 제거하고 Apple action blue 토큰으로 통일했다.
+- 검증: `npm run lint` 통과.
+- 다음 추천 작업: 배포 후 홈 첫 화면에서 primary/secondary CTA 대비가 라이트/다크 모두 자연스러운지 최종 확인한다.
+
+## 2026-05-28
+
 - `npx getdesign@latest add apple`로 Apple 참고용 `DESIGN.md`를 추가했다.
 - `ThemeProvider`/`ThemeToggle`을 추가해 `wyp-theme-mode` 기반 `라이트/시스템/다크` 3단 토글을 TopHeader 우측에 배치했다.
 - `html[data-theme]`, `html[data-theme-mode]` DOM 계약과 beforeInteractive 초기화 스크립트를 추가해 강제 라이트/다크와 시스템 설정 따르기를 분리했다.

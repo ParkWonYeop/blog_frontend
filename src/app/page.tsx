@@ -343,7 +343,7 @@ function HomeContent() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/archive"
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--color-text)] px-4 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-white dark:text-black"
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 text-sm font-semibold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)]"
             >
               전체 글 둘러보기
               <Archive size={16} />
