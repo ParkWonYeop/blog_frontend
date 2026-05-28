@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import {
   Clock,
   Loader2,
   Search,
+  TrendingUp,
 } from 'lucide-react';
 import { getPosts } from '@/api/posts';
 import EmptyState from '@/components/ui/EmptyState';
@@ -122,43 +123,15 @@ function NoticeStrip({ notices }: { notices: Post[] }) {
   );
 }
 
-function FeaturedPost({ post }: { post?: Post }) {
-  if (!post) {
-    return (
-      <Surface as="section" strong className="flex min-h-72 items-center justify-center p-6 shadow-none">
-        <EmptyState title="아직 공개된 글이 없습니다." />
-      </Surface>
-    );
-  }
-
-  const summary = getSummary(post.content, 170);
-
-  return (
-    <Link href={`/posts/${post.slug}`} className="group block h-full">
-      <Surface as="article" strong interactive className="flex h-full min-h-72 flex-col p-7 shadow-none md:p-9">
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <StatusBadge tone="neutral">{post.categoryName || '미분류'}</StatusBadge>
-          <time className="text-xs font-medium tabular-nums text-[var(--color-text-subtle)]">
-            {formatDate(post.createdAt)}
-          </time>
-        </div>
-        <div className="flex flex-1 flex-col">
-          <p className="mb-4 text-sm font-semibold text-[var(--color-accent)]">대표 글</p>
-          <h2 className="text-3xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-4xl">
-            {post.title}
-          </h2>
-          {summary && (
-            <p className="mt-5 line-clamp-3 text-[15px] leading-7 text-[var(--color-text-muted)]">
-              {summary}
-            </p>
-          )}
-        </div>
-      </Surface>
-    </Link>
-  );
-}
-
-function CompactPostRow({ post }: { post: Post }) {
+function CompactPostRow({
+  post,
+  rank,
+  showViews = false,
+}: {
+  post: Post;
+  rank?: number;
+  showViews?: boolean;
+}) {
   const summary = getSummary(post.content, 92);
 
   return (
@@ -166,7 +139,12 @@ function CompactPostRow({ post }: { post: Post }) {
       href={`/posts/${post.slug}`}
       className="group flex items-start justify-between gap-4 rounded-lg px-1 py-4 transition duration-150 hover:bg-black/[0.025] hover:px-3 dark:hover:bg-white/[0.07]"
     >
-      <div className="min-w-0">
+      {rank !== undefined && (
+        <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold tabular-nums text-[var(--color-accent)]">
+          {rank}
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
         <div className="mb-1.5 flex items-center gap-2">
           <StatusBadge tone={isNoticePost(post) ? 'danger' : 'neutral'} className="shrink-0">
             {post.categoryName || '미분류'}
@@ -174,6 +152,11 @@ function CompactPostRow({ post }: { post: Post }) {
           <time className="text-xs text-[var(--color-text-subtle)]">
             {formatDate(post.createdAt)}
           </time>
+          {showViews && (
+            <span className="text-xs tabular-nums text-[var(--color-text-subtle)]">
+              조회 {post.viewCount.toLocaleString()}
+            </span>
+          )}
         </div>
         <h3 className="line-clamp-1 text-base font-semibold text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">
           {post.title}
@@ -189,6 +172,48 @@ function CompactPostRow({ post }: { post: Post }) {
   );
 }
 
+function PostListPanel({
+  title,
+  icon,
+  posts,
+  isPopular = false,
+}: {
+  title: string;
+  icon: ReactNode;
+  posts: Post[];
+  isPopular?: boolean;
+}) {
+  return (
+    <Surface as="section" className="p-5 shadow-none md:p-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h2 className="text-lg font-bold text-[var(--color-text)]">{title}</h2>
+        </div>
+        <Link href="/archive" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
+          전체 보기
+          <ChevronRight size={15} />
+        </Link>
+      </div>
+
+      {posts.length > 0 ? (
+        <div className="divide-y divide-[var(--color-line)]">
+          {posts.map((post, index) => (
+            <CompactPostRow
+              key={post.id}
+              post={post}
+              rank={isPopular ? index + 1 : undefined}
+              showViews={isPopular}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
+      )}
+    </Surface>
+  );
+}
+
 function HomeContent() {
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
@@ -201,7 +226,13 @@ function HomeContent() {
 
   const { data: latestData, isLoading: isLatestLoading } = useQuery({
     queryKey: ['posts', 'latest'],
-    queryFn: () => getPosts({ size: 7, sort: 'createdAt,desc' }),
+    queryFn: () => getPosts({ size: 8, sort: 'createdAt,desc' }),
+    retry: 0,
+  });
+
+  const { data: popularData, isLoading: isPopularLoading } = useQuery({
+    queryKey: ['posts', 'popular'],
+    queryFn: () => getPosts({ size: 8, sort: 'viewCount,desc' }),
     retry: 0,
   });
 
@@ -213,10 +244,9 @@ function HomeContent() {
   });
 
   const notices = noticesData?.content || [];
-  const latestPosts = (latestData?.content || []).filter((post) => !isNoticePost(post));
-  const featuredPost = latestPosts[0];
-  const latestList = latestPosts.slice(1, 7);
-  const isHomeLoading = !keyword && (isNoticesLoading || isLatestLoading);
+  const latestList = (latestData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
+  const popularList = (popularData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
+  const isHomeLoading = !keyword && (isNoticesLoading || isLatestLoading || isPopularLoading);
 
   if (keyword) {
     return (
@@ -254,29 +284,18 @@ function HomeContent() {
 
       <NoticeStrip notices={notices} />
 
-      <section className={latestList.length > 0 ? 'grid gap-6 lg:grid-cols-[1.1fr_0.9fr]' : 'grid gap-6'}>
-        <FeaturedPost post={featuredPost} />
-
-        {latestList.length > 0 && (
-          <Surface as="section" className="p-5 shadow-none md:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Clock size={18} className="text-[var(--color-accent)]" />
-                <h2 className="text-lg font-bold text-[var(--color-text)]">최신 글</h2>
-              </div>
-              <Link href="/archive" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
-                전체 보기
-                <ChevronRight size={15} />
-              </Link>
-            </div>
-
-            <div className="divide-y divide-[var(--color-line)]">
-              {latestList.map((post) => (
-                <CompactPostRow key={post.id} post={post} />
-              ))}
-            </div>
-          </Surface>
-        )}
+      <section className="grid gap-6 lg:grid-cols-2">
+        <PostListPanel
+          title="인기 글"
+          icon={<TrendingUp size={18} className="text-[var(--color-accent)]" />}
+          posts={popularList}
+          isPopular
+        />
+        <PostListPanel
+          title="최신 글"
+          icon={<Clock size={18} className="text-[var(--color-accent)]" />}
+          posts={latestList}
+        />
       </section>
     </main>
   );
