@@ -48,17 +48,18 @@ export default function PostSearch({
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all placeholder:text-gray-400"
+          className="w-full rounded-full border border-[var(--color-line)] bg-white/70 py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-sm outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-white focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10 dark:focus:bg-white/15"
         />
         <Search 
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-blue-500 transition-colors" 
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-accent)]" 
           size={18} 
           onClick={handleSearch}
         />
         {keyword && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-subtle)] transition-colors hover:bg-black/[0.06] hover:text-[var(--color-text)] dark:hover:bg-white/10"
+            aria-label="검색어 지우기"
           >
             <X size={14} />
           </button>

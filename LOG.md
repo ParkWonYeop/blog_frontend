@@ -26,3 +26,12 @@
 - `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run build`를 네트워크 허용 상태로 실행해 sitemap fetch까지 포함한 production build를 검증했다.
 - 검증: `npm run lint` 통과, `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run build` 통과. 로컬 `localhost:3000`에서 배포 API를 직접 붙이는 브라우저 검증은 백엔드 CORS 정책상 `https://blog.wypark.me`만 허용되어 제한된다.
 - 다음 추천 작업: 프론트 배포 후 `https://blog.wypark.me/admin`에서 실제 관리자 로그인 상태로 dashboard 실데이터 렌더링과 range 전환을 최종 확인한다.
+
+## 2026-05-28
+
+- Browser로 배포 블로그(`https://blog.wypark.me`)를 직접 둘러보고 대표글 카드가 비어 보이는 현상, 검색 입력/로그인/관리자 하위 화면의 다크모드 누락을 확인했다.
+- 대표글이 1개뿐일 때 최신 글 패널이 빈 영역처럼 보이지 않도록 홈 featured/latest 레이아웃을 조정했다.
+- 검색 입력, 로그인 화면, 댓글 UI를 토큰 기반 surface/text/input 스타일로 정리했다.
+- 관리자 게시글/댓글/카테고리/프로필처럼 기존 Tailwind neutral class를 쓰는 화면도 다크모드에서 깨지지 않도록 전역 dark compatibility 레이어를 보강했다.
+- 검증: `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 샌드박스 네트워크 제한으로 경고가 출력됐지만 exit 0으로 완료됐다. `npm run dev` 후 Browser로 `/`, `/?keyword=network`, `/login`, 로그아웃 상태 `/admin` 리다이렉트, 관리자 하위 화면 로컬 미리보기를 확인했다.
+- 다음 추천 작업: 프론트 배포 후 실제 관리자 로그인 상태에서 `/admin/posts`, `/admin/comments`, `/admin/categories`, `/admin/profile`의 데이터 로딩 상태와 다크모드 hover/focus를 production Origin에서 최종 확인한다.

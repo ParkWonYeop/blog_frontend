@@ -84,17 +84,19 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
       <div 
         className={clsx(
           "relative p-4 rounded-xl transition-colors group",
-          comment.isPostAuthor ? "bg-blue-50/50 border border-blue-100" : "bg-white border border-gray-100"
+          comment.isPostAuthor
+            ? "border border-blue-500/15 bg-blue-500/10"
+            : "border border-[var(--color-line)] bg-white/60 dark:bg-white/5"
         )}
       >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div 
               className={clsx(
-                "p-1.5 rounded-full flex items-center justify-center", 
-                comment.isPostAuthor ? "bg-blue-100 text-blue-600" : 
-                !isGuestComment ? "bg-green-100 text-green-600" : 
-                "bg-gray-100 text-gray-500"
+                "flex items-center justify-center rounded-full p-1.5", 
+                comment.isPostAuthor ? "bg-blue-500/15 text-blue-600 dark:text-blue-300" : 
+                !isGuestComment ? "bg-green-500/15 text-green-600 dark:text-green-300" : 
+                "bg-black/[0.05] text-[var(--color-text-muted)] dark:bg-white/10"
               )}
             >
               {comment.isPostAuthor ? <CheckCircle2 size={14} /> : 
@@ -103,11 +105,11 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2">
-              <span className={clsx("text-sm font-bold flex items-center gap-1", comment.isPostAuthor ? "text-blue-700" : "text-gray-700")}>
+              <span className={clsx("flex items-center gap-1 text-sm font-bold", comment.isPostAuthor ? "text-blue-700 dark:text-blue-300" : "text-[var(--color-text)]")}>
                 {comment.author}
                 {comment.isPostAuthor && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full font-medium">작성자</span>}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-[var(--color-text-subtle)]">
                 {format(new Date(comment.createdAt), 'yyyy.MM.dd HH:mm')}
               </span>
             </div>
@@ -116,7 +118,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               onClick={() => setIsReplying(!isReplying)}
-              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+              className="rounded p-1.5 text-[var(--color-text-subtle)] hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-300"
               title="답글 달기"
             >
               <MessageSquare size={14} />
@@ -127,8 +129,8 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
                 onClick={handleDeleteClick}
                 className={clsx(
                   "p-1.5 rounded transition-colors",
-                  isDeleting ? "bg-red-50 text-red-600" : 
-                  "text-gray-400 hover:text-red-600 hover:bg-red-50"
+                  isDeleting ? "bg-red-500/10 text-red-600" : 
+                  "text-[var(--color-text-subtle)] hover:bg-red-500/10 hover:text-red-600"
                 )}
                 title="삭제"
               >
@@ -138,19 +140,19 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
           </div>
         </div>
 
-        <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed pl-1">
+        <p className="pl-1 text-sm leading-relaxed text-[var(--color-text)] whitespace-pre-wrap">
           {comment.content}
         </p>
 
         {/* 🎨 비회원 비밀번호 입력창 (인라인) */}
         {isDeleting && isGuestComment && (
-           <div className="mt-3 flex items-center gap-2 p-2 bg-gray-50 rounded-lg animate-in fade-in slide-in-from-top-1 duration-200">
+           <div className="mt-3 flex animate-in items-center gap-2 rounded-lg bg-black/[0.04] p-2 duration-200 fade-in slide-in-from-top-1 dark:bg-white/10">
              <input
                type="password"
                placeholder="비밀번호 입력"
                value={guestPassword}
                onChange={(e) => setGuestPassword(e.target.value)}
-               className="text-xs px-2 py-1.5 border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
+               className="rounded border border-[var(--color-line)] bg-white/70 px-2 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-accent)] focus:outline-none dark:bg-white/10"
                autoFocus
              />
              <button
@@ -161,7 +163,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
              </button>
              <button
                onClick={() => { setIsDeleting(false); setGuestPassword(''); }}
-               className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"
+               className="rounded-full p-1 text-[var(--color-text-subtle)] hover:bg-black/[0.06] dark:hover:bg-white/10"
              >
                <X size={14} />
              </button>
@@ -170,7 +172,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
       </div>
 
       {isReplying && (
-        <div className="mt-2 pl-4 border-l-2 border-gray-200 ml-4 animate-in fade-in slide-in-from-top-2">
+        <div className="mt-2 ml-4 animate-in border-l-2 border-[var(--color-line)] pl-4 fade-in slide-in-from-top-2">
           <CommentForm 
             postSlug={postSlug} 
             parentId={comment.id} 
@@ -181,7 +183,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
       )}
 
       {comment.children && comment.children.length > 0 && (
-        <div className="mt-2 pl-4 md:pl-8 border-l-2 border-gray-100 ml-2 md:ml-4 space-y-3">
+        <div className="mt-2 ml-2 space-y-3 border-l-2 border-[var(--color-line)] pl-4 md:ml-4 md:pl-8">
           {comment.children.map((child) => (
             <CommentItem 
               key={child.id} 

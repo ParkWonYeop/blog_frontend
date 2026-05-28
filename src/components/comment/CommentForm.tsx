@@ -62,7 +62,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+    <form onSubmit={handleSubmit} className="rounded-lg border border-[var(--color-line)] bg-white/50 p-4 dark:bg-white/5">
       {/* 비회원 입력 필드 */}
       {!isLoggedIn && (
         <div className="flex gap-2 mb-3">
@@ -71,7 +71,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
             placeholder="닉네임"
             value={guestInfo.nickname}
             onChange={(e) => setGuestInfo({ ...guestInfo, nickname: e.target.value })}
-            className="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-white/70 px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
             required
           />
           <input
@@ -79,7 +79,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
             placeholder="비밀번호"
             value={guestInfo.password}
             onChange={(e) => setGuestInfo({ ...guestInfo, password: e.target.value })}
-            className="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-white/70 px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
             required
           />
         </div>
@@ -91,7 +91,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={isLoggedIn ? placeholder : '댓글을 남겨보세요.'}
-          className="w-full p-3 pr-12 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 resize-none h-24 bg-white"
+          className="h-24 w-full resize-none rounded-lg border border-[var(--color-line)] bg-white/70 p-3 pr-12 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
           required
         />
         <button

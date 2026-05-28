@@ -58,33 +58,33 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-page)] p-4">
+      <div className="w-full max-w-md overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-panel)] backdrop-blur-xl">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">로그인</h1>
-          <p className="mt-2 text-gray-500">블로그에 오신 것을 환영합니다.</p>
+          <h1 className="text-3xl font-bold text-[var(--color-text)]">로그인</h1>
+          <p className="mt-2 text-[var(--color-text-muted)]">블로그에 오신 것을 환영합니다.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">이메일</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">이메일</label>
             <input
               type="email"
               value={formData.email}
               onChange={(event) => setFormData({ ...formData, email: event.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 outline-none transition-all focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-white/70 px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
               placeholder="example@email.com"
               required
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">비밀번호</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">비밀번호</label>
             <input
               type="password"
               value={formData.password}
               onChange={(event) => setFormData({ ...formData, password: event.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 outline-none transition-all focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-white/70 px-4 py-2 text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-blue-500/15 dark:bg-white/10"
               placeholder="••••••••"
               required
             />
@@ -102,7 +102,7 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
           계정이 없으신가요?{' '}
           <Link href="/signup" className="font-medium text-blue-600 hover:underline">
             회원가입
@@ -118,7 +118,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="animate-spin text-blue-500" size={36} />
+          <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
         </div>
       }
     >

@@ -35,10 +35,10 @@ export default function CommentList({ postSlug }: CommentListProps) {
   }
 
   return (
-    <div className="mt-16 pt-10 border-t border-gray-100">
+    <div className="mt-16 border-t border-[var(--color-line)] pt-10">
       <div className="flex items-center gap-2 mb-6">
         <MessageCircle className="text-blue-600" size={24} />
-        <h3 className="text-xl font-bold text-gray-800">
+        <h3 className="text-xl font-bold text-[var(--color-text)]">
           댓글 <span className="text-blue-600">{totalCount}</span>
         </h3>
       </div>
@@ -55,7 +55,7 @@ export default function CommentList({ postSlug }: CommentListProps) {
             <CommentItem key={comment.id} comment={comment} postSlug={postSlug} />
           ))
         ) : (
-          <div className="text-center py-10 bg-gray-50 rounded-xl text-gray-500 text-sm">
+          <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-white/45 py-10 text-center text-sm text-[var(--color-text-muted)] dark:bg-white/5">
             아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
           </div>
         )}

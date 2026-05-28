@@ -153,14 +153,14 @@ function FeaturedPost({ post }: { post?: Post }) {
 
   return (
     <Link href={`/posts/${post.slug}`} className="group block h-full">
-      <Surface as="article" strong interactive className="flex h-full min-h-72 flex-col p-6">
+      <Surface as="article" strong interactive className="flex h-full min-h-64 flex-col p-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <StatusBadge tone="info">{post.categoryName || '미분류'}</StatusBadge>
           <time className="text-xs font-medium text-[var(--color-text-subtle)]">
             {formatDate(post.createdAt)}
           </time>
         </div>
-        <div className="flex flex-1 flex-col justify-end">
+        <div className="flex flex-1 flex-col">
           <p className="mb-3 text-sm font-semibold text-[var(--color-accent)]">대표 글</p>
           <h2 className="text-2xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-3xl">
             {post.title}
@@ -375,31 +375,29 @@ function HomeContent() {
 
       <NoticeStrip notices={notices} />
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className={latestList.length > 0 ? 'grid gap-6 lg:grid-cols-[1.05fr_0.95fr]' : 'grid gap-6'}>
         <FeaturedPost post={featuredPost} />
 
-        <Surface as="section" className="p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Clock size={18} className="text-[var(--color-accent)]" />
-              <h2 className="text-lg font-bold text-[var(--color-text)]">최신 글</h2>
+        {latestList.length > 0 && (
+          <Surface as="section" className="p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Clock size={18} className="text-[var(--color-accent)]" />
+                <h2 className="text-lg font-bold text-[var(--color-text)]">최신 글</h2>
+              </div>
+              <Link href="/archive" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)]">
+                전체 보기
+                <ChevronRight size={15} />
+              </Link>
             </div>
-            <Link href="/archive" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)]">
-              전체 보기
-              <ChevronRight size={15} />
-            </Link>
-          </div>
 
-          {latestList.length > 0 ? (
             <div className="divide-y divide-[var(--color-line)]">
               {latestList.map((post) => (
                 <CompactPostRow key={post.id} post={post} />
               ))}
             </div>
-          ) : (
-            <EmptyState title="최신 글 목록을 기다리고 있습니다." />
-          )}
-        </Surface>
+          </Surface>
+        )}
       </section>
 
       <section>
