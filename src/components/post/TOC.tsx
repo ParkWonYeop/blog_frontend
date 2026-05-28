@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { clsx } from 'clsx';
 // 🛠️ 중요: rehype-slug와 동일한 ID 생성을 위해 라이브러리 사용
 // npm install github-slugger 실행 필요
@@ -18,23 +18,21 @@ interface HeadingItem {
 
 export default function TOC({ content }: TOCProps) {
   const [activeId, setActiveId] = useState<string>('');
-  const [headings, setHeadings] = useState<HeadingItem[]>([]);
 
   // 1. 마크다운에서 헤딩(#) 추출 및 Slug 생성
-  useEffect(() => {
+  const headings = useMemo(() => {
     const slugger = new GithubSlugger(); // Slugger 인스턴스 (중복 ID 처리용)
     const lines = content.split('\n');
     
-    // 코드 블럭 내의 #은 무시
-    let inCodeBlock = false;
-
-    const matches = lines.reduce<HeadingItem[]>((acc, line) => {
+    const result = lines.reduce<{ headings: HeadingItem[]; inCodeBlock: boolean }>((acc, line) => {
       // 코드 블럭 진입/이탈 체크 (```)
       if (line.trim().startsWith('```')) {
-        inCodeBlock = !inCodeBlock;
-        return acc;
+        return {
+          ...acc,
+          inCodeBlock: !acc.inCodeBlock,
+        };
       }
-      if (inCodeBlock) return acc;
+      if (acc.inCodeBlock) return acc;
 
       // 헤딩 매칭 (# 1~3개)
       const match = line.match(/^(#{1,3})\s+(.+)$/);
@@ -45,12 +43,15 @@ export default function TOC({ content }: TOCProps) {
         // 🛠️ 핵심: github-slugger로 ID 생성 (한글, 띄어쓰기 등 완벽 호환)
         const slug = slugger.slug(text);
 
-        acc.push({ text, level, slug });
+        return {
+          ...acc,
+          headings: [...acc.headings, { text, level, slug }],
+        };
       }
       return acc;
-    }, []);
+    }, { headings: [], inCodeBlock: false });
 
-    setHeadings(matches);
+    return result.headings;
   }, [content]);
 
   // 2. 스크롤 감지 (IntersectionObserver)
@@ -103,18 +104,18 @@ export default function TOC({ content }: TOCProps) {
 
   return (
     <aside className="w-full">
-      <div className="border-l-2 border-gray-100 pl-4 py-2">
-        <h4 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wider text-opacity-80">On this page</h4>
+      <div className="rounded-lg border border-[var(--color-line)] bg-white/65 p-4 shadow-sm backdrop-blur-xl dark:bg-white/10">
+        <h4 className="mb-4 text-sm font-bold text-[var(--color-text)]">목차</h4>
         <ul className="space-y-2.5">
           {headings.map((heading, index) => (
             <li 
               key={`${heading.slug}-${index}`}
               className={clsx(
-                "text-sm transition-all duration-200",
-                heading.level === 3 ? "pl-4 text-xs" : "", // h3는 들여쓰기
+                "border-l-2 pl-3 text-sm transition-all duration-200",
+                heading.level === 3 ? "ml-3 text-xs" : "", // h3는 들여쓰기
                 activeId === heading.slug 
-                  ? "text-blue-600 font-bold translate-x-1" 
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "border-[var(--color-accent)] font-bold text-[var(--color-accent)]" 
+                  : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
               )}
             >
               <a 

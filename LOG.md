@@ -2,34 +2,27 @@
 
 ## 2026-05-28
 
-- Created `AGENTS.md` with repository-specific coding-agent guidance for the Next.js blog frontend.
-- Updated `AGENTS.md` to require recording completed work in `LOG.md` for each task.
-- Validation: confirmed `AGENTS.md` content and checked repository status with a one-off safe-directory git option.
-- Started the renewal plan by adding an `/admin` dashboard entry point with admin-only route guarding, post/category summary widgets, and quick access to writing.
-- Updated `TopHeader` to show `관리자 설정` and `새 글` only after auth hydration confirms an admin role.
-- Renamed the post detail loading file from `loding.tsx` to `loading.tsx`, gated React Query Devtools to development mode, and added `PostSaveRequest` for post create/update APIs.
-- Validation: ran `npm ci` successfully after rerunning outside the sandbox due npm cache permissions; targeted ESLint passed for the new admin/header/API/type files; `npm run build` passed; verified `/admin` redirects unauthenticated users to `/login` in the in-app browser on local port 3100. `npm run lint` still fails on existing baseline issues across the repo, mostly `any` usage, React Compiler `set-state-in-effect` findings, and a `require()` in `tailwind.config.ts`.
-- Updated `AGENTS.md` so future task wrap-ups must include the recommended next task in `LOG.md`.
-- Next task: proceed with renewal Phase 2 by removing profile/category admin editing controls from `Sidebar` and moving those flows into `/admin` tabs or dedicated admin components.
-- Continued renewal Phase 2 by reducing `Sidebar` to public navigation only: profile display, search, archive, category links, and social links remain; profile edit modal and category create/delete/move controls were removed.
-- Added `/admin` profile and category management panels with profile image upload, profile save, category creation, rename, parent move, and guarded delete confirmation flows using the existing API wrappers.
-- Validation: targeted ESLint passed for the changed admin/sidebar files; `npm run build` passed, with the existing sitemap backend connection warning logged as `ECONNREFUSED`; `npm run lint` still fails on the known baseline issues outside this task; local dev server on port 3100 returned HTTP 200 for `/admin`.
-- Next task: proceed with renewal Phase 3 by adding an admin posts management view with searchable post rows, edit links, and a non-browser-confirm delete flow.
-- Continued renewal Phase 3 by adding an `/admin` 게시글 관리 panel with keyword search, sort controls, pagination, view/edit actions, and an in-app delete confirmation dialog that invalidates post queries after deletion.
-- Added `PageMeta` and expanded `PostListResponse` so admin and dashboard counts can handle either top-level pagination fields or a nested `page` object from the backend.
-- Validation: installed dependencies with `npm ci`; targeted ESLint passed for `AdminPostsPanel`, `/admin`, and shared types; `tsc --noEmit` passed; `next build --webpack` passed with the existing sitemap fetch `EPERM` warning. The default `npm run build` Turbopack run hung during optimization and was terminated; full `npm run lint` still fails on known baseline issues outside this task. Local dev server on port 3100 returned HTTP 200 for `/admin` and redirected unauthenticated browser access to `/login`.
-- Next task: continue Phase 3 by tightening the write/edit flow under the admin experience, including replacing remaining browser `alert`/`confirm` usage in post detail/write flows with in-app dialogs or toast patterns.
-- Added a Next.js `src/proxy.ts` HTTPS enforcement layer that redirects non-local HTTP requests to HTTPS, respects `X-Forwarded-Proto`/`X-Forwarded-Host` to avoid reverse-proxy redirect loops, and adds HSTS on non-local HTTPS responses.
-- Validation: targeted ESLint passed for `src/proxy.ts` and the existing changed admin/type files; `tsc --noEmit` passed; `next build --webpack` passed with the existing sitemap fetch `EPERM` warning. Curl checks confirmed `Host: blog.wypark.me` over HTTP returns `301 Location: https://blog.wypark.me/archive`, `X-Forwarded-Proto: https` returns `200` with HSTS, and `127.0.0.1` local HTTP remains `200`. Full `npm run lint` still fails on the known baseline issues outside this task.
-- Next task: mirror the HTTPS redirect at the outer reverse proxy/load balancer as infrastructure defense-in-depth, then continue Phase 3 write/edit flow cleanup.
-- Completed the admin function move by extracting the post editor into `AdminPostEditor`, adding `/admin/posts/new` and `/admin/posts/[slug]/edit`, turning legacy `/write` into a compatibility redirect, and updating header/admin/post links to the new admin routes.
-- Removed direct post edit/delete controls from the public post detail page and moved admin comment deletion into a new `/admin` comments panel backed by typed `AdminComment` responses.
-- Updated `npm run build` to use `next build --webpack` so Docker/CI uses the build mode that passes locally instead of the default Turbopack build that previously hung.
-- Validation: targeted ESLint passed for changed admin/write/comment/post/header/API/type/proxy files with one existing `<img>` warning in `PostDetailClient`; `tsc --noEmit` passed; `npm run build` passed with the existing sitemap fetch `EPERM` warning; local dev server on port 3100 returned HTTP 200 for `/admin/posts/new`, `/admin/posts/sample/edit`, and `/write`. Full `npm run lint` still fails on known baseline issues outside this task.
-- Next task: continue with non-design quality work by cleaning the remaining lint baseline (`src/api/http.ts`, category/archive/home/login/signup/comment form/list, Markdown renderer, TOC, auth store, and Tailwind config).
-- Split admin management into dedicated routes under a shared guarded admin shell: `/admin/posts`, `/admin/comments`, `/admin/categories`, and `/admin/profile`; `/admin` is now a dashboard only.
-- Added admin dashboard recent comments and total comments widgets, plus defensive `getAdminComments` normalization for possible `author`, `postSlug`, and `postTitle` response aliases.
-- Enhanced admin post management with category filtering, direct page-number navigation, current-page row selection, and bulk delete via the existing single-delete API.
-- Added login return handling with `/login?redirect=...`, kept `/write` as the chosen legacy compatibility redirect, and documented these decisions in `docs/renewal-plan.md`.
-- Validation: unauthenticated live-server request to `https://blogserver.wypark.me/api/admin/comments?page=0&size=1` returned HTTP 403 with an empty body, so exact admin comment fields still require an authenticated admin token/session; targeted ESLint passed for the changed admin/login/comment API files; `npx tsc --noEmit` passed; `npm run build` passed with the existing sitemap fetch `EPERM` warning; full `npm run lint` still fails on known baseline issues outside this task; local dev route checks returned HTTP 200 for `/admin`, `/admin/posts`, `/admin/comments`, `/admin/categories`, and `/login?redirect=%2Fadmin%2Fcomments`; in-app browser verification confirmed `/admin/comments` redirects to `/login?redirect=%2Fadmin%2Fcomments` when logged out.
-- Next task: authenticate against the real admin API to capture the exact `getAdminComments` payload, then clean the existing lint baseline so full `npm run lint` can become a reliable gate.
+- `docs/apple-style-frontend-development-guide.md` Phase 1 + Phase 2 기준으로 Apple 스타일 1차 MVP 프론트 리뉴얼을 적용했다.
+- 전역 디자인 토큰과 작은 UI 컴포넌트(`Surface`, `StatusBadge`, `SegmentedControl`, `MetricCard`, `EmptyState`)를 추가했다.
+- 공개 홈을 intro, notice, featured/latest, category shelves, popular reading, archive CTA 구조로 재구성하고 공개 운영 집계 노출을 피했다.
+- 사이드바, 카드/list item, 아카이브, 글 상세, Markdown renderer, TOC의 영어 UI와 표면/본문 폭/간격을 한국어 중심 Apple 스타일로 정리했다.
+- 관리자 dashboard 타입과 `getAdminDashboard()` API wrapper를 추가하고, `/admin`에 KPI, 트래픽 차트, 액션 센터, 콘텐츠 성과, 최근 활동, 카테고리 상태 골격과 fallback UI를 구현했다.
+- 검증: `npm run build` 통과. `npm run lint`는 기존 baseline(`src/api/http.ts`, `src/app/signup/page.tsx`, `src/app/sitemap.ts`, 댓글 컴포넌트, `src/store/authStore.ts`, `tailwind.config.ts`) 오류로 실패하지만 이번에 수정한 파일의 lint 오류는 없음. Browser로 `/`, `/?keyword=test`, `/archive`, 로그아웃 상태 `/admin` 리다이렉트를 확인했고 콘솔 에러는 없었다.
+- 다음 추천 작업: 기존 lint baseline을 먼저 정리한 뒤, 백엔드 `/api/admin/dashboard` 구현과 실제 관리자 계정 상태에서 dashboard range 전환을 검증한다.
+
+## 2026-05-28
+
+- 기존 lint baseline을 정리했다.
+- `src/api/http.ts`의 토큰 refresh queue, Web Locks 접근, localStorage 파싱을 명시 타입으로 좁혔다.
+- providers, signup, sitemap, comment, auth store, Tailwind config의 unused 변수와 `any`/CommonJS import lint 오류를 정리했다.
+- 검증: `npm run lint` 통과, `npm run build` 통과. build 중 sitemap fetch는 백엔드/네트워크 제한으로 기존처럼 경고를 출력하지만 실패하지 않는다.
+- 다음 추천 작업: 실제 관리자 계정으로 `/admin` 대시보드 fallback과 range control을 확인하고, 백엔드 `/api/admin/dashboard` 구현을 연결한다.
+
+## 2026-05-28
+
+- 배포 백엔드(`https://blogserver.wypark.me`) 기준으로 공개 posts/categories/category 필터 API 연결을 확인했다.
+- `GET /api/admin/dashboard?range=30d&timezone=Asia/Seoul`는 미인증 상태에서 `403`을 반환하고, 배포 프론트 Origin(`https://blog.wypark.me`) + Authorization preflight는 허용됨을 확인했다.
+- 실제 posts 응답에 포함되는 `updatedAt`을 `Post` 타입에 반영했다.
+- `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run build`를 네트워크 허용 상태로 실행해 sitemap fetch까지 포함한 production build를 검증했다.
+- 검증: `npm run lint` 통과, `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run build` 통과. 로컬 `localhost:3000`에서 배포 API를 직접 붙이는 브라우저 검증은 백엔드 CORS 정책상 `https://blog.wypark.me`만 허용되어 제한된다.
+- 다음 추천 작업: 프론트 배포 후 `https://blog.wypark.me/admin`에서 실제 관리자 로그인 상태로 dashboard 실데이터 렌더링과 range 전환을 최종 확인한다.

@@ -5,6 +5,7 @@ import { getComments } from '@/api/comments';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
 import { Loader2, MessageCircle } from 'lucide-react';
+import { Comment } from '@/types';
 
 interface CommentListProps {
   postSlug: string;
@@ -18,7 +19,7 @@ export default function CommentList({ postSlug }: CommentListProps) {
   });
 
   // 총 댓글 수 계산 (재귀)
-  const countComments = (list: any[]): number => {
+  const countComments = (list: Comment[]): number => {
     if (!list) return 0;
     return list.reduce((acc, curr) => acc + 1 + countComments(curr.children), 0);
   };

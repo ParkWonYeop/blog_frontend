@@ -7,6 +7,19 @@ import { signup, verifyEmail } from '@/api/auth';
 import { SignupRequest } from '@/types';
 import Link from 'next/link';
 
+const getErrorMessage = (error: unknown) => {
+  const fallbackMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+  const responseError = error as {
+    response?: {
+      data?: {
+        message?: string;
+      };
+    };
+  };
+
+  return responseError.response?.data?.message || fallbackMessage;
+};
+
 export default function SignupPage() {
   const router = useRouter();
   const [step, setStep] = useState<'FORM' | 'VERIFY'>('FORM'); // 단계 관리
@@ -14,7 +27,7 @@ export default function SignupPage() {
   const [registeredEmail, setRegisteredEmail] = useState('');  // 인증할 이메일 저장
 
   // React Hook Form 설정
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<SignupRequest>();
+  const { register, handleSubmit, formState: { errors } } = useForm<SignupRequest>();
   const [verifyCode, setVerifyCode] = useState('');
 
   // 1단계: 회원가입 정보 제출
@@ -29,8 +42,8 @@ export default function SignupPage() {
       } else {
         alert('회원가입 실패: ' + res.message);
       }
-    } catch (error: any) {
-      alert('오류 발생: ' + (error.response?.data?.message || error.message));
+    } catch (error) {
+      alert('오류 발생: ' + getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -50,8 +63,8 @@ export default function SignupPage() {
       } else {
         alert('인증 실패: ' + res.message);
       }
-    } catch (error: any) {
-      alert('오류 발생: ' + (error.response?.data?.message || error.message));
+    } catch (error) {
+      alert('오류 발생: ' + getErrorMessage(error));
     } finally {
       setLoading(false);
     }

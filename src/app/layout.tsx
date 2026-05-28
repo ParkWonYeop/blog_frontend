@@ -20,7 +20,7 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
       </head>
-      <body className="bg-[#f8f9fa] text-gray-800">
+      <body className="bg-[var(--color-page)] text-[var(--color-text)]">
         {/* 🌟 Google Analytics 스크립트 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2GLCM9ZKMK"

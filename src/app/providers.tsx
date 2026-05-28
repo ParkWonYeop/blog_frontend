@@ -23,7 +23,7 @@ function isTokenExpired(token: string) {
     // 현재 시간(초)이 만료 시간(exp)보다 크거나 같으면 만료됨
     // 안전 마진 60초 추가 (만료 1분 전이면 미리 갱신)
     return Date.now() / 1000 >= exp - 60;
-  } catch (e) {
+  } catch {
     return true; // 파싱 실패 시 만료된 것으로 간주
   }
 }
@@ -61,7 +61,7 @@ function AuthInitializer() {
           } else {
             throw new Error('Token refresh response invalid');
           }
-        } catch (error) {
+        } catch {
           // console.error('❌ Failed to refresh token on init:', error);
           // 갱신 실패 시 깔끔하게 로그아웃 처리하여 꼬임 방지
           logout();

@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createComment } from '@/api/comments';
 import { Loader2, Send } from 'lucide-react';
-import { clsx } from 'clsx';
 
 interface CommentFormProps {
   postSlug: string;
@@ -15,7 +14,7 @@ interface CommentFormProps {
 }
 
 export default function CommentForm({ postSlug, parentId = null, onSuccess, placeholder = '댓글을 남겨보세요.' }: CommentFormProps) {
-  const { isLoggedIn, role } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [content, setContent] = useState('');
@@ -29,8 +28,16 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
       queryClient.invalidateQueries({ queryKey: ['comments', postSlug] });
       if (onSuccess) onSuccess();
     },
-    onError: (err: any) => {
-      alert('댓글 작성 실패: ' + (err.response?.data?.message || err.message));
+    onError: (error: unknown) => {
+      const responseError = error as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+      const fallbackMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+      alert('댓글 작성 실패: ' + (responseError.response?.data?.message || fallbackMessage));
     },
   });
 

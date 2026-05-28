@@ -21,7 +21,7 @@ interface JwtPayload {
   nickname?: string;
   name?: string;
   sub?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface AuthState {
@@ -50,7 +50,7 @@ const parseToken = (token: string): { role: string; user: UserInfo | null } => {
         email: decoded.sub || '',
       }
     };
-  } catch (e) {
+  } catch {
     // console.error('Token parsing error:', e);
     return { role: 'USER', user: null };
   }

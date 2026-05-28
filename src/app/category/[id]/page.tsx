@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPostsByCategory } from '@/api/posts'; // 🛠️ 수정된 API 사용
 import PostCard from '@/components/post/PostCard';
@@ -18,17 +18,14 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
 
   const [page, setPage] = useState(0);
   const [keyword, setKeyword] = useState(''); // 🆕 검색어 상태
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const PAGE_SIZE = 10;
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (isNoticeCategory || typeof window === 'undefined') return isNoticeCategory ? 'list' : 'grid';
 
-  useEffect(() => {
-    if (isNoticeCategory) {
-      setViewMode('list');
-      return;
-    }
-    const savedMode = localStorage.getItem('postViewMode') as 'grid' | 'list';
-    if (savedMode) setViewMode(savedMode);
-  }, [isNoticeCategory]);
+    const savedMode = localStorage.getItem('postViewMode');
+    return savedMode === 'list' ? 'list' : 'grid';
+  });
+  const PAGE_SIZE = 10;
+  const activeViewMode = isNoticeCategory ? 'list' : viewMode;
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
     setViewMode(mode);
@@ -75,8 +72,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   const posts = postsData?.content || [];
 
   // 🛠️ 백엔드 PagedModel 구조 대응 (page 필드 내부에 메타데이터가 있을 수 있음)
-  // postsData가 any로 캐스팅되어 안전하게 접근
-  const pagingData = (postsData as any)?.page || postsData;
+  const pagingData = postsData?.page || postsData;
   const totalElements = pagingData?.totalElements ?? 0;
   const totalPages = pagingData?.totalPages ?? 0;
   // page.number가 존재하면 계산해서 isLast 판단, 아니면 기존 last 필드 사용
@@ -103,7 +99,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
           {/* 🔍 카테고리 내 검색바 */}
           <PostSearch 
             onSearch={handleSearch} 
-            placeholder={`'${apiCategoryName}' 내 검색`} 
+            placeholder={`${apiCategoryName} 내 검색`} 
             className="w-full md:w-64"
           />
 
@@ -113,9 +109,10 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
               onClick={() => handleViewModeChange('grid')}
               className={clsx(
                 "p-2 rounded-md transition-all duration-200",
-                viewMode === 'grid' ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                activeViewMode === 'grid' ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
               )}
               title="카드형 보기"
+              aria-label="카드형 보기"
             >
               <LayoutGrid size={18} />
             </button>
@@ -123,9 +120,10 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
               onClick={() => handleViewModeChange('list')}
               className={clsx(
                 "p-2 rounded-md transition-all duration-200",
-                viewMode === 'list' ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                activeViewMode === 'list' ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
               )}
               title="리스트형 보기"
+              aria-label="리스트형 보기"
             >
               <List size={18} />
             </button>
@@ -138,7 +136,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
         <div className="mb-6 flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
           <SearchIcon size={16} className="text-blue-500" />
           <span>
-            "{keyword}" 검색 결과: <strong>{totalElements}</strong>건
+            검색어 <strong>{keyword}</strong> 결과: <strong>{totalElements}</strong>건
           </span>
         </div>
       )}
@@ -146,12 +144,12 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
       {posts.length === 0 ? (
         <div className="text-center py-20 bg-gray-50 rounded-lg border border-gray-100">
           <p className="text-gray-400 mb-2">
-            {keyword ? `"${keyword}"에 대한 검색 결과가 없습니다.` : '아직 작성된 글이 없습니다.'}
+            {keyword ? `${keyword}에 대한 검색 결과가 없습니다.` : '아직 작성된 글이 없습니다.'}
           </p>
         </div>
       ) : (
         <>
-          {viewMode === 'grid' ? (
+          {activeViewMode === 'grid' ? (
             <div className="grid gap-6 md:grid-cols-2">
               {posts.map((post) => (
                 <PostCard key={post.id} post={post} />
@@ -176,7 +174,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
             </button>
             
             <span className="text-sm font-medium text-gray-600">
-              Page <span className="text-gray-900 font-bold">{page + 1}</span> {totalPages > 0 && `/ ${totalPages}`}
+              페이지 <span className="text-gray-900 font-bold">{page + 1}</span> {totalPages > 0 && `/ ${totalPages}`}
             </span>
 
             <button

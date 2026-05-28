@@ -29,15 +29,15 @@ export default function TopHeader() {
             <>
               <Link
                 href="/admin"
-                className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] shadow-sm backdrop-blur-xl transition-colors hover:bg-white hover:text-[var(--color-accent)] dark:bg-white/10"
               >
                 <Settings size={16} />
-                <span className="hidden sm:inline">관리자 설정</span>
+                <span className="hidden sm:inline">관리자</span>
               </Link>
 
               <Link
                 href="/admin/posts/new"
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                className="flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md"
               >
                 <PenLine size={16} />
                 <span>새 글</span>
@@ -47,7 +47,7 @@ export default function TopHeader() {
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-600 text-sm font-medium rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 hover:text-red-500 transition-colors"
+            className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-medium text-[var(--color-text-muted)] shadow-sm backdrop-blur-xl transition-colors hover:bg-white hover:text-red-500 dark:bg-white/10"
           >
             <LogOut size={16} />
             <span className="hidden sm:inline">로그아웃</span>
@@ -57,7 +57,7 @@ export default function TopHeader() {
         <>
           <Link
             href="/login"
-            className="flex items-center gap-2 px-4 py-2 text-gray-500 text-sm font-medium hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]"
           >
             <User size={18} />
             <span>로그인</span>
@@ -65,7 +65,7 @@ export default function TopHeader() {
 
           <Link
             href="/signup"
-            className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 text-sm font-bold rounded-full border border-blue-100 shadow-sm hover:bg-blue-50 hover:shadow-md transition-all"
+            className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/75 px-4 py-2 text-sm font-bold text-[var(--color-accent)] shadow-sm backdrop-blur-xl transition-all hover:bg-white hover:shadow-md dark:bg-white/10"
           >
             <UserPlus size={16} />
             <span>회원가입</span>

@@ -1,5 +1,11 @@
 import { MetadataRoute } from 'next';
 
+interface SitemapPost {
+  slug: string;
+  updatedAt?: string;
+  createdAt?: string;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://blog.wypark.me'; 
   // API 주소 환경변수 사용 (없으면 로컬)
@@ -33,14 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       throw new Error('Failed to fetch posts');
     }
 
-    const json = await response.json();
+    const json = await response.json() as { data?: { content?: SitemapPost[] } };
     const posts = json.data?.content || [];
 
     // 3. 게시글 데이터를 사이트맵 형식으로 변환
-    const postRoutes = posts.map((post: any) => ({
+    const postRoutes = posts.map((post) => ({
       // 🛠️ 핵심 수정: slug를 encodeURIComponent로 감싸서 특수문자(&, 한글 등)를 안전하게 처리합니다.
       url: `${baseUrl}/posts/${encodeURIComponent(post.slug)}`,
-      lastModified: new Date(post.updatedAt),
+      lastModified: new Date(post.updatedAt || post.createdAt || Date.now()),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }));

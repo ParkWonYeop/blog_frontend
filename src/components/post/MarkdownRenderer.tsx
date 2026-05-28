@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize'; 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -15,128 +16,129 @@ interface MarkdownRendererProps {
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  const components: Components = {
+    // 1. 코드 블록 커스텀
+    code({ className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || '');
+      const language = match ? match[1] : '';
+      const codeString = String(children).replace(/\n$/, '');
+
+      if (match) {
+        return (
+          <CodeBlock language={language} code={codeString} />
+        );
+      }
+
+      return (
+        <code
+          className="mx-1 break-words rounded-md bg-black/[0.05] px-1.5 py-0.5 font-mono text-[0.9em] font-medium text-red-600 dark:bg-white/10 dark:text-red-300"
+          {...props}
+        >
+          {children}
+        </code>
+      );
+    },
+
+    // 2. 인용구
+    blockquote({ children }) {
+      return (
+        <blockquote className="my-7 rounded-r-lg border-l-4 border-[var(--color-accent)] bg-[var(--color-accent-soft)] py-3 pl-5 pr-4 text-[var(--color-text-muted)]">
+          {children}
+        </blockquote>
+      );
+    },
+
+    // 3. 링크
+    a({ href, children }) {
+      const isExternal = href?.startsWith('http');
+      return (
+        <a
+          href={href}
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener noreferrer' : undefined}
+          className="inline-flex items-center gap-0.5 font-semibold text-[var(--color-accent)] underline-offset-4 transition-colors hover:underline"
+        >
+          {children}
+          {isExternal && <ExternalLink size={12} className="opacity-70" />}
+        </a>
+      );
+    },
+
+    // 4. 테이블
+    table({ children }) {
+      return (
+        <div className="my-8 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-white/70 shadow-sm dark:bg-white/10">
+          <table className="w-full text-left text-sm text-[var(--color-text-muted)]">
+            {children}
+          </table>
+        </div>
+      );
+    },
+    thead({ children }) {
+      return <thead className="border-b border-[var(--color-line)] bg-black/[0.03] text-xs text-[var(--color-text-muted)] dark:bg-white/10">{children}</thead>;
+    },
+    th({ children }) {
+      return <th className="px-5 py-3 font-bold text-[var(--color-text)]">{children}</th>;
+    },
+    td({ children }) {
+      return <td className="border-b border-[var(--color-line)] px-5 py-4 whitespace-pre-wrap">{children}</td>;
+    },
+
+    // 5. 이미지
+    img({ src, alt }) {
+      return (
+        <span className="my-8 flex flex-col items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            className="h-auto max-h-[700px] max-w-full rounded-lg border border-[var(--color-line)] shadow-[var(--shadow-card)] transition-transform duration-150 hover:scale-[1.005]"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = 'none';
+            }}
+          />
+          {alt && <span className="mt-3 block w-full text-center text-sm text-[var(--color-text-subtle)]">{alt}</span>}
+        </span>
+      );
+    },
+
+    // 6. 리스트 스타일
+    ul({ children }) {
+      return <ul className="my-4 list-disc space-y-2 pl-6 text-[var(--color-text-muted)] marker:text-[var(--color-text-subtle)]">{children}</ul>;
+    },
+    ol({ children, ...props }) {
+      return (
+        <ol
+          className="my-4 list-decimal space-y-2 pl-6 font-medium text-[var(--color-text-muted)] marker:text-[var(--color-text-subtle)]"
+          {...props}
+        >
+          {children}
+        </ol>
+      );
+    },
+    li({ children }) {
+      return <li className="pl-1">{children}</li>;
+    },
+
+    // 7. 헤딩 스타일
+    h1({ children, ...props }) {
+      return <h1 className="mt-12 mb-6 border-b border-[var(--color-line)] pb-4 text-3xl font-extrabold tracking-normal text-[var(--color-text)]" {...props}>{children}</h1>;
+    },
+    h2({ children, ...props }) {
+      return <h2 className="mt-11 mb-5 text-2xl font-bold tracking-normal text-[var(--color-text)]" {...props}>{children}</h2>;
+    },
+    h3({ children, ...props }) {
+      return <h3 className="mt-9 mb-4 border-l-4 border-[var(--color-accent)] pl-3 text-xl font-bold tracking-normal text-[var(--color-text)]" {...props}>{children}</h3>;
+    },
+  };
+
   return (
     <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSanitize, rehypeSlug]}
-        components={{
-          // 1. 코드 블록 커스텀
-          code({ node, inline, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || '');
-            const language = match ? match[1] : '';
-            const codeString = String(children).replace(/\n$/, '');
-
-            if (!inline && match) {
-              return (
-                <CodeBlock language={language} code={codeString} />
-              );
-            }
-
-            return (
-              <code 
-                className="bg-gray-100 text-red-500 px-1.5 py-0.5 rounded-md text-[0.9em] font-mono font-medium mx-1 break-words" 
-                {...props}
-              >
-                {children}
-              </code>
-            );
-          },
-
-          // 2. 인용구
-          blockquote({ children }) {
-            return (
-              <blockquote className="border-l-4 border-blue-500 bg-blue-50 pl-4 py-3 my-6 text-gray-700 rounded-r-lg italic shadow-sm">
-                {children}
-              </blockquote>
-            );
-          },
-
-          // 3. 링크
-          a({ href, children }) {
-            const isExternal = href?.startsWith('http');
-            return (
-              <a 
-                href={href} 
-                target={isExternal ? '_blank' : undefined}
-                rel={isExternal ? 'noopener noreferrer' : undefined}
-                className="text-blue-600 hover:text-blue-800 font-medium underline-offset-4 hover:underline inline-flex items-center gap-0.5 transition-colors"
-              >
-                {children}
-                {isExternal && <ExternalLink size={12} className="opacity-70" />}
-              </a>
-            );
-          },
-
-          // 4. 테이블
-          table({ children }) {
-            return (
-              <div className="overflow-x-auto my-8 rounded-lg border border-gray-200 shadow-sm">
-                <table className="w-full text-sm text-left text-gray-700 bg-white">
-                  {children}
-                </table>
-              </div>
-            );
-          },
-          thead({ children }) {
-            return <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">{children}</thead>;
-          },
-          th({ children }) {
-            return <th className="px-6 py-3 font-bold text-gray-900">{children}</th>;
-          },
-          td({ children }) {
-            return <td className="px-6 py-4 border-b border-gray-100 whitespace-pre-wrap">{children}</td>;
-          },
-
-          // 5. 이미지 (비율 유지 및 중앙 정렬)
-          img({ src, alt }) {
-            return (
-              // 🛠️ [Fix] flex-col 추가: 이미지와 캡션을 세로로 정렬
-              // items-center 추가: 가로축 중앙 정렬
-              <span className="block my-8 flex flex-col items-center justify-center">
-                <img 
-                  src={src} 
-                  alt={alt} 
-                  className="rounded-xl shadow-lg border border-gray-100 max-w-full h-auto max-h-[700px] mx-auto hover:scale-[1.01] transition-transform duration-300" 
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                {alt && <span className="block text-center text-sm text-gray-400 mt-2 w-full">{alt}</span>}
-              </span>
-            );
-          },
-
-          // 6. 리스트 스타일
-          ul({ children }) {
-            return <ul className="list-disc pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-400">{children}</ul>;
-          },
-          ol({ children, ...props }: any) {
-            return (
-              <ol 
-                className="list-decimal pl-6 space-y-2 my-4 text-gray-700 marker:text-gray-500 font-medium" 
-                {...props}
-              >
-                {children}
-              </ol>
-            );
-          },
-          li({ children }) {
-            return <li className="pl-1">{children}</li>;
-          },
-
-          // 7. 헤딩 스타일 (🛠️ 수정: ...props를 전달해야 id가 붙어서 목차 이동이 작동함)
-          h1({ children, ...props }: any) {
-            return <h1 className="text-3xl font-extrabold mt-12 mb-6 pb-4 border-b border-gray-100 text-gray-900" {...props}>{children}</h1>;
-          },
-          h2({ children, ...props }: any) {
-            return <h2 className="text-2xl font-bold mt-10 mb-5 pb-2 text-gray-800" {...props}>{children}</h2>;
-          },
-          h3({ children, ...props }: any) {
-            return <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center gap-2 before:content-[''] before:w-1.5 before:h-6 before:bg-blue-500 before:rounded-full before:mr-1" {...props}>{children}</h3>;
-          },
-        }}
+        components={components}
       >
         {content}
       </ReactMarkdown>
@@ -155,7 +157,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
   };
 
   return (
-    <div className="relative my-8 group rounded-xl overflow-hidden border border-gray-700/50 shadow-2xl bg-[#1e1e1e]">
+    <div className="group relative my-8 overflow-hidden rounded-lg border border-gray-700/50 bg-[#1e1e1e] shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d] border-b border-gray-700 select-none">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
@@ -182,7 +184,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
           title="코드 복사"
         >
           {isCopied ? <Check size={12} /> : <Copy size={12} />}
-          <span>{isCopied ? 'Copied!' : 'Copy'}</span>
+          <span>{isCopied ? '복사됨' : '복사'}</span>
         </button>
       </div>
       

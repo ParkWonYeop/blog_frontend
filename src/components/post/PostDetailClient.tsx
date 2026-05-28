@@ -9,6 +9,7 @@ import TOC from '@/components/post/TOC';
 import { Loader2, Calendar, Eye, Folder, User, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Post } from '@/types'; // 타입 임포트
 
 interface PostDetailClientProps {
@@ -66,18 +67,18 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center">
+      <div className="mx-auto max-w-4xl px-4 py-20 text-center">
         <div className="flex justify-center mb-4">
-          <AlertCircle className="text-gray-300" size={64} />
+          <AlertCircle className="text-[var(--color-text-subtle)]" size={64} />
         </div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="mb-2 text-2xl font-bold text-[var(--color-text)]">
           {isAuthError ? '접근 권한이 없습니다.' : '게시글을 불러올 수 없습니다.'}
         </h2>
-        <p className="text-gray-500 mb-6">
+        <p className="mb-6 text-[var(--color-text-muted)]">
           {isAuthError ? '로그인이 필요하거나 비공개 게시글일 수 있습니다.' : errorMessage}
         </p>
         <div className="flex justify-center gap-3">
-          <button onClick={() => router.push('/')} className="px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">메인으로</button>
+          <button onClick={() => router.push('/')} className="rounded-lg border border-[var(--color-line)] bg-white/70 px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-white">메인으로</button>
         </div>
       </div>
     );
@@ -88,59 +89,70 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   const nextPost = post.nextPost;
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-12">
-      <Link href="/" className="inline-flex items-center gap-1 text-gray-500 hover:text-blue-600 mb-8 transition-colors">
+    <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+      <Link href="/" className="mb-8 inline-flex items-center gap-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
         <ArrowLeft size={18} />
         <span className="text-sm font-medium">목록으로</span>
       </Link>
 
-      <div className="flex flex-col xl:flex-row gap-8 xl:gap-16 relative">
+      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,820px)_220px] xl:justify-center xl:gap-16">
         
-        <main className="min-w-0 xl:flex-1">
+        <main className="min-w-0">
           <article>
-            <header className="mb-10 border-b border-gray-100 pb-8">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2 text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full">
+            <header className="mb-10 border-b border-[var(--color-line)] pb-8">
+              <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-2 rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm font-semibold text-[var(--color-accent)]">
                   <Folder size={14} />
-                  <span>{post.categoryName || 'Uncategorized'}</span>
+                  <span>{post.categoryName || '미분류'}</span>
                 </div>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight break-keep">{post.title}</h1>
-              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+              <h1 className="mb-6 break-keep text-3xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-5xl">{post.title}</h1>
+              <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--color-text-muted)]">
                 <div className="flex items-center gap-2">
-                  {profile?.imageUrl ? <img src={profile.imageUrl} alt="Author" className="w-8 h-8 rounded-full object-cover border border-gray-100 shadow-sm" /> : <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"><User size={16} /></div>}
-                  <span className="font-bold text-gray-800">{profile?.name || 'Dev Park'}</span>
+                  {profile?.imageUrl ? (
+                    <Image
+                      src={profile.imageUrl}
+                      alt="작성자"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full border border-[var(--color-line)] object-cover shadow-sm"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10"><User size={16} /></div>
+                  )}
+                  <span className="font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
                 </div>
-                <div className="flex items-center gap-1.5"><Calendar size={16} />{new Date(post.createdAt).toLocaleDateString()}</div>
-                <div className="flex items-center gap-1.5"><Eye size={16} />{post.viewCount} views</div>
+                <div className="flex items-center gap-1.5"><Calendar size={16} />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</div>
+                <div className="flex items-center gap-1.5"><Eye size={16} />조회 {post.viewCount.toLocaleString()}</div>
               </div>
             </header>
 
-            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-2xl prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 mb-20">
+            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-a:text-[var(--color-accent)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
               <MarkdownRenderer content={post.content || ''} />
             </div>
           </article>
 
-          <nav className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-b border-gray-100 py-8 mb-16">
+          <nav className="mb-16 grid grid-cols-1 gap-4 border-y border-[var(--color-line)] py-8 md:grid-cols-2">
             {prevPost ? (
-              <Link href={`/posts/${prevPost.slug}`} className="group flex flex-col items-start gap-1 p-5 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors w-full border border-transparent hover:border-blue-100">
-                <span className="text-xs font-bold text-gray-400 uppercase flex items-center gap-1 group-hover:text-blue-600 transition-colors"><ChevronLeft size={16} /> 이전 글</span>
-                <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors line-clamp-1 w-full text-left">{prevPost.title}</span>
+              <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-transparent bg-white/60 p-5 transition-colors hover:border-[var(--color-line)] hover:bg-white dark:bg-white/10">
+                <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]"><ChevronLeft size={16} /> 이전 글</span>
+                <span className="line-clamp-1 w-full text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{prevPost.title}</span>
               </Link>
-            ) : <div className="hidden md:block p-5 rounded-2xl bg-gray-50/50 w-full opacity-50 cursor-not-allowed"><span className="text-xs font-bold text-gray-300 uppercase flex items-center gap-1"><ChevronLeft size={16} /> 이전 글 없음</span></div>}
+            ) : <div className="hidden w-full cursor-not-allowed rounded-lg bg-white/40 p-5 opacity-60 dark:bg-white/5 md:block"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]"><ChevronLeft size={16} /> 이전 글 없음</span></div>}
 
             {nextPost ? (
-              <Link href={`/posts/${nextPost.slug}`} className="group flex flex-col items-end gap-1 p-5 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors w-full border border-transparent hover:border-blue-100">
-                <span className="text-xs font-bold text-gray-400 uppercase flex items-center gap-1 group-hover:text-blue-600 transition-colors">다음 글 <ChevronRight size={16} /></span>
-                <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors line-clamp-1 w-full text-right">{nextPost.title}</span>
+              <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-transparent bg-white/60 p-5 transition-colors hover:border-[var(--color-line)] hover:bg-white dark:bg-white/10">
+                <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">다음 글 <ChevronRight size={16} /></span>
+                <span className="line-clamp-1 w-full text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{nextPost.title}</span>
               </Link>
-            ) : <div className="hidden md:flex flex-col items-end gap-1 p-5 rounded-2xl bg-gray-50/50 w-full opacity-50 cursor-not-allowed"><span className="text-xs font-bold text-gray-300 uppercase flex items-center gap-1">다음 글 없음 <ChevronRight size={16} /></span></div>}
+            ) : <div className="hidden w-full cursor-not-allowed flex-col items-end gap-1 rounded-lg bg-white/40 p-5 opacity-60 dark:bg-white/5 md:flex"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">다음 글 없음 <ChevronRight size={16} /></span></div>}
           </nav>
 
           <CommentList postSlug={post.slug} />
         </main>
 
-        <aside className="hidden 2xl:block w-[220px] shrink-0">
+        <aside className="hidden w-[220px] shrink-0 xl:block">
           <div className="sticky top-24">
              <TOC content={post.content || ''} />
           </div>

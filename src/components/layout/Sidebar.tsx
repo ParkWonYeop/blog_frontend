@@ -65,7 +65,9 @@ function CategoryItem({ category, depth, pathname }: CategoryItemProps) {
       <div
         className={clsx(
           'flex items-center justify-between rounded-lg px-4 py-2 text-sm transition-all',
-          isActive ? 'bg-blue-50 font-medium text-blue-600' : 'text-gray-600 hover:bg-gray-50',
+          isActive
+            ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
+            : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
         )}
         style={{ marginLeft: `${depth * 10}px` }}
       >
@@ -82,19 +84,19 @@ function CategoryItem({ category, depth, pathname }: CategoryItemProps) {
               event.stopPropagation();
               setIsExpanded((previous) => !previous);
             }}
-            className="ml-1 rounded-full p-1 transition-colors hover:bg-gray-200/50"
+            className="ml-1 rounded-full p-1 transition-colors hover:bg-black/[0.06] dark:hover:bg-white/10"
             aria-label={isChildrenVisible ? `${category.name} 접기` : `${category.name} 펼치기`}
           >
             <ChevronRight
               size={14}
-              className={clsx('text-gray-400 transition-transform duration-200', isChildrenVisible && 'rotate-90')}
+              className={clsx('text-[var(--color-text-subtle)] transition-transform duration-200', isChildrenVisible && 'rotate-90')}
             />
           </button>
         )}
       </div>
 
       {isChildrenVisible && hasChildren && (
-        <div className="ml-4 border-l-2 border-gray-100">
+        <div className="ml-4 border-l border-[var(--color-line)]">
           {sortedChildren.map((child) => (
             <CategoryItem
               key={child.id}
@@ -147,7 +149,7 @@ function SidebarContent() {
       <button
         type="button"
         onClick={() => setIsOpen((previous) => !previous)}
-        className="fixed left-4 top-4 z-50 rounded-full bg-white p-2 shadow-md transition-colors hover:bg-gray-100 md:hidden"
+        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--color-line)] bg-[var(--color-surface-strong)] p-2 shadow-md transition-colors hover:bg-white md:hidden"
         aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -155,15 +157,15 @@ function SidebarContent() {
 
       <aside
         className={clsx(
-          'fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden border-r border-gray-100 bg-white transition-all duration-300 ease-in-out',
+          'fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden border-r border-[var(--color-line)] bg-[var(--color-surface-strong)]/95 backdrop-blur-xl transition-all duration-300 ease-in-out',
           isOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full md:w-20 md:translate-x-0',
         )}
       >
         <div className={clsx('shrink-0 p-6 text-center transition-opacity duration-200', !isOpen && 'md:hidden md:opacity-0')}>
           <Link href="/" className="block transition-opacity hover:opacity-80">
-            <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-gray-200 shadow-inner ring-4 ring-gray-50">
+            <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-black/[0.04] shadow-inner ring-4 ring-white/70 dark:bg-white/10 dark:ring-white/10">
               {isProfileLoading ? (
-                <div className="h-full w-full animate-pulse bg-gray-200" />
+                <div className="h-full w-full animate-pulse bg-black/[0.06] dark:bg-white/10" />
               ) : (
                 <Image
                   src={displayProfile.imageUrl || defaultProfile.imageUrl!}
@@ -179,13 +181,13 @@ function SidebarContent() {
 
             {isProfileLoading ? (
               <div className="flex flex-col items-center space-y-2">
-                <div className="h-6 w-24 animate-pulse rounded bg-gray-200" />
-                <div className="h-4 w-32 animate-pulse rounded bg-gray-100" />
+                <div className="h-6 w-24 animate-pulse rounded bg-black/[0.06] dark:bg-white/10" />
+                <div className="h-4 w-32 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
               </div>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-gray-800">{displayProfile.name}</h2>
-                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-500">{displayProfile.bio}</p>
+                <h2 className="text-xl font-bold tracking-normal text-[var(--color-text)]">{displayProfile.name}</h2>
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[var(--color-text-muted)]">{displayProfile.bio}</p>
               </>
             )}
           </Link>
@@ -193,12 +195,12 @@ function SidebarContent() {
 
         <nav className="flex min-h-0 flex-1 flex-col px-4 py-2">
           <div className={clsx('mt-4 flex shrink-0 flex-col items-center gap-4', isOpen && 'hidden')}>
-            <Folder size={24} className="text-gray-400" />
+            <Folder size={24} className="text-[var(--color-text-subtle)]" />
           </div>
 
           <div className={clsx('flex h-full flex-col', !isOpen && 'md:hidden')}>
             <div className="shrink-0 space-y-1">
-              <div className="mb-6 mt-2 px-1">
+              <div id="blog-search" className="mb-6 mt-2 px-1">
                 <PostSearch
                   onSearch={handleSearch}
                   placeholder="검색..."
@@ -212,19 +214,19 @@ function SidebarContent() {
                   className={clsx(
                     'flex items-center gap-2.5 rounded-lg px-4 py-2 text-sm transition-all',
                     pathname === '/archive'
-                      ? 'bg-blue-50 font-medium text-blue-600'
-                      : 'text-gray-600 hover:bg-gray-50',
+                      ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
+                      : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
                   )}
                 >
                   <Archive size={16} />
-                  <span>Archives</span>
+                  <span>아카이브</span>
                 </Link>
               </div>
 
-              <div className="mb-4 border-t border-gray-100" />
+              <div className="mb-4 border-t border-[var(--color-line)]" />
 
               <div className="mb-3 flex h-8 items-center justify-between px-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Categories</p>
+                <p className="text-xs font-bold text-[var(--color-text-subtle)]">카테고리</p>
               </div>
             </div>
 
@@ -232,7 +234,7 @@ function SidebarContent() {
               {!categories && (
                 <div className="space-y-2 px-4">
                   {[1, 2, 3].map((item) => (
-                    <div key={item} className="h-8 animate-pulse rounded bg-gray-100" />
+                    <div key={item} className="h-8 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
                   ))}
                 </div>
               )}
@@ -253,8 +255,8 @@ function SidebarContent() {
                     className={clsx(
                       'flex items-center gap-2.5 rounded-lg px-4 py-2 text-sm transition-all',
                       pathname === '/category/uncategorized'
-                        ? 'bg-blue-50 font-medium text-blue-600'
-                        : 'text-gray-600 hover:bg-gray-50',
+                        ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
+                        : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
                     )}
                   >
                     <FileQuestion size={16} />
@@ -266,26 +268,26 @@ function SidebarContent() {
           </div>
         </nav>
 
-        <div className={clsx('shrink-0 border-t border-gray-100 bg-white p-6', !isOpen && 'hidden')}>
+        <div className={clsx('shrink-0 border-t border-[var(--color-line)] bg-[var(--color-surface-strong)]/80 p-6', !isOpen && 'hidden')}>
           <div className="flex justify-center gap-3">
             <a
               href={displayProfile.githubUrl || '#'}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full bg-gray-50 p-2.5 text-gray-500 shadow-sm transition-all hover:bg-gray-800 hover:text-white"
-              aria-label="Github"
+              className="rounded-full border border-[var(--color-line)] bg-white/70 p-2.5 text-[var(--color-text-muted)] shadow-sm transition-all hover:bg-[var(--color-text)] hover:text-white dark:bg-white/10 dark:hover:bg-white dark:hover:text-black"
+              aria-label="GitHub"
             >
               <Github size={18} />
             </a>
             <a
               href={`mailto:${displayProfile.email}`}
-              className="rounded-full bg-gray-50 p-2.5 text-gray-500 shadow-sm transition-all hover:bg-blue-500 hover:text-white"
-              aria-label="Email"
+              className="rounded-full border border-[var(--color-line)] bg-white/70 p-2.5 text-[var(--color-text-muted)] shadow-sm transition-all hover:bg-[var(--color-accent)] hover:text-white dark:bg-white/10"
+              aria-label="이메일"
             >
               <Mail size={18} />
             </a>
           </div>
-          <p className="mt-4 text-center text-[10px] font-light text-gray-300">
+          <p className="mt-4 text-center text-[10px] font-light text-[var(--color-text-subtle)]">
             © {new Date().getFullYear()} {displayProfile.name}. All rights reserved.
           </p>
         </div>
@@ -296,7 +298,7 @@ function SidebarContent() {
 
 export default function Sidebar() {
   return (
-    <Suspense fallback={<div className="h-screen w-72 border-r border-gray-100 bg-white" />}>
+    <Suspense fallback={<div className="h-screen w-72 border-r border-[var(--color-line)] bg-[var(--color-surface-strong)]" />}>
       <SidebarContent />
     </Suspense>
   );

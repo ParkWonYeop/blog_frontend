@@ -7,7 +7,11 @@ import { Loader2, Calendar, Archive, FileText, ChevronRight } from 'lucide-react
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { clsx } from 'clsx';
+import { PostListResponse } from '@/types';
+
+const getTotalElements = (data?: PostListResponse) => {
+  return data?.page?.totalElements ?? data?.totalElements ?? 0;
+};
 
 export default function ArchivePage() {
   // 1. 전체 게시글 조회 (최대 1000개)
@@ -44,8 +48,7 @@ export default function ArchivePage() {
 
   // 🛠️ 총 게시글 수 수정 (백엔드 PagedModel 대응)
   // page 정보가 data 안에 직접 있거나, page 객체 안에 있을 수 있음
-  const meta = (data as any)?.page || data;
-  const totalPosts = meta?.totalElements || 0;
+  const totalPosts = getTotalElements(data);
 
   if (isLoading) {
     return (
@@ -61,7 +64,7 @@ export default function ArchivePage() {
       <div className="mb-12 text-center md:text-left border-b border-gray-100 pb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center md:justify-start gap-3 mb-3">
           <Archive className="text-blue-600" size={32} />
-          <span>Archives</span>
+          <span>아카이브</span>
         </h1>
         <p className="text-gray-500">
           지금까지 작성한 <span className="text-blue-600 font-bold">{totalPosts}</span>개의 글이 기록되어 있습니다.

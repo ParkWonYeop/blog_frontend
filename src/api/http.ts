@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
 
 // 🛠️ 환경 변수 처리 (배포 환경 대응)
@@ -26,10 +26,33 @@ http.interceptors.request.use(
 
 // --- 토큰 갱신 관련 변수 ---
 let isRefreshing = false;
-let failedQueue: any[] = [];
+type QueuedRequest = {
+  resolve: (token: string | null) => void;
+  reject: (error: unknown) => void;
+};
+
+type AuthStorageData = {
+  state?: {
+    accessToken?: string;
+    refreshToken?: string;
+  };
+};
+
+type RetriableRequestConfig = AxiosRequestConfig & {
+  _retry?: boolean;
+  headers?: Record<string, string>;
+};
+
+type NavigatorWithLocks = Navigator & {
+  locks?: {
+    request: <T>(name: string, callback: () => Promise<T> | T) => Promise<T>;
+  };
+};
+
+let failedQueue: QueuedRequest[] = [];
 
 // 실패한 요청들을 큐에 담아두었다가 토큰 갱신 후 재시도하는 함수
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -43,7 +66,7 @@ const processQueue = (error: any, token: string | null = null) => {
 // 실제 토큰 갱신을 수행하는 함수 (Lock 안에서 실행됨)
 async function handleTokenRefresh() {
   try {
-    const { accessToken: currentAccessToken, refreshToken: currentRefreshToken, login, logout } = useAuthStore.getState();
+    const { accessToken: currentAccessToken, refreshToken: currentRefreshToken, login } = useAuthStore.getState();
     
     // [1] 로컬 스토리지 확인 (다른 탭에서 이미 갱신했는지 체크)
     let actualRefreshToken = currentRefreshToken;
@@ -53,12 +76,12 @@ async function handleTokenRefresh() {
       const storageData = localStorage.getItem('auth-storage');
       if (storageData) {
         try {
-          const parsed = JSON.parse(storageData);
+          const parsed = JSON.parse(storageData) as AuthStorageData;
           const storedRefreshToken = parsed.state?.refreshToken;
           const storedAccessToken = parsed.state?.accessToken;
 
           // 저장된 토큰이 현재 메모리의 토큰과 다르다면? => 이미 다른 탭/요청이 갱신을 완료함!
-          if (storedRefreshToken && currentRefreshToken && storedRefreshToken !== currentRefreshToken) {
+          if (storedAccessToken && storedRefreshToken && currentRefreshToken && storedRefreshToken !== currentRefreshToken) {
             // 현재 탭의 스토어 상태를 스토리지와 동기화
             login(storedAccessToken, storedRefreshToken);
             // 대기 중인 요청들 해소
@@ -70,7 +93,7 @@ async function handleTokenRefresh() {
           // 갱신 시도할 토큰 정보를 최신 스토리지 값으로 설정
           if (storedRefreshToken) actualRefreshToken = storedRefreshToken;
           if (storedAccessToken) actualAccessToken = storedAccessToken;
-        } catch (e) {
+        } catch {
           // console.error('Storage parse error', e);
         }
       }
@@ -113,9 +136,10 @@ async function handleTokenRefresh() {
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as RetriableRequestConfig | undefined;
 
     if (!error.response) return Promise.reject(error);
+    if (!originalRequest) return Promise.reject(error);
     
     const status = error.response.status;
 
@@ -143,9 +167,11 @@ http.interceptors.response.use(
       try {
         let newToken;
         
-        if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+        const locks = typeof navigator !== 'undefined' ? (navigator as NavigatorWithLocks).locks : undefined;
+
+        if (locks) {
           // Lock을 획득한 놈만 handleTokenRefresh 실행
-          newToken = await (navigator as any).locks.request('auth-refresh-lock', async () => {
+          newToken = await locks.request('auth-refresh-lock', async () => {
              return await handleTokenRefresh();
           });
         } else {
