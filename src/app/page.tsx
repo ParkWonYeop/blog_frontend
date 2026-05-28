@@ -265,22 +265,15 @@ function HomeContent() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl space-y-10 px-4 py-8 md:px-6 md:py-12">
-      <section className="max-w-3xl pt-2 md:pt-8">
-        <h1 className="text-4xl font-bold leading-[1.08] tracking-normal text-[var(--color-text)] md:text-6xl">
-            박원엽의 개발 기록
-        </h1>
-        <p className="mt-5 max-w-2xl text-[17px] leading-8 text-[var(--color-text-muted)]">
-          배운 것과 운영하며 부딪힌 문제를 짧고 정확하게 남깁니다.
-        </p>
-        <Link
-          href="/archive"
-          className="mt-7 inline-flex h-10 items-center gap-2 rounded-full bg-[var(--color-text)] px-4 text-sm font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition hover:opacity-90 dark:bg-white dark:text-black"
-        >
-          전체 글
-          <Archive size={16} />
-        </Link>
-      </section>
+    <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-12">
+      <h1 className="sr-only">WYPark Blog</h1>
+      <Link
+        href="/archive"
+        className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--color-text)] px-4 text-sm font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition hover:opacity-90 dark:bg-white dark:text-black"
+      >
+        전체 글
+        <Archive size={16} />
+      </Link>
 
       <NoticeStrip notices={notices} />
 
