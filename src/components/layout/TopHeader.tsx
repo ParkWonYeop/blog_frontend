@@ -36,7 +36,7 @@ export default function TopHeader() {
               </Link>
 
               <Link
-                href="/write"
+                href="/admin/posts/new"
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-all transform hover:-translate-y-0.5"
               >
                 <PenLine size={16} />

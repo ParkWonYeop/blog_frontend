@@ -26,12 +26,17 @@ export interface Post {
   nextPost?: PostNeighbor | null;
 }
 
-// 3. 게시글 목록 페이징 응답
-export interface PostListResponse {
-  content: Post[];
+export interface PageMeta {
   totalPages: number;
   totalElements: number;
-  last: boolean;
+  number?: number;
+  last?: boolean;
+}
+
+// 3. 게시글 목록 페이징 응답
+export interface PostListResponse extends PageMeta {
+  content: Post[];
+  page?: PageMeta;
 }
 
 export interface PostSaveRequest {
@@ -135,4 +140,20 @@ export interface CommentSaveRequest {
 // 16. 댓글 삭제 요청 (비회원 검증용)
 export interface CommentDeleteRequest {
   guestPassword?: string;
+}
+
+export interface AdminComment {
+  id: number;
+  content: string;
+  author?: string;
+  guestNickname?: string;
+  memberNickname?: string;
+  postSlug?: string;
+  postTitle?: string;
+  createdAt: string;
+}
+
+export interface AdminCommentListResponse extends PageMeta {
+  content: AdminComment[];
+  page?: PageMeta;
 }

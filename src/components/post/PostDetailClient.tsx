@@ -1,14 +1,13 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPost, deletePost } from '@/api/posts';
+import { useQuery } from '@tanstack/react-query';
+import { getPost } from '@/api/posts';
 import { getProfile } from '@/api/profile';
 import MarkdownRenderer from '@/components/post/MarkdownRenderer';
 import CommentList from '@/components/comment/CommentList';
 import TOC from '@/components/post/TOC';
-import { Loader2, Calendar, Eye, Folder, User, Edit2, Trash2, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Calendar, Eye, Folder, User, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { Post } from '@/types'; // 타입 임포트
 
@@ -17,11 +16,24 @@ interface PostDetailClientProps {
   initialPost: Post; // 🌟 서버에서 넘겨받는 초기 데이터 (필수)
 }
 
+const getPostErrorInfo = (error: unknown) => {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { status?: number; data?: { message?: string } } }).response;
+
+    return {
+      status: response?.status,
+      message: response?.data?.message,
+    };
+  }
+
+  return {
+    status: undefined,
+    message: error instanceof Error ? error.message : undefined,
+  };
+};
+
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { role, _hasHydrated } = useAuthStore();
-  const isAdmin = _hasHydrated && role?.includes('ADMIN');
 
   // 1. 게시글 상세 조회
   const { data: post, isLoading: isPostLoading, error } = useQuery({
@@ -37,18 +49,6 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     queryFn: getProfile,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deletePost,
-    onSuccess: () => {
-      alert('게시글이 삭제되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      router.push('/');
-    },
-    onError: (err: any) => {
-      alert('삭제 실패: ' + (err.response?.data?.message || err.message));
-    },
-  });
-
   // 🌟 Loading 상태 처리를 제거하거나 조건을 완화합니다.
   // initialData가 있으면 isLoading은 false가 되므로 바로 아래 컨텐츠가 렌더링됩니다.
   if (isPostLoading) {
@@ -61,8 +61,8 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
 
   // 에러 처리
   if (error || !post) {
-    const errorStatus = (error as any)?.response?.status;
-    const errorMessage = (error as any)?.response?.data?.message || error?.message || '게시글을 찾을 수 없습니다.';
+    const { status: errorStatus, message } = getPostErrorInfo(error);
+    const errorMessage = message || '게시글을 찾을 수 없습니다.';
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
@@ -87,16 +87,6 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   const prevPost = post.prevPost;
   const nextPost = post.nextPost;
 
-  const handleDelete = () => {
-    if (confirm('정말로 이 게시글을 삭제하시겠습니까? 복구할 수 없습니다.')) {
-      deleteMutation.mutate(post.id);
-    }
-  };
-
-  const handleEdit = () => {
-    router.push(`/write?slug=${post.slug}`);
-  };
-
   return (
     <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-12">
       <Link href="/" className="inline-flex items-center gap-1 text-gray-500 hover:text-blue-600 mb-8 transition-colors">
@@ -114,12 +104,6 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
                   <Folder size={14} />
                   <span>{post.categoryName || 'Uncategorized'}</span>
                 </div>
-                {isAdmin && (
-                  <div className="flex gap-2">
-                    <button onClick={handleEdit} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"><Edit2 size={18} /></button>
-                    <button onClick={handleDelete} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"><Trash2 size={18} /></button>
-                  </div>
-                )}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight break-keep">{post.title}</h1>
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">

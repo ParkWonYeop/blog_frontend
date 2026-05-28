@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { Comment } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteComment, deleteAdminComment } from '@/api/comments';
+import { deleteComment } from '@/api/comments';
 import { format } from 'date-fns';
-import { User, CheckCircle2, Trash2, MessageSquare, UserCheck, ShieldAlert, X } from 'lucide-react'; // X 아이콘 추가
+import { User, CheckCircle2, Trash2, MessageSquare, UserCheck, X } from 'lucide-react'; // X 아이콘 추가
 import CommentForm from './CommentForm';
 import { clsx } from 'clsx';
 import toast from 'react-hot-toast'; // 🎨 Toast 추가
@@ -17,8 +17,19 @@ interface CommentItemProps {
   depth?: number;
 }
 
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+    if (response?.data?.message) return response.data.message;
+  }
+
+  if (error instanceof Error) return error.message;
+
+  return fallback;
+};
+
 export default function CommentItem({ comment, postSlug, depth = 0 }: CommentItemProps) {
-  const { isLoggedIn, role, user } = useAuthStore();
+  const { isLoggedIn, user } = useAuthStore();
   
   const queryClient = useQueryClient();
   const [isReplying, setIsReplying] = useState(false);
@@ -26,7 +37,6 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
   const [isDeleting, setIsDeleting] = useState(false);
   const [guestPassword, setGuestPassword] = useState('');
 
-  const isAdmin = isLoggedIn && role?.includes('ADMIN');
   const isGuestComment = !comment.memberId;
   
   const isMyComment = isLoggedIn && !isGuestComment && (
@@ -34,7 +44,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
     (user?.nickname === comment.author)
   );
 
-  const showDeleteButton = isAdmin || isGuestComment || isMyComment;
+  const showDeleteButton = isGuestComment || isMyComment;
 
   const deleteMutation = useMutation({
     mutationFn: ({ id, password }: { id: number; password?: string }) => deleteComment(id, password),
@@ -42,32 +52,12 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
       queryClient.invalidateQueries({ queryKey: ['comments', postSlug] });
       toast.success('댓글이 삭제되었습니다.');
     },
-    onError: (err: any) => {
-      toast.error('삭제 실패: ' + (err.response?.data?.message || '비밀번호가 틀렸습니다.'));
-    },
-  });
-
-  const adminDeleteMutation = useMutation({
-    mutationFn: deleteAdminComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postSlug] });
-      toast.success('관리자 권한으로 삭제했습니다.');
-    },
-    onError: (err: any) => {
-      toast.error('관리자 삭제 실패: ' + (err.response?.data?.message || err.message));
+    onError: (error) => {
+      toast.error(`삭제 실패: ${getErrorMessage(error, '비밀번호가 틀렸습니다.')}`);
     },
   });
 
   const handleDeleteClick = () => {
-    // A. 관리자 -> 즉시 삭제 (컨펌만)
-    if (isAdmin) {
-      if (confirm('관리자 권한으로 삭제하시겠습니까?')) {
-        adminDeleteMutation.mutate(comment.id);
-      }
-      return;
-    }
-
-    // B. 내 댓글 -> 즉시 삭제 (컨펌만)
     if (isMyComment) {
       if (confirm('이 댓글을 삭제하시겠습니까?')) {
         deleteMutation.mutate({ id: comment.id });
@@ -138,11 +128,11 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
                 className={clsx(
                   "p-1.5 rounded transition-colors",
                   isDeleting ? "bg-red-50 text-red-600" : 
-                  isAdmin ? "text-red-400 hover:text-red-600 hover:bg-red-50" : "text-gray-400 hover:text-red-600 hover:bg-red-50"
+                  "text-gray-400 hover:text-red-600 hover:bg-red-50"
                 )}
-                title={isAdmin ? "관리자 삭제" : "삭제"}
+                title="삭제"
               >
-                {isAdmin ? <ShieldAlert size={14} /> : <Trash2 size={14} />}
+                <Trash2 size={14} />
               </button>
             )}
           </div>
