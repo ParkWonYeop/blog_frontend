@@ -97,7 +97,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AuthInitializer /> {/* 👈 앱 실행 시 토큰 자동 검사 */}
       {children}
       <Toaster position="top-right" />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </QueryClientProvider>
   );
 }

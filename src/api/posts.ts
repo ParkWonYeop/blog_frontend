@@ -1,5 +1,5 @@
 import { http } from './http';
-import { ApiResponse, PostListResponse, Post } from '@/types';
+import { ApiResponse, PostListResponse, Post, PostSaveRequest } from '@/types';
 
 // 1. 게시글 목록 조회 (검색, 카테고리, 태그, 정렬 필터링 지원)
 export const getPosts = async (params?: { 
@@ -37,13 +37,13 @@ export const getPost = async (slug: string) => {
 };
 
 // 4. 게시글 작성
-export const createPost = async (data: any) => {
+export const createPost = async (data: PostSaveRequest) => {
   const response = await http.post<ApiResponse<Post>>('/api/admin/posts', data);
   return response.data;
 };
 
 // 5. 게시글 수정
-export const updatePost = async (id: number, data: any) => {
+export const updatePost = async (id: number, data: PostSaveRequest) => {
   const response = await http.put<ApiResponse<Post>>(`/api/admin/posts/${id}`, data);
   return response.data;
 };

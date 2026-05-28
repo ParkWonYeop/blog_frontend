@@ -34,6 +34,13 @@ export interface PostListResponse {
   last: boolean;
 }
 
+export interface PostSaveRequest {
+  title: string;
+  content: string;
+  categoryId: number;
+  tags: string[];
+}
+
 // 4. 로그인 응답
 export interface AuthResponse {
   grantType: string;

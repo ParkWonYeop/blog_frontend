@@ -7,6 +7,7 @@ import { createPost, updatePost, getPost } from '@/api/posts';
 import { getCategories } from '@/api/category';
 import { uploadImage } from '@/api/image';
 import { useAuthStore } from '@/store/authStore';
+import { PostSaveRequest } from '@/types';
 import { Loader2, Save, Image as ImageIcon, ArrowLeft, Folder, UploadCloud, FileText, Trash2, X, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
@@ -165,7 +166,7 @@ function WritePageContent() {
   };
 
   const mutation = useMutation({
-    mutationFn: (data: any) => isEditMode ? updatePost(existingPost!.id, data) : createPost(data),
+    mutationFn: (data: PostSaveRequest) => isEditMode ? updatePost(existingPost!.id, data) : createPost(data),
     onSuccess: async (response: any) => { 
       const savedPost = response?.data;
       const newSlug = savedPost?.slug || editSlug;
