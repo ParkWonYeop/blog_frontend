@@ -85,7 +85,7 @@ export default function TopHeader() {
                     <Link
                       href="/admin/posts/new"
                       onClick={closeMenu}
-                      className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-[var(--color-text)] px-3 text-sm font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition-all hover:opacity-90 dark:bg-white dark:text-black"
+                      className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-[var(--color-accent)] px-3 text-sm font-semibold text-white shadow-[var(--shadow-control)] transition-colors hover:bg-[var(--color-accent-hover)]"
                     >
                       <PenLine size={16} />
                       <span>새 글</span>
