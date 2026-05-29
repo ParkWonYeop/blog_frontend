@@ -34,9 +34,9 @@ export default function AdminDashboardCategoryHealth({
       </div>
 
       {categoryStats.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border border-[var(--color-line)]">
+        <div className="overflow-x-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)]">
           <div className="min-w-[680px]">
-            <div className="grid grid-cols-[1.2fr_0.6fr_0.7fr_0.9fr_auto] gap-3 bg-black/[0.03] px-4 py-3 text-xs font-bold text-[var(--color-text-subtle)] dark:bg-white/10">
+            <div className="grid grid-cols-[1.2fr_0.6fr_0.7fr_0.9fr_auto] gap-3 bg-[var(--window-titlebar)] px-4 py-3 text-xs font-bold text-[var(--color-text-subtle)]">
               <span>카테고리</span>
               <span>글</span>
               <span>최근 조회</span>
@@ -47,7 +47,7 @@ export default function AdminDashboardCategoryHealth({
               <Link
                 key={category.id}
                 href={`/category/${category.name}`}
-                className="grid grid-cols-[1.2fr_0.6fr_0.7fr_0.9fr_auto] gap-3 border-t border-[var(--color-line)] px-4 py-3 text-sm transition hover:bg-black/[0.03] dark:hover:bg-white/10"
+                className="grid grid-cols-[1.2fr_0.6fr_0.7fr_0.9fr_auto] gap-3 border-t border-[var(--card-border)] px-4 py-3 text-sm transition hover:bg-[var(--card-bg-strong)]"
               >
                 <span className="truncate font-semibold text-[var(--color-text)]">{category.name}</span>
                 <span className="text-[var(--color-text-muted)]">{category.postCount.toLocaleString()}</span>

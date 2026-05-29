@@ -50,7 +50,7 @@ export default function AdminDashboardActionCenter({
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-black/[0.03] dark:hover:bg-white/10"
+                className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-[var(--card-bg)]"
               >
                 <span className="flex items-center gap-3 text-sm font-semibold text-[var(--color-text-muted)]">
                   <Icon size={16} />

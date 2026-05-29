@@ -28,13 +28,13 @@ export default function WindowSurface({
   return (
     <Component
       className={clsx(
-        'w-full overflow-hidden rounded-lg border border-[var(--window-border)] bg-[var(--window-bg)] shadow-[var(--shadow-window)] backdrop-blur-2xl',
+        'w-full overflow-hidden rounded-lg border border-[var(--window-border)] bg-[var(--window-bg)] shadow-[var(--shadow-window)] backdrop-blur-[28px]',
         className,
       )}
       {...props}
     >
       {hasTitlebar && (
-        <div className="flex min-h-11 items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[var(--window-titlebar)] px-4 py-2.5">
+        <div className="flex min-h-11 items-center justify-between gap-4 border-b border-[var(--window-titlebar-border)] bg-[var(--window-titlebar)] px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-3">
             {showTrafficLights && (
               <div className="flex shrink-0 items-center gap-1.5" aria-hidden="true">

@@ -49,7 +49,7 @@ export default function TopHeader() {
   };
 
   const quietActionClass =
-    'flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]';
+    'flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]';
 
   return (
     <div
@@ -65,7 +65,7 @@ export default function TopHeader() {
         ].join(' ')}
         aria-hidden={!isMenuOpen}
       >
-        <div className="flex min-w-max items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/85 p-1.5 shadow-[var(--shadow-control)] backdrop-blur-2xl">
+        <div className="flex min-w-max items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--card-bg)] p-1.5 shadow-[var(--shadow-control)] backdrop-blur-[18px]">
           <ThemeToggle />
 
           {_hasHydrated && (
@@ -96,7 +96,7 @@ export default function TopHeader() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-medium text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)] hover:text-red-500"
+                  className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-medium text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)] hover:text-red-500"
                 >
                   <LogOut size={16} />
                   <span className="hidden sm:inline">로그아웃</span>
@@ -116,7 +116,7 @@ export default function TopHeader() {
                 <Link
                   href="/signup"
                   onClick={closeMenu}
-                  className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-all hover:bg-[var(--color-surface-strong)]"
+                  className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-all hover:bg-[var(--card-bg-strong)]"
                 >
                   <UserPlus size={16} />
                   <span className="hidden sm:inline">회원가입</span>
@@ -132,7 +132,7 @@ export default function TopHeader() {
         aria-label={isMenuOpen ? '상단 메뉴 닫기' : '상단 메뉴 열기'}
         aria-expanded={isMenuOpen}
         onClick={() => setIsMenuOpen((previous) => !previous)}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition-colors hover:bg-[var(--color-surface-strong)]"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)]"
       >
         {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
       </button>

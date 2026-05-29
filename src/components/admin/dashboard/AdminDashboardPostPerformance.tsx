@@ -16,7 +16,7 @@ function PostStatRow({ post, isFallback }: { post: DashboardPostStat; isFallback
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group flex items-start justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-black/[0.03] dark:hover:bg-white/10"
+      className="group flex items-start justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-[var(--card-bg)]"
     >
       <div className="min-w-0">
         <div className="mb-1 flex items-center gap-2">

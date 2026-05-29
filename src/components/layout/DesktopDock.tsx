@@ -109,14 +109,14 @@ export default function DesktopDock({ isSidebarCollapsed }: DesktopDockProps) {
     const Icon = item.icon;
     const active = item.isActive?.(pathname) ?? false;
     const itemClass = clsx(
-      'group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)] focus-visible:-translate-y-1 sm:h-12 sm:w-12',
-      active && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent-soft)]',
+      'group relative flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] focus-visible:-translate-y-1 sm:h-12 sm:w-12',
+      active && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent-soft)]',
     );
 
     const content = (
       <>
         <Icon size={20} strokeWidth={2.1} />
-        <span className="pointer-events-none absolute -top-9 hidden whitespace-nowrap rounded-full border border-[var(--color-line)] bg-[var(--window-bg-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text)] opacity-0 shadow-[var(--shadow-control)] backdrop-blur-xl transition group-hover:opacity-100 sm:block">
+        <span className="pointer-events-none absolute -top-9 hidden whitespace-nowrap rounded-full border border-[var(--card-border)] bg-[var(--card-bg-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text)] opacity-0 shadow-[var(--shadow-control)] backdrop-blur-[18px] transition group-hover:opacity-100 sm:block">
           {item.label}
         </span>
         {active && (
@@ -162,7 +162,7 @@ export default function DesktopDock({ isSidebarCollapsed }: DesktopDockProps) {
         isSidebarCollapsed ? 'md:left-[calc(50%+2.5rem)]' : 'md:left-[calc(50%+9rem)]',
       )}
     >
-      <div className="flex max-w-[calc(100vw-1rem)] items-end gap-1.5 overflow-x-auto rounded-lg border border-[var(--window-border)] bg-[var(--dock-bg)] px-2 py-2 shadow-[var(--shadow-window)] backdrop-blur-2xl sm:gap-2">
+      <div className="flex max-w-[calc(100vw-1rem)] items-end gap-1.5 overflow-x-auto rounded-lg border border-[var(--dock-border)] bg-[var(--dock-bg)] px-2 py-2 shadow-[var(--shadow-dock)] backdrop-blur-[30px] sm:gap-2">
         {items.map(renderItem)}
       </div>
     </nav>

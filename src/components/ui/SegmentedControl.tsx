@@ -7,7 +7,7 @@ export interface SegmentedControlOption<T extends string> {
 
 interface SegmentedControlProps<T extends string> {
   ariaLabel: string;
-  options: SegmentedControlOption<T>[];
+  options: readonly SegmentedControlOption<T>[];
   value: T;
   onChange: (value: T) => void;
   className?: string;
@@ -23,7 +23,7 @@ export default function SegmentedControl<T extends string>({
   return (
     <div
       className={clsx(
-        'inline-flex h-9 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-xl',
+        'inline-flex h-9 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-[18px]',
         className,
       )}
       role="group"
@@ -41,8 +41,8 @@ export default function SegmentedControl<T extends string>({
             className={clsx(
               'min-w-14 rounded-full px-3 text-sm font-semibold transition duration-150',
               isSelected
-                ? 'bg-[var(--color-surface-strong)] text-[var(--color-text)] shadow-sm'
-                : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                ? 'bg-[var(--card-bg-strong)] text-[var(--color-text)] shadow-sm'
+                : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
             )}
           >
             {option.label}

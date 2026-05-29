@@ -30,16 +30,25 @@
     linear-gradient(155deg, rgba(218, 235, 255, 0.86) 6%, rgba(218, 235, 255, 0) 50%),
     linear-gradient(42deg, rgba(222, 251, 236, 0.74) 48%, rgba(222, 251, 236, 0) 88%),
     linear-gradient(180deg, #fbf8ff 0%, #eef5ff 100%);
-  --window-bg: rgba(255, 255, 255, 0.58);
-  --window-bg-strong: rgba(255, 255, 255, 0.78);
+  --window-bg: rgba(255, 255, 255, 0.6);
+  --window-bg-strong: rgba(255, 255, 255, 0.8);
   --window-titlebar: rgba(255, 255, 255, 0.5);
-  --window-border: rgba(255, 255, 255, 0.62);
-  --menubar-bg: rgba(255, 255, 255, 0.48);
-  --dock-bg: rgba(255, 255, 255, 0.5);
-  --sidebar-bg: rgba(255, 255, 255, 0.46);
-  --color-surface: rgba(255, 255, 255, 0.58);
-  --color-surface-strong: rgba(255, 255, 255, 0.82);
-  --color-control: rgba(255, 255, 255, 0.54);
+  --window-border: rgba(255, 255, 255, 0.68);
+  --window-titlebar-border: rgba(39, 54, 82, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.46);
+  --card-bg-strong: rgba(255, 255, 255, 0.68);
+  --card-border: rgba(39, 54, 82, 0.11);
+  --card-border-hover: rgba(39, 54, 82, 0.18);
+  --control-border: rgba(39, 54, 82, 0.12);
+  --menubar-bg: rgba(255, 255, 255, 0.5);
+  --menubar-border: rgba(255, 255, 255, 0.7);
+  --dock-bg: rgba(255, 255, 255, 0.54);
+  --dock-border: rgba(255, 255, 255, 0.72);
+  --sidebar-bg: rgba(255, 255, 255, 0.48);
+  --sidebar-border: rgba(255, 255, 255, 0.6);
+  --color-surface: var(--card-bg);
+  --color-surface-strong: var(--card-bg-strong);
+  --color-control: rgba(255, 255, 255, 0.56);
   --color-line: rgba(39, 54, 82, 0.13);
   --color-text: #1d1d1f;
   --color-text-muted: #62646d;
@@ -48,10 +57,13 @@
   --color-accent-hover: #0071e3;
   --color-accent-soft: rgba(0, 102, 204, 0.1);
   --color-danger-soft: rgba(255, 59, 48, 0.1);
-  --shadow-window: 0 26px 80px rgba(70, 92, 130, 0.16), 0 1px 0 rgba(255, 255, 255, 0.7) inset;
-  --shadow-panel: 0 22px 56px rgba(70, 92, 130, 0.13);
-  --shadow-card: 0 10px 30px rgba(70, 92, 130, 0.08);
-  --shadow-control: 0 12px 26px rgba(70, 92, 130, 0.1);
+  --shadow-window: 0 28px 80px rgba(70, 92, 130, 0.18), 0 10px 28px rgba(70, 92, 130, 0.08), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+  --shadow-sidebar: 16px 0 42px rgba(70, 92, 130, 0.12), -1px 0 0 rgba(255, 255, 255, 0.46) inset;
+  --shadow-menubar: 0 16px 40px rgba(70, 92, 130, 0.12), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+  --shadow-panel: var(--shadow-sidebar);
+  --shadow-card: 0 14px 34px rgba(70, 92, 130, 0.09), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  --shadow-dock: 0 22px 58px rgba(70, 92, 130, 0.18), 0 8px 18px rgba(70, 92, 130, 0.1), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
+  --shadow-control: 0 12px 26px rgba(70, 92, 130, 0.1), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
   --focus-ring: 0 0 0 4px rgba(0, 102, 204, 0.14);
   --background: var(--color-page);
   --foreground: var(--color-text);
@@ -72,17 +84,26 @@ html[data-theme="dark"] {
     linear-gradient(150deg, rgba(43, 73, 110, 0.5) 10%, rgba(43, 73, 110, 0) 54%),
     linear-gradient(42deg, rgba(38, 91, 72, 0.38) 48%, rgba(38, 91, 72, 0) 88%),
     linear-gradient(180deg, #131620 0%, #07090f 100%);
-  --window-bg: rgba(27, 29, 39, 0.64);
-  --window-bg-strong: rgba(34, 36, 48, 0.82);
-  --window-titlebar: rgba(255, 255, 255, 0.06);
-  --window-border: rgba(255, 255, 255, 0.14);
-  --menubar-bg: rgba(24, 26, 36, 0.58);
-  --dock-bg: rgba(24, 26, 36, 0.62);
-  --sidebar-bg: rgba(22, 24, 33, 0.56);
-  --color-surface: rgba(27, 29, 39, 0.64);
-  --color-surface-strong: rgba(34, 36, 48, 0.82);
-  --color-control: rgba(255, 255, 255, 0.08);
-  --color-line: rgba(255, 255, 255, 0.12);
+  --window-bg: rgba(28, 31, 42, 0.68);
+  --window-bg-strong: rgba(39, 42, 56, 0.84);
+  --window-titlebar: rgba(255, 255, 255, 0.075);
+  --window-border: rgba(255, 255, 255, 0.18);
+  --window-titlebar-border: rgba(255, 255, 255, 0.13);
+  --card-bg: rgba(43, 46, 60, 0.5);
+  --card-bg-strong: rgba(52, 55, 70, 0.66);
+  --card-border: rgba(255, 255, 255, 0.14);
+  --card-border-hover: rgba(255, 255, 255, 0.22);
+  --control-border: rgba(255, 255, 255, 0.13);
+  --menubar-bg: rgba(24, 27, 38, 0.62);
+  --menubar-border: rgba(255, 255, 255, 0.16);
+  --dock-bg: rgba(27, 30, 42, 0.66);
+  --dock-border: rgba(255, 255, 255, 0.18);
+  --sidebar-bg: rgba(21, 24, 34, 0.64);
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+  --color-surface: var(--card-bg);
+  --color-surface-strong: var(--card-bg-strong);
+  --color-control: rgba(255, 255, 255, 0.085);
+  --color-line: rgba(255, 255, 255, 0.13);
   --color-text: #f5f5f7;
   --color-text-muted: #b2b5bf;
   --color-text-subtle: #8f939f;
@@ -90,10 +111,13 @@ html[data-theme="dark"] {
   --color-accent-hover: #46a6ff;
   --color-accent-soft: rgba(41, 151, 255, 0.16);
   --color-danger-soft: rgba(255, 69, 58, 0.16);
-  --shadow-window: 0 30px 90px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-  --shadow-panel: 0 24px 60px rgba(0, 0, 0, 0.36);
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.24);
-  --shadow-control: 0 14px 30px rgba(0, 0, 0, 0.26);
+  --shadow-window: 0 32px 100px rgba(0, 0, 0, 0.54), 0 14px 36px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  --shadow-sidebar: 18px 0 46px rgba(0, 0, 0, 0.38), -1px 0 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-menubar: 0 18px 46px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.09) inset;
+  --shadow-panel: var(--shadow-sidebar);
+  --shadow-card: 0 16px 34px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-dock: 0 26px 68px rgba(0, 0, 0, 0.44), 0 10px 24px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  --shadow-control: 0 14px 30px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
   --focus-ring: 0 0 0 4px rgba(41, 151, 255, 0.18);
   --background: var(--color-page);
   --foreground: var(--color-text);
@@ -221,7 +245,7 @@ samp,
 .hover\:bg-gray-100:hover,
 .hover\:bg-gray-200:hover,
 .focus\:bg-white:focus {
-  background-color: rgba(255, 255, 255, 0.58);
+  background-color: var(--card-bg-strong);
 }
 
 .hover\:bg-blue-50:hover {
@@ -264,16 +288,16 @@ input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
   background-color: var(--color-control);
-  border-color: var(--color-line);
+  border-color: var(--control-border);
   color: var(--color-text);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.42) inset;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(18px);
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
-  background-color: var(--window-bg-strong);
+  background-color: var(--card-bg-strong);
   border-color: var(--color-accent);
 }
 
@@ -330,7 +354,7 @@ html[data-theme="dark"] .hover\:bg-gray-50:hover,
 html[data-theme="dark"] .hover\:bg-gray-100:hover,
 html[data-theme="dark"] .hover\:bg-gray-200:hover,
 html[data-theme="dark"] .focus\:bg-white:focus {
-  background-color: rgba(255, 255, 255, 0.11);
+  background-color: var(--card-bg-strong);
 }
 
 html[data-theme="dark"] .hover\:bg-blue-50:hover {
@@ -351,44 +375,45 @@ html[data-theme="dark"] .disabled\:bg-gray-400:disabled {
 html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
 html[data-theme="dark"] textarea,
 html[data-theme="dark"] select {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--color-control);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 }
 
 html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):focus,
 html[data-theme="dark"] textarea:focus,
 html[data-theme="dark"] select:focus {
-  background-color: rgba(255, 255, 255, 0.11);
+  background-color: var(--card-bg-strong);
 }
 
 .w-md-editor {
   border-radius: 0.5rem !important;
-  border-color: var(--color-line) !important;
-  background-color: var(--window-bg-strong) !important;
+  border-color: var(--card-border) !important;
+  background-color: var(--card-bg-strong) !important;
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(24px);
+  backdrop-filter: blur(20px);
 }
 
 .w-md-editor-toolbar {
   border-radius: 0.5rem 0.5rem 0 0 !important;
-  border-color: var(--color-line) !important;
+  border-color: var(--window-titlebar-border) !important;
   background-color: var(--window-titlebar) !important;
 }
 
 html[data-theme="dark"] .w-md-editor {
-  background-color: var(--window-bg-strong) !important;
-  border-color: var(--color-line) !important;
+  background-color: var(--card-bg-strong) !important;
+  border-color: var(--card-border) !important;
 }
 
 html[data-theme="dark"] .w-md-editor-toolbar {
   background-color: var(--window-titlebar) !important;
-  border-color: var(--color-line) !important;
+  border-color: var(--window-titlebar-border) !important;
 }
 
 .wy-editor-shell {
   --color-canvas-default: transparent;
   --color-canvas-subtle: transparent;
-  --color-border-default: var(--color-line);
-  --color-border-muted: var(--color-line);
+  --color-border-default: var(--card-border);
+  --color-border-muted: var(--card-border);
   --color-fg-default: var(--color-text);
   --color-fg-muted: var(--color-text-muted);
   --color-accent-fg: var(--color-accent);
@@ -399,14 +424,15 @@ html[data-theme="dark"] .w-md-editor-toolbar {
   min-height: 520px;
   overflow: hidden;
   border-radius: 0.5rem !important;
-  border: 1px solid var(--color-line) !important;
-  background-color: var(--window-bg-strong) !important;
+  border: 1px solid var(--card-border) !important;
+  background-color: var(--card-bg-strong) !important;
   color: var(--color-text) !important;
   box-shadow: var(--shadow-card) !important;
+  backdrop-filter: blur(20px);
 }
 
 .wy-editor-shell .w-md-editor-toolbar {
-  border-color: var(--color-line) !important;
+  border-color: var(--window-titlebar-border) !important;
   background-color: var(--window-titlebar) !important;
 }
 

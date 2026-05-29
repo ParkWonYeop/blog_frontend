@@ -2,6 +2,11 @@
 
 ## 2026-05-29
 
+- Added a category post-list page size control with 9/18/27 options, defaulting to 9 and persisting the user's choice in `localStorage` under `categoryPageSize`.
+- Wired the selected category page size into the React Query key and `getPostsByCategory` request size, resetting to page 1 when the size changes while preserving search behavior.
+- Adjusted the category page toolbar so search, page-size controls, and grid/list controls stack cleanly on narrow screens and align in one row on desktop.
+- Validation: `npm run lint` passed and `npm run build` passed. Static verification confirms the category query uses `pageSize` and the page-size selector persists to `localStorage`; interactive browser verification was skipped because no local browser/Playwright automation runtime is available in this environment.
+- Recommended next task: verify the category toolbar in a real browser after deploy, especially mobile widths and the 18/27 page-size transitions.
 - Investigated Google Search Console crawlability concerns for the live site.
 - Checked live `robots.txt`, `sitemap.xml`, homepage, sample post pages, and backend post API with a Googlebot user agent; public post URLs in the sitemap returned 200 with no `X-Robots-Tag` or meta robots block.
 - Confirmed the non-www production host `blog.wypark.me` is the relevant host; its home/archive initial HTML currently contains no `/posts/` links because public lists are client-side rendered.
@@ -23,3 +28,7 @@
 - Validation: `npm run lint` passed, `npm run build` passed. The build logged a sitemap fetch warning because the backend API at the local default was not reachable, but the command completed successfully.
 - Browser verification: previously started this app on `http://localhost:3100` because ports 3000 and 3001 were already occupied; confirmed desktop background gradients, menu bar, Dock, and window surfaces on `/`, `/archive`, and `/login`. For this follow-up, the dev/standalone server started successfully in foreground but exited when launched as a background non-interactive process, so browser verification was skipped after lint/build passed.
 - Recommended next task: review the remaining older Korean strings in admin/editor flows and normalize any mojibake that predates this redesign.
+- Unified the macOS-inspired layer system by splitting window, card, control, sidebar, menu bar, and Dock border/shadow/blur tokens, with stronger dark-mode card separation.
+- Applied the layer tokens across shared surfaces, the menu bar, Dock, sidebar controls, search/toggles, home dashboard panels, reader navigation cards, and admin dashboard/editor panels.
+- Validation: `npm run lint` passed, `npm run build` passed, and in-app browser verification on `http://localhost:3100/` confirmed distinct light/dark computed border, shadow, and backdrop blur values for the menu bar, main window, internal cards, and Dock.
+- Recommended next task: do a visual pass on lower-traffic admin list/modal screens and convert any remaining ad hoc hover fills to the shared card/control tokens.

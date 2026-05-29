@@ -163,7 +163,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
              </button>
              <button
                onClick={() => { setIsDeleting(false); setGuestPassword(''); }}
-               className="rounded-full p-1 text-[var(--color-text-subtle)] hover:bg-black/[0.06] dark:hover:bg-white/10"
+               className="rounded-full p-1 text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)]"
              >
                <X size={14} />
              </button>

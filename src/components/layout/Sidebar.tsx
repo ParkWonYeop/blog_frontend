@@ -74,7 +74,7 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
           'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all',
           isActive
             ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)] shadow-sm'
-            : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+            : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
         )}
         style={{ marginLeft: `${depth * 8}px` }}
       >
@@ -95,7 +95,7 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
               event.stopPropagation();
               setIsExpanded((previous) => !previous);
             }}
-            className="ml-1 rounded-full p-1 transition-colors hover:bg-black/[0.06] dark:hover:bg-white/10"
+            className="ml-1 rounded-full p-1 transition-colors hover:bg-[var(--card-bg)]"
             aria-label={isChildrenVisible ? `${category.name} 접기` : `${category.name} 펼치기`}
           >
             <ChevronRight
@@ -171,7 +171,7 @@ function SidebarContent({
       <button
         type="button"
         onClick={() => setIsOpen((previous) => !previous)}
-        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2 shadow-[var(--shadow-control)] backdrop-blur-xl transition-colors hover:bg-[var(--color-surface-strong)] md:hidden"
+        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-2 shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)] md:hidden"
         aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -189,7 +189,7 @@ function SidebarContent({
 
       <aside
         className={clsx(
-          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--window-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-panel)] backdrop-blur-2xl transition-[transform,width] duration-300 ease-out md:translate-x-0',
+          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-sidebar)] backdrop-blur-[30px] transition-[transform,width] duration-300 ease-out md:translate-x-0',
           isDesktopCollapsed ? 'md:w-20' : 'md:w-72',
           isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
@@ -198,7 +198,7 @@ function SidebarContent({
           <button
             type="button"
             onClick={() => onDesktopCollapsedChange(!isDesktopCollapsed)}
-            className="absolute right-3 top-3 hidden h-8 w-8 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)] md:flex"
+            className="absolute right-3 top-3 hidden h-8 w-8 items-center justify-center rounded-full border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] md:flex"
             aria-label={isDesktopCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
           >
             {isDesktopCollapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
@@ -288,7 +288,7 @@ function SidebarContent({
                       'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all',
                       pathname === '/category/uncategorized'
                         ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
-                        : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                        : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
                     )}
                   >
                     <FileQuestion size={16} />
@@ -310,7 +310,7 @@ function SidebarContent({
                   'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all',
                   pathname === '/play/chess'
                     ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
-                    : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                    : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
                 )}
               >
                 <Crown size={16} />
@@ -325,8 +325,8 @@ function SidebarContent({
               title="홈"
               aria-label="홈"
               className={clsx(
-                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
-                pathname === '/' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/' && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
               )}
             >
               <Home size={18} />
@@ -344,8 +344,8 @@ function SidebarContent({
                   title={category.name}
                   aria-label={category.name}
                   className={clsx(
-                    'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
-                    isActive && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+                    'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
+                    isActive && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
                   )}
                 >
                   <Folder size={18} />
@@ -358,8 +358,8 @@ function SidebarContent({
               title="미분류"
               aria-label="미분류"
               className={clsx(
-                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
-                pathname === '/category/uncategorized' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/category/uncategorized' && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
               )}
             >
               <FileQuestion size={18} />
@@ -372,8 +372,8 @@ function SidebarContent({
               title="체스"
               aria-label="체스"
               className={clsx(
-                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
-                pathname === '/play/chess' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/play/chess' && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
               )}
             >
               <Crown size={18} />
@@ -402,7 +402,7 @@ export default function Sidebar(props: SidebarProps) {
       fallback={(
         <div
           className={clsx(
-            'h-screen border-r border-[var(--window-border)] bg-[var(--sidebar-bg)]',
+            'h-screen border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]',
             props.isDesktopCollapsed ? 'w-20' : 'w-72',
           )}
         />

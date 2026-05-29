@@ -58,7 +58,7 @@ export default function DesktopMenuBar({ isSidebarCollapsed }: DesktopMenuBarPro
         isSidebarCollapsed ? 'md:left-24' : 'md:left-[19rem]',
       )}
     >
-      <div className="flex h-11 items-center justify-between gap-3 rounded-lg border border-[var(--window-border)] bg-[var(--menubar-bg)] px-3 shadow-[var(--shadow-control)] backdrop-blur-2xl">
+      <div className="flex h-11 items-center justify-between gap-3 rounded-lg border border-[var(--menubar-border)] bg-[var(--menubar-bg)] px-3 shadow-[var(--shadow-menubar)] backdrop-blur-[24px]">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" className="shrink-0 text-sm font-bold text-[var(--color-text)]">
             WYPark

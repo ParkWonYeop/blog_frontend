@@ -93,7 +93,7 @@ function RecentPostRow({ post }: { post: Post }) {
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-black/[0.03] dark:hover:bg-white/10"
+      className="group flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-[var(--card-bg)]"
     >
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">{post.title}</p>
@@ -123,7 +123,7 @@ function RecentCommentRow({ comment }: { comment: AdminComment }) {
     return (
       <Link
         href={`/posts/${comment.postSlug}`}
-        className="flex items-center gap-3 rounded-lg px-3 py-3 transition hover:bg-black/[0.03] dark:hover:bg-white/10"
+        className="flex items-center gap-3 rounded-lg px-3 py-3 transition hover:bg-[var(--card-bg)]"
       >
         {content}
       </Link>

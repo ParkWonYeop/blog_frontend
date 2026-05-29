@@ -9,10 +9,23 @@ import PostCard from '@/components/post/PostCard';
 import PostListItem from '@/components/post/PostListItem';
 import PostSearch from '@/components/post/PostSearch';
 import EmptyState from '@/components/ui/EmptyState';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import Surface from '@/components/ui/Surface';
 import WindowSurface from '@/components/ui/WindowSurface';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [
+  { label: '9개', value: '9' },
+  { label: '18개', value: '18' },
+  { label: '27개', value: '27' },
+] as const;
+const DEFAULT_PAGE_SIZE = '9';
+const CATEGORY_PAGE_SIZE_STORAGE_KEY = 'categoryPageSize';
+
+type PageSizeOption = (typeof PAGE_SIZE_OPTIONS)[number]['value'];
+
+const isPageSizeOption = (value: string | null): value is PageSizeOption => {
+  return PAGE_SIZE_OPTIONS.some((option) => option.value === value);
+};
 
 const isNoticeCategoryName = (categoryName: string) => {
   const normalizedName = categoryName.toLowerCase();
@@ -27,6 +40,12 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
 
   const [page, setPage] = useState(0);
   const [keyword, setKeyword] = useState('');
+  const [pageSize, setPageSize] = useState<PageSizeOption>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PAGE_SIZE;
+
+    const savedSize = localStorage.getItem(CATEGORY_PAGE_SIZE_STORAGE_KEY);
+    return isPageSizeOption(savedSize) ? savedSize : DEFAULT_PAGE_SIZE;
+  });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     if (isNoticeCategory || typeof window === 'undefined') return isNoticeCategory ? 'list' : 'grid';
 
@@ -47,9 +66,15 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
     setPage(0);
   };
 
+  const handlePageSizeChange = (nextSize: PageSizeOption) => {
+    setPage(0);
+    setPageSize(nextSize);
+    localStorage.setItem(CATEGORY_PAGE_SIZE_STORAGE_KEY, nextSize);
+  };
+
   const { data: postsData, isLoading, error, isPlaceholderData } = useQuery({
-    queryKey: ['posts', 'category', apiCategoryName, page, keyword],
-    queryFn: () => getPostsByCategory(apiCategoryName, page, PAGE_SIZE, keyword),
+    queryKey: ['posts', 'category', apiCategoryName, page, pageSize, keyword],
+    queryFn: () => getPostsByCategory(apiCategoryName, page, Number(pageSize), keyword),
     placeholderData: (previousData) => previousData,
   });
 
@@ -96,22 +121,30 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
             <span className="text-lg font-normal text-[var(--color-text-subtle)]">글 목록</span>
           </h1>
 
-          <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
             <PostSearch
               onSearch={handleSearch}
               placeholder={`${apiCategoryName} 검색`}
               className="w-full md:w-64"
             />
 
-            <div className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-xl">
+            <SegmentedControl
+              ariaLabel="페이지당 게시글 수"
+              options={PAGE_SIZE_OPTIONS}
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              className="justify-center"
+            />
+
+            <div className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-[18px]">
               <button
                 type="button"
                 onClick={() => handleViewModeChange('grid')}
                 className={clsx(
                   'rounded-full p-2 transition-all duration-150',
                   activeViewMode === 'grid'
-                    ? 'bg-[var(--window-bg-strong)] text-[var(--color-accent)] shadow-sm'
-                    : 'text-[var(--color-text-subtle)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-sm'
+                    : 'text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
                 )}
                 title="카드로 보기"
                 aria-label="카드로 보기"
@@ -125,8 +158,8 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                 className={clsx(
                   'rounded-full p-2 transition-all duration-150',
                   activeViewMode === 'list'
-                    ? 'bg-[var(--window-bg-strong)] text-[var(--color-accent)] shadow-sm'
-                    : 'text-[var(--color-text-subtle)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-sm'
+                    : 'text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
                 )}
                 title="리스트로 보기"
                 aria-label="리스트로 보기"
@@ -173,7 +206,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                 type="button"
                 onClick={handlePrevPage}
                 disabled={page === 0}
-                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-black/[0.04] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-white/10"
+                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
                 aria-label="이전 페이지"
               >
                 <ChevronLeft size={24} />
@@ -187,7 +220,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                 type="button"
                 onClick={handleNextPage}
                 disabled={isLast || isPlaceholderData}
-                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-black/[0.04] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-white/10"
+                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
                 aria-label="다음 페이지"
               >
                 <ChevronRight size={24} />

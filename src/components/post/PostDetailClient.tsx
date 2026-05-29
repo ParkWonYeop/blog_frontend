@@ -78,7 +78,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
         <button
           type="button"
           onClick={() => router.push('/')}
-          className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--window-bg-strong)]"
+          className="rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg-strong)]"
         >
           메인으로
         </button>
@@ -144,7 +144,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
           <WindowSurface title="Navigation" bodyClassName="p-4 md:p-5">
             <nav className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {prevPost ? (
-                <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-5 transition-colors hover:bg-[var(--window-bg-strong)]">
+                <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)]">
                   <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
                     <ChevronLeft size={16} />
                     이전 글
@@ -163,7 +163,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               )}
 
               {nextPost ? (
-                <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-5 transition-colors hover:bg-[var(--window-bg-strong)]">
+                <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)]">
                   <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
                     다음 글
                     <ChevronRight size={16} />

@@ -60,7 +60,7 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
     <div className="mx-auto w-full space-y-6 px-0 py-4 md:w-[80vw] md:max-w-[1400px] md:py-6">
       <WindowSurface title="Admin Console" subtitle="Operations toolbar" bodyClassName="p-2">
         <nav
-          className="flex gap-2 overflow-x-auto rounded-lg bg-[var(--color-control)] p-1 backdrop-blur-xl"
+          className="flex gap-2 overflow-x-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-1 shadow-[var(--shadow-card)] backdrop-blur-[18px]"
           aria-label="관리자 메뉴"
         >
           {navItems.map((item) => {
@@ -74,8 +74,8 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
                 className={clsx(
                   'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition',
                   isActive
-                    ? 'bg-[var(--window-bg-strong)] text-[var(--color-text)] shadow-sm'
-                    : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-text)] shadow-sm'
+                    : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
                 )}
               >
                 <Icon size={16} />

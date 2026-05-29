@@ -17,7 +17,7 @@ export default function EmptyState({
   return (
     <div
       className={clsx(
-        'flex min-h-36 flex-col items-center justify-center rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-10 text-center',
+        'flex min-h-36 flex-col items-center justify-center rounded-lg border border-dashed border-[var(--card-border)] bg-[var(--card-bg)] px-5 py-10 text-center shadow-[var(--shadow-card)] backdrop-blur-[18px]',
         className,
       )}
     >

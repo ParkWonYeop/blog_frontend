@@ -48,7 +48,7 @@ export default function PostSearch({
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-control)] py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-[var(--shadow-control)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-[var(--color-surface-strong)]"
+          className="w-full rounded-full border border-[var(--control-border)] bg-[var(--color-control)] py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-[var(--shadow-control)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-[var(--card-bg-strong)]"
         />
         <Search 
           className="absolute left-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-accent)]" 
@@ -58,7 +58,7 @@ export default function PostSearch({
         {keyword && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-subtle)] transition-colors hover:bg-black/[0.06] hover:text-[var(--color-text)] dark:hover:bg-white/10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-subtle)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]"
             aria-label="검색어 지우기"
           >
             <X size={14} />

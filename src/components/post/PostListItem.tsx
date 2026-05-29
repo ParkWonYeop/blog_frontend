@@ -33,7 +33,7 @@ export default function PostListItem({ post, showViews = false }: PostListItemPr
       <div
         className={clsx(
           'flex items-center justify-between gap-4 rounded-lg px-3 py-4 transition duration-150',
-          isNotice ? 'hover:bg-red-500/[0.06]' : 'hover:bg-black/[0.03] dark:hover:bg-white/10',
+          isNotice ? 'hover:bg-red-500/[0.06]' : 'hover:bg-[var(--card-bg)]',
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3">

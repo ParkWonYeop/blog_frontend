@@ -170,7 +170,7 @@ function CompactPostRow({
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group flex items-start justify-between gap-4 rounded-lg px-1 py-4 transition duration-150 hover:bg-black/[0.025] hover:px-3 dark:hover:bg-white/[0.07]"
+      className="group flex items-start justify-between gap-4 rounded-lg px-1 py-4 transition duration-150 hover:bg-[var(--card-bg)] hover:px-3"
     >
       {rank !== undefined && (
         <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold tabular-nums text-[var(--color-accent)]">
@@ -217,13 +217,8 @@ function PostListPanel({
   isPopular?: boolean;
 }) {
   return (
-    <WindowSurface
-      as="section"
-      showTrafficLights={false}
-      className="shadow-none"
-      bodyClassName="overflow-hidden"
-    >
-      <div className="flex min-h-12 items-center justify-between gap-3 border-b border-[var(--color-line)] bg-white/[0.16] px-5 py-3 dark:bg-white/[0.04]">
+    <Surface as="section" strong className="overflow-hidden">
+      <div className="flex min-h-12 items-center justify-between gap-3 border-b border-[var(--window-titlebar-border)] bg-[var(--window-titlebar)] px-5 py-3">
         <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-[var(--color-text)]">
           {icon}
           <span className="truncate">{title}</span>
@@ -250,7 +245,7 @@ function PostListPanel({
           <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
         )}
       </div>
-    </WindowSurface>
+    </Surface>
   );
 }
 
