@@ -1,27 +1,52 @@
-'use client';
-
-import { Suspense, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
   Archive,
   ChevronRight,
   Clock,
-  Loader2,
   Search,
   TrendingUp,
 } from 'lucide-react';
-import { getPosts } from '@/api/posts';
+import {
+  fetchPublicPosts,
+} from '@/api/publicPosts';
 import EmptyState from '@/components/ui/EmptyState';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Surface from '@/components/ui/Surface';
 import WindowSurface from '@/components/ui/WindowSurface';
+import { DEFAULT_DESCRIPTION, SITE_NAME } from '@/lib/site';
 import { Post, PostListResponse } from '@/types';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: {
+    absolute: SITE_NAME,
+  },
+  description: DEFAULT_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: SITE_NAME,
+    description: DEFAULT_DESCRIPTION,
+    url: '/',
+    siteName: SITE_NAME,
+    type: 'website',
+  },
+};
+
+type HomePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
 
 const isNoticePost = (post: Post) => {
   const categoryName = post.categoryName || '';
-  return categoryName === '공지' || categoryName === '怨듭?' || categoryName.toLowerCase() === 'notice';
+  const normalizedName = categoryName.toLowerCase();
+
+  return categoryName === '공지' || normalizedName === 'notice' || normalizedName === 'announcement';
 };
 
 const formatDate = (value?: string) => {
@@ -50,18 +75,23 @@ const getSummary = (content?: string, maxLength = 118) => {
     .slice(0, maxLength);
 };
 
-const getTotalElements = (data?: PostListResponse) => {
+const getTotalElements = (data?: PostListResponse | null) => {
   return data?.page?.totalElements ?? data?.totalElements ?? 0;
+};
+
+const getSearchKeyword = async (searchParams?: HomePageProps['searchParams']) => {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const keyword = resolvedSearchParams.keyword;
+
+  return Array.isArray(keyword) ? keyword[0] || '' : keyword || '';
 };
 
 function SearchResults({
   keyword,
   data,
-  isLoading,
 }: {
   keyword: string;
-  data?: PostListResponse;
-  isLoading: boolean;
+  data?: PostListResponse | null;
 }) {
   const searchResults = data?.content || [];
   const searchTotalElements = getTotalElements(data);
@@ -85,11 +115,7 @@ function SearchResults({
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="flex min-h-60 items-center justify-center">
-          <Loader2 className="animate-spin text-[var(--color-accent)]" size={30} />
-        </div>
-      ) : searchResults.length > 0 ? (
+      {searchResults.length > 0 ? (
         <div className="divide-y divide-[var(--color-line)]">
           {searchResults.map((post) => (
             <CompactPostRow key={post.id} post={post} />
@@ -209,78 +235,51 @@ function PostListPanel({
       </div>
 
       <div className="p-5 md:p-6">
-      {posts.length > 0 ? (
-        <div className="divide-y divide-[var(--color-line)]">
-          {posts.map((post, index) => (
-            <CompactPostRow
-              key={post.id}
-              post={post}
-              rank={isPopular ? index + 1 : undefined}
-              showViews={isPopular}
-            />
-          ))}
-        </div>
-      ) : (
-        <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
-      )}
+        {posts.length > 0 ? (
+          <div className="divide-y divide-[var(--color-line)]">
+            {posts.map((post, index) => (
+              <CompactPostRow
+                key={post.id}
+                post={post}
+                rank={isPopular ? index + 1 : undefined}
+                showViews={isPopular}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
+        )}
       </div>
     </WindowSurface>
   );
 }
 
-function HomeContent() {
-  const searchParams = useSearchParams();
-  const keyword = searchParams.get('keyword') || '';
-
-  const { data: noticesData, isLoading: isNoticesLoading } = useQuery({
-    queryKey: ['posts', 'notices'],
-    queryFn: () => getPosts({ category: '공지', size: 3, sort: 'createdAt,desc' }),
-    retry: 0,
-  });
-
-  const { data: latestData, isLoading: isLatestLoading } = useQuery({
-    queryKey: ['posts', 'latest'],
-    queryFn: () => getPosts({ size: 8, sort: 'createdAt,desc' }),
-    retry: 0,
-  });
-
-  const { data: popularData, isLoading: isPopularLoading } = useQuery({
-    queryKey: ['posts', 'popular'],
-    queryFn: () => getPosts({ size: 8, sort: 'viewCount,desc' }),
-    retry: 0,
-  });
-
-  const { data: searchData, isLoading: isSearchLoading } = useQuery({
-    queryKey: ['posts', 'search', keyword],
-    queryFn: () => getPosts({ keyword, size: 20 }),
-    enabled: !!keyword,
-    retry: 0,
-  });
-
-  const notices = noticesData?.content || [];
-  const latestList = (latestData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
-  const popularList = (popularData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
-  const isHomeLoading = !keyword && (isNoticesLoading || isLatestLoading || isPopularLoading);
+export default async function Home({ searchParams }: HomePageProps) {
+  const keyword = await getSearchKeyword(searchParams);
 
   if (keyword) {
+    const searchData = await fetchPublicPosts({ keyword, size: 20 });
+
     return (
       <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
-        <SearchResults keyword={keyword} data={searchData} isLoading={isSearchLoading} />
+        <SearchResults keyword={keyword} data={searchData} />
       </main>
     );
   }
 
-  if (isHomeLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
-      </div>
-    );
-  }
+  const [noticesData, latestData, popularData] = await Promise.all([
+    fetchPublicPosts({ category: '공지', size: 3, sort: 'createdAt,desc' }),
+    fetchPublicPosts({ size: 8, sort: 'createdAt,desc' }),
+    fetchPublicPosts({ size: 8, sort: 'viewCount,desc' }),
+  ]);
+
+  const notices = noticesData?.content || [];
+  const latestList = (latestData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
+  const popularList = (popularData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
 
   return (
     <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
-      <h1 className="sr-only">WYPark Blog</h1>
+      <h1 className="sr-only">{SITE_NAME}</h1>
       <WindowSurface
         title="WYPark"
         controls={(
@@ -311,19 +310,5 @@ function HomeContent() {
         </section>
       </WindowSurface>
     </main>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense
-      fallback={(
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
-        </div>
-      )}
-    >
-      <HomeContent />
-    </Suspense>
   );
 }

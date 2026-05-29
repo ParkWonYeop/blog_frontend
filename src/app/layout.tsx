@@ -5,6 +5,7 @@ import './globals.css';
 import Providers from './providers';
 import DesktopShell from '@/components/layout/DesktopShell';
 import { THEME_INIT_SCRIPT } from '@/components/theme/theme';
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -14,8 +15,23 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'WYPark Blog',
-  description: '개발 블로그',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: SITE_NAME,
+    description: DEFAULT_DESCRIPTION,
+    url: '/',
+    siteName: SITE_NAME,
+    type: 'website',
+    locale: 'ko_KR',
+  },
 };
 
 export default function RootLayout({
@@ -54,3 +70,4 @@ export default function RootLayout({
     </html>
   );
 }
+

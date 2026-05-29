@@ -1,60 +1,75 @@
-'use client';
-
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Archive, Calendar, ChevronRight, FileText, Loader2 } from 'lucide-react';
-import { getPosts } from '@/api/posts';
+import { Archive, Calendar, ChevronRight, FileText } from 'lucide-react';
+import {
+  fetchPublicPosts,
+} from '@/api/publicPosts';
 import EmptyState from '@/components/ui/EmptyState';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Surface from '@/components/ui/Surface';
 import WindowSurface from '@/components/ui/WindowSurface';
+import { SITE_NAME } from '@/lib/site';
 import { Post, PostListResponse } from '@/types';
 
-const getTotalElements = (data?: PostListResponse) => {
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: 'Archive',
+  alternates: {
+    canonical: '/archive',
+  },
+  openGraph: {
+    title: `Archive | ${SITE_NAME}`,
+    url: '/archive',
+    siteName: SITE_NAME,
+    type: 'website',
+  },
+};
+
+const getTotalElements = (data?: PostListResponse | null) => {
   return data?.page?.totalElements ?? data?.totalElements ?? 0;
 };
 
-export default function ArchivePage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['posts', 'all'],
-    queryFn: () => getPosts({ page: 0, size: 1000 }),
-    staleTime: 1000 * 60 * 5,
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+};
+
+const groupPostsByMonth = (posts: Post[]) => {
+  const groups: Record<string, Record<string, Post[]>> = {};
+
+  posts.forEach((post) => {
+    const date = new Date(post.createdAt);
+    if (Number.isNaN(date.getTime())) return;
+
+    const year = date.getFullYear().toString();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+    groups[year] ??= {};
+    groups[year][month] ??= [];
+    groups[year][month].push(post);
   });
 
-  const archiveGroups = useMemo(() => {
-    if (!data?.content) return {};
+  return groups;
+};
 
-    const groups: { [year: string]: { [month: string]: Post[] } } = {};
+const sortPostsNewestFirst = (posts: Post[]) => {
+  return [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
 
-    data.content.forEach((post) => {
-      const date = new Date(post.createdAt);
-      const year = date.getFullYear().toString();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-
-      if (!groups[year]) groups[year] = {};
-      if (!groups[year][month]) groups[year][month] = [];
-
-      groups[year][month].push(post);
-    });
-
-    return groups;
-  }, [data]);
-
-  const sortedYears = useMemo(() => {
-    return Object.keys(archiveGroups).sort((a, b) => Number(b) - Number(a));
-  }, [archiveGroups]);
-
+export default async function ArchivePage() {
+  const data = await fetchPublicPosts({ page: 0, size: 1000, sort: 'createdAt,desc' });
+  const posts = data?.content || [];
+  const archiveGroups = groupPostsByMonth(posts);
+  const sortedYears = Object.keys(archiveGroups).sort((a, b) => Number(b) - Number(a));
   const totalPosts = getTotalElements(data);
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
-      </div>
-    );
-  }
 
   return (
     <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
@@ -92,15 +107,15 @@ export default function ArchivePage() {
 
                   <div className="space-y-8 md:pl-12">
                     {sortedMonths.map((month) => {
-                      const posts = months[month];
-                      const sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                      const monthPosts = months[month];
+                      const sortedPosts = sortPostsNewestFirst(monthPosts);
 
                       return (
                         <div key={month} className="group">
                           <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--color-text-muted)]">
                             <Calendar size={18} className="text-[var(--color-text-subtle)]" />
                             {month}월
-                            <StatusBadge tone="neutral">{posts.length}</StatusBadge>
+                            <StatusBadge tone="neutral">{monthPosts.length}</StatusBadge>
                           </h3>
 
                           <div className="grid gap-3">
@@ -117,9 +132,9 @@ export default function ArchivePage() {
                                     </h4>
                                     <div className="mt-1.5 flex items-center gap-2 text-xs text-[var(--color-text-subtle)]">
                                       <StatusBadge tone="neutral" className="px-1.5 py-0.5">{post.categoryName || '미분류'}</StatusBadge>
-                                      <span>·</span>
+                                      <span aria-hidden="true">·</span>
                                       <span className="tabular-nums">
-                                        {format(new Date(post.createdAt), 'yyyy.MM.dd')}
+                                        {formatDate(post.createdAt)}
                                       </span>
                                     </div>
                                   </div>
@@ -138,7 +153,7 @@ export default function ArchivePage() {
           </div>
         ) : (
           <EmptyState
-            title="아직 작성된 기록이 없습니다."
+            title="아직 작성한 글이 없습니다."
             icon={<FileText size={48} />}
             className="py-20"
           />

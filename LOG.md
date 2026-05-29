@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+- Investigated Google Search Console crawlability concerns for the live site.
+- Checked live `robots.txt`, `sitemap.xml`, homepage, sample post pages, and backend post API with a Googlebot user agent; public post URLs in the sitemap returned 200 with no `X-Robots-Tag` or meta robots block.
+- Confirmed the non-www production host `blog.wypark.me` is the relevant host; its home/archive initial HTML currently contains no `/posts/` links because public lists are client-side rendered.
+- Identified crawlability risk areas: home/archive rely on client-side post-list fetching, local builds generate a static-only sitemap when the backend API is unreachable, sitemap `lastmod` values can be timezone-skewed when backend timestamps omit an offset, and canonical URLs are not currently emitted.
+- Validation: `npm run build` passed. As expected without a local backend, build-time sitemap generation logged `fetch failed` and produced only static sitemap entries in the local `.next` output.
+- Converted home and archive pages to server-rendered public post lists through a dedicated `src/api/publicPosts.ts` fetch helper so first HTML now includes discoverable `/posts/` links.
+- Added centralized site metadata utilities, canonical metadata for public pages/posts, dynamic sitemap generation, KST-aware API date parsing for `lastmod`, and robots/site URL reuse.
+- Validation: `npm run lint` passed and `npm run build` passed. A local production server with `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me` returned 22 `/posts/` links on `/`, 204 on `/archive`, canonical URLs for both pages, and sitemap output with 104 URLs including 102 post URLs.
+- Recommended next task: deploy the SEO crawlability fix, then resubmit `https://blog.wypark.me/sitemap.xml` and a representative post URL in Google Search Console URL Inspection.
 - Redesigned the app shell into a macOS-inspired blog OS with pastel desktop background tokens, translucent menu bar, quick-launch Dock, and reusable window surfaces.
 - Applied the window treatment to the home dashboard, post reader, archive, category view, auth screens, chess puzzle view, and admin management shells.
 - Restored the missing local `chess.js` install in `node_modules` so build verification could run; no dependency version changes were intended.
