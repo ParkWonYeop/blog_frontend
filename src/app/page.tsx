@@ -193,20 +193,22 @@ function PostListPanel({
   return (
     <WindowSurface
       as="section"
-      title={(
-        <span className="flex items-center gap-2">
+      showTrafficLights={false}
+      className="shadow-none"
+      bodyClassName="overflow-hidden"
+    >
+      <div className="flex min-h-12 items-center justify-between gap-3 border-b border-[var(--color-line)] bg-white/[0.16] px-5 py-3 dark:bg-white/[0.04]">
+        <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-[var(--color-text)]">
           {icon}
-          {title}
-        </span>
-      )}
-      controls={(
-        <Link href="/archive" className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
+          <span className="truncate">{title}</span>
+        </h2>
+        <Link href="/archive" className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
           전체 보기
           <ChevronRight size={14} />
         </Link>
-      )}
-      bodyClassName="p-5 md:p-6"
-    >
+      </div>
+
+      <div className="p-5 md:p-6">
       {posts.length > 0 ? (
         <div className="divide-y divide-[var(--color-line)]">
           {posts.map((post, index) => (
@@ -221,6 +223,7 @@ function PostListPanel({
       ) : (
         <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
       )}
+      </div>
     </WindowSurface>
   );
 }
