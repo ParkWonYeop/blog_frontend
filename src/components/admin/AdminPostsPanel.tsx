@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { getCategories } from '@/api/category';
 import { deletePost, getPosts } from '@/api/posts';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { Category, PageMeta, Post, PostListResponse } from '@/types';
 
 const PAGE_SIZE = 10;
@@ -399,7 +400,7 @@ export default function AdminPostsPanel() {
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <WindowSurface title="Posts" subtitle="Management" bodyClassName="p-5">
       <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -665,6 +666,6 @@ export default function AdminPostsPanel() {
           onConfirm={handleConfirmBulkDelete}
         />
       )}
-    </section>
+    </WindowSurface>
   );
 }

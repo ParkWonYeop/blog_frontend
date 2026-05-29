@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signup, verifyEmail } from '@/api/auth';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { SignupRequest } from '@/types';
-import Link from 'next/link';
 
 const getErrorMessage = (error: unknown) => {
   const fallbackMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
@@ -22,80 +23,82 @@ const getErrorMessage = (error: unknown) => {
 
 export default function SignupPage() {
   const router = useRouter();
-  const [step, setStep] = useState<'FORM' | 'VERIFY'>('FORM'); // 단계 관리
+  const [step, setStep] = useState<'FORM' | 'VERIFY'>('FORM');
   const [loading, setLoading] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');  // 인증할 이메일 저장
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
-  // React Hook Form 설정
   const { register, handleSubmit, formState: { errors } } = useForm<SignupRequest>();
   const [verifyCode, setVerifyCode] = useState('');
 
-  // 1단계: 회원가입 정보 제출
   const onSignupSubmit = async (data: SignupRequest) => {
     setLoading(true);
     try {
       const res = await signup(data);
       if (res.code === 'SUCCESS') {
-        alert(`📧 ${data.email}로 인증 코드를 보냈습니다!`);
-        setRegisteredEmail(data.email); // 이메일 기억하기
-        setStep('VERIFY'); // 2단계로 이동
+        alert(`${data.email}로 인증 코드를 보냈습니다.`);
+        setRegisteredEmail(data.email);
+        setStep('VERIFY');
       } else {
-        alert('회원가입 실패: ' + res.message);
+        alert(`회원가입 실패: ${res.message}`);
       }
     } catch (error) {
-      alert('오류 발생: ' + getErrorMessage(error));
+      alert(`오류 발생: ${getErrorMessage(error)}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // 2단계: 인증 코드 제출
-  const onVerifySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!verifyCode) return alert('인증 코드를 입력해주세요.');
+  const onVerifySubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!verifyCode) {
+      alert('인증 코드를 입력해주세요.');
+      return;
+    }
 
     setLoading(true);
     try {
       const res = await verifyEmail({ email: registeredEmail, code: verifyCode });
       if (res.code === 'SUCCESS') {
-        alert('인증되었습니다! 로그인 페이지로 이동합니다.');
+        alert('인증되었습니다. 로그인 페이지로 이동합니다.');
         router.push('/login');
       } else {
-        alert('인증 실패: ' + res.message);
+        alert(`인증 실패: ${res.message}`);
       }
     } catch (error) {
-      alert('오류 발생: ' + getErrorMessage(error));
+      alert(`오류 발생: ${getErrorMessage(error)}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--color-page)] px-4 py-12">
-      <div className="w-full max-w-md rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-panel)] backdrop-blur-xl">
-        
-        {/* 헤더 */}
+    <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center px-1 py-8">
+      <WindowSurface
+        title="Signup"
+        subtitle={step === 'FORM' ? 'Create account' : registeredEmail}
+        className="w-full max-w-md"
+        bodyClassName="p-8"
+      >
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-[var(--color-text)]">회원가입</h1>
           <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-            {step === 'FORM' ? '' : '이메일로 전송된 6자리 코드를 입력하세요.'}
+            {step === 'FORM' ? '블로그 OS 계정을 만듭니다.' : '이메일로 전송된 6자리 코드를 입력하세요.'}
           </p>
         </div>
 
-        {/* STEP 1: 가입 정보 입력 폼 */}
         {step === 'FORM' && (
           <form onSubmit={handleSubmit(onSignupSubmit)} className="space-y-5">
             <div>
               <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">이메일</label>
               <input
-                {...register('email', { 
+                {...register('email', {
                   required: '이메일은 필수입니다.',
-                  pattern: { value: /\S+@\S+\.\S+/, message: '이메일 형식이 올바르지 않습니다.' }
+                  pattern: { value: /\S+@\S+\.\S+/, message: '이메일 형식이 올바르지 않습니다.' },
                 })}
                 className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="user@example.com"
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -105,18 +108,21 @@ export default function SignupPage() {
                 className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="개발자"
               />
-              {errors.nickname && <p className="text-red-500 text-xs mt-1">{errors.nickname.message}</p>}
+              {errors.nickname && <p className="mt-1 text-xs text-red-500">{errors.nickname.message}</p>}
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-[var(--color-text-muted)]">비밀번호</label>
               <input
                 type="password"
-                {...register('password', { required: '비밀번호를 입력해주세요.', minLength: { value: 6, message: '6자 이상 입력해주세요.' } })}
+                {...register('password', {
+                  required: '비밀번호를 입력해주세요.',
+                  minLength: { value: 6, message: '6자 이상 입력해주세요.' },
+                })}
                 className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="••••••••"
               />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
             </div>
 
             <button
@@ -129,7 +135,6 @@ export default function SignupPage() {
           </form>
         )}
 
-        {/* STEP 2: 인증 코드 입력 폼 */}
         {step === 'VERIFY' && (
           <form onSubmit={onVerifySubmit} className="space-y-5">
             <div>
@@ -137,7 +142,7 @@ export default function SignupPage() {
               <input
                 type="text"
                 value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
+                onChange={(event) => setVerifyCode(event.target.value)}
                 maxLength={6}
                 className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-center text-2xl tracking-normal text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
                 placeholder="000000"
@@ -151,7 +156,7 @@ export default function SignupPage() {
             >
               {loading ? '처리 중...' : '인증 완료'}
             </button>
-            
+
             <button
               type="button"
               onClick={() => setStep('FORM')}
@@ -162,14 +167,13 @@ export default function SignupPage() {
           </form>
         )}
 
-        {/* 하단 링크 */}
         <div className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
           이미 계정이 있으신가요?{' '}
           <Link href="/login" className="font-semibold text-[var(--color-accent)] hover:underline">
             로그인하기
           </Link>
         </div>
-      </div>
+      </WindowSurface>
     </div>
   );
 }

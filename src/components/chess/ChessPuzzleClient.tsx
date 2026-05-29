@@ -14,7 +14,7 @@ import {
   Target,
 } from 'lucide-react';
 import { getTodayChessPuzzle } from '@/api/chess';
-import Surface from '@/components/ui/Surface';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { type ChessPuzzle } from '@/types';
 
 type FeedbackTone = 'neutral' | 'success' | 'error';
@@ -104,7 +104,7 @@ function LoadingState() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-6 md:px-6">
       <PageHeader />
       <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <Surface strong className="p-3 md:p-5">
+        <WindowSurface title="Board" bodyClassName="p-3 md:p-5">
           <div className="mx-auto grid aspect-square w-full max-w-[min(78vh,680px)] grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
             {BOARD_SQUARES.map((square, index) => (
               <div
@@ -117,11 +117,11 @@ function LoadingState() {
               />
             ))}
           </div>
-        </Surface>
-        <Surface strong as="aside" className="flex min-h-72 flex-col items-center justify-center p-5 text-center">
+        </WindowSurface>
+        <WindowSurface title="Puzzle" as="aside" bodyClassName="flex min-h-72 flex-col items-center justify-center p-5 text-center">
           <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={28} />
           <p className="text-sm font-semibold text-[var(--color-text)]">오늘의 퍼즐을 불러오는 중입니다.</p>
-        </Surface>
+        </WindowSurface>
       </section>
     </main>
   );
@@ -131,7 +131,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-6 md:px-6">
       <PageHeader />
-      <Surface strong className="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Puzzle" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-red-500" size={30} />
         <h2 className="text-lg font-bold text-[var(--color-text)]">오늘의 퍼즐을 불러오지 못했습니다.</h2>
         <p className="mt-2 max-w-md text-sm leading-6 text-[var(--color-text-muted)]">
@@ -145,7 +145,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           <RotateCcw size={16} />
           다시 시도
         </button>
-      </Surface>
+      </WindowSurface>
     </main>
   );
 }
@@ -267,7 +267,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
       <PageHeader />
 
       <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <Surface strong className="p-3 md:p-5">
+        <WindowSurface title="Board" bodyClassName="p-3 md:p-5">
           <div className="mx-auto grid aspect-square w-full max-w-[min(78vh,680px)] grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)] shadow-[var(--shadow-control)]">
             {BOARD_SQUARES.map((square, index) => {
               const piece = game.get(square);
@@ -339,9 +339,9 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
               );
             })}
           </div>
-        </Surface>
+        </WindowSurface>
 
-        <Surface strong as="aside" className="p-5">
+        <WindowSurface title="Puzzle" as="aside" bodyClassName="p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase text-[var(--color-text-subtle)]">
@@ -409,7 +409,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
             Lichess 원문
             <ExternalLink size={13} />
           </a>
-        </Surface>
+        </WindowSurface>
       </section>
     </main>
   );

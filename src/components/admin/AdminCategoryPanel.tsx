@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Folder, FolderOpen, FolderPlus, FolderTree, Loader2, Save, Trash2 } from 'lucide-react';
 import { createCategory, deleteCategory, getCategories, updateCategory } from '@/api/category';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { Category, CategoryUpdateRequest } from '@/types';
 import { clsx } from 'clsx';
 
@@ -342,7 +343,7 @@ export default function AdminCategoryPanel() {
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <WindowSurface title="Categories" subtitle="Finder tree" bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -426,6 +427,6 @@ export default function AdminCategoryPanel() {
           )}
         </div>
       </div>
-    </section>
+    </WindowSurface>
   );
 }

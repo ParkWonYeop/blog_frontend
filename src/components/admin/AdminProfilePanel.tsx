@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { Camera, Loader2, Save, UserRound } from 'lucide-react';
 import { getProfile, updateProfile } from '@/api/profile';
 import { uploadImage } from '@/api/image';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { Profile, ProfileUpdateRequest } from '@/types';
 
 const defaultProfile: Profile = {
@@ -206,7 +207,7 @@ export default function AdminProfilePanel() {
   ].join('|');
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <WindowSurface title="Profile" subtitle="Public identity" bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -224,6 +225,6 @@ export default function AdminProfilePanel() {
       ) : (
         <ProfileForm key={formKey} profile={displayProfile} />
       )}
-    </section>
+    </WindowSurface>
   );
 }

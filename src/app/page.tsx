@@ -16,10 +16,12 @@ import { getPosts } from '@/api/posts';
 import EmptyState from '@/components/ui/EmptyState';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Surface from '@/components/ui/Surface';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { Post, PostListResponse } from '@/types';
 
 const isNoticePost = (post: Post) => {
-  return post.categoryName === '공지' || post.categoryName.toLowerCase() === 'notice';
+  const categoryName = post.categoryName || '';
+  return categoryName === '공지' || categoryName === '怨듭?' || categoryName.toLowerCase() === 'notice';
 };
 
 const formatDate = (value?: string) => {
@@ -65,7 +67,12 @@ function SearchResults({
   const searchTotalElements = getTotalElements(data);
 
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <WindowSurface
+      title="Search"
+      subtitle={`"${keyword}"`}
+      bodyClassName="p-5 md:p-6"
+      className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+    >
       <div className="mb-6 flex flex-col gap-2 border-b border-[var(--color-line)] pb-5">
         <div className="flex items-center gap-2 text-[var(--color-accent)]">
           <Search size={22} />
@@ -91,7 +98,7 @@ function SearchResults({
       ) : (
         <EmptyState title="검색 결과가 없습니다." description="다른 키워드로 다시 찾아보세요." />
       )}
-    </section>
+    </WindowSurface>
   );
 }
 
@@ -184,18 +191,22 @@ function PostListPanel({
   isPopular?: boolean;
 }) {
   return (
-    <Surface as="section" className="p-5 shadow-none md:p-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <WindowSurface
+      as="section"
+      title={(
+        <span className="flex items-center gap-2">
           {icon}
-          <h2 className="text-lg font-bold text-[var(--color-text)]">{title}</h2>
-        </div>
-        <Link href="/archive" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
+          {title}
+        </span>
+      )}
+      controls={(
+        <Link href="/archive" className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
           전체 보기
-          <ChevronRight size={15} />
+          <ChevronRight size={14} />
         </Link>
-      </div>
-
+      )}
+      bodyClassName="p-5 md:p-6"
+    >
       {posts.length > 0 ? (
         <div className="divide-y divide-[var(--color-line)]">
           {posts.map((post, index) => (
@@ -210,7 +221,7 @@ function PostListPanel({
       ) : (
         <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
       )}
-    </Surface>
+    </WindowSurface>
   );
 }
 
@@ -250,7 +261,7 @@ function HomeContent() {
 
   if (keyword) {
     return (
-      <main className="mx-auto max-w-5xl px-4 py-8 md:px-6">
+      <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
         <SearchResults keyword={keyword} data={searchData} isLoading={isSearchLoading} />
       </main>
     );
@@ -265,31 +276,38 @@ function HomeContent() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-12">
+    <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
       <h1 className="sr-only">WYPark Blog</h1>
-      <Link
-        href="/archive"
-        className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--color-text)] px-4 text-sm font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition hover:opacity-90 dark:bg-white dark:text-black"
+      <WindowSurface
+        title="WYPark Desktop"
+        subtitle="Blog dashboard"
+        controls={(
+          <Link
+            href="/archive"
+            className="inline-flex h-8 items-center gap-2 rounded-full bg-[var(--color-text)] px-3 text-xs font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition hover:opacity-90 dark:bg-white dark:text-black"
+          >
+            전체 글
+            <Archive size={14} />
+          </Link>
+        )}
+        bodyClassName="space-y-6 p-4 md:p-6"
       >
-        전체 글
-        <Archive size={16} />
-      </Link>
+        <NoticeStrip notices={notices} />
 
-      <NoticeStrip notices={notices} />
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <PostListPanel
-          title="인기 글"
-          icon={<TrendingUp size={18} className="text-[var(--color-accent)]" />}
-          posts={popularList}
-          isPopular
-        />
-        <PostListPanel
-          title="최신 글"
-          icon={<Clock size={18} className="text-[var(--color-accent)]" />}
-          posts={latestList}
-        />
-      </section>
+        <section className="grid gap-6 lg:grid-cols-2">
+          <PostListPanel
+            title="인기 글"
+            icon={<TrendingUp size={18} className="text-[var(--color-accent)]" />}
+            posts={popularList}
+            isPopular
+          />
+          <PostListPanel
+            title="최신 글"
+            icon={<Clock size={18} className="text-[var(--color-accent)]" />}
+            posts={latestList}
+          />
+        </section>
+      </WindowSurface>
     </main>
   );
 }

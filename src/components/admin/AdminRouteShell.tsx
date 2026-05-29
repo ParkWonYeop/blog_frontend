@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BarChart3, FileText, FolderTree, Loader2, MessageSquareText, UserRound } from 'lucide-react';
 import { clsx } from 'clsx';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { useAuthStore } from '@/store/authStore';
 
 const navItems = [
@@ -57,31 +58,33 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-1 py-4 md:px-4">
-      <nav
-        className="flex gap-2 overflow-x-auto rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-2xl"
-        aria-label="관리자 메뉴"
-      >
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+      <WindowSurface title="Admin Console" subtitle="Operations toolbar" bodyClassName="p-2">
+        <nav
+          className="flex gap-2 overflow-x-auto rounded-lg bg-[var(--color-control)] p-1 backdrop-blur-xl"
+          aria-label="관리자 메뉴"
+        >
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={clsx(
-                'inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold transition',
-                isActive
-                  ? 'bg-[var(--color-surface-strong)] text-[var(--color-text)] shadow-sm'
-                  : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
-              )}
-            >
-              <Icon size={16} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={clsx(
+                  'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition',
+                  isActive
+                    ? 'bg-[var(--window-bg-strong)] text-[var(--color-text)] shadow-sm'
+                    : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
+                )}
+              >
+                <Icon size={16} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </WindowSurface>
 
       {children}
     </div>

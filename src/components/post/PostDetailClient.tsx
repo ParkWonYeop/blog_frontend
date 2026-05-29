@@ -1,21 +1,23 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, ArrowLeft, Calendar, ChevronLeft, ChevronRight, Loader2, User } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { getPost } from '@/api/posts';
 import { getProfile } from '@/api/profile';
-import MarkdownRenderer from '@/components/post/MarkdownRenderer';
 import CommentList from '@/components/comment/CommentList';
+import MarkdownRenderer from '@/components/post/MarkdownRenderer';
 import TOC from '@/components/post/TOC';
-import { Loader2, Calendar, User, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { Post } from '@/types'; // 타입 임포트
+import Surface from '@/components/ui/Surface';
+import WindowSurface from '@/components/ui/WindowSurface';
+import { Post } from '@/types';
 
 interface PostDetailClientProps {
   slug: string;
-  initialPost: Post; // 🌟 서버에서 넘겨받는 초기 데이터 (필수)
+  initialPost: Post;
 }
 
 const getPostErrorInfo = (error: unknown) => {
@@ -37,12 +39,10 @@ const getPostErrorInfo = (error: unknown) => {
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const router = useRouter();
 
-  // 1. 게시글 상세 조회
   const { data: post, isLoading: isPostLoading, error } = useQuery({
     queryKey: ['post', slug],
     queryFn: () => getPost(slug),
     enabled: !!slug,
-    // 🌟 핵심: 서버에서 가져온 데이터를 초기값으로 사용하여 즉시 렌더링 (Hydration)
     initialData: initialPost,
   });
 
@@ -51,25 +51,22 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     queryFn: getProfile,
   });
 
-  // 🌟 Loading 상태 처리를 제거하거나 조건을 완화합니다.
-  // initialData가 있으면 isLoading은 false가 되므로 바로 아래 컨텐츠가 렌더링됩니다.
   if (isPostLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
       </div>
     );
   }
 
-  // 에러 처리
   if (error || !post) {
     const { status: errorStatus, message } = getPostErrorInfo(error);
     const errorMessage = message || '게시글을 찾을 수 없습니다.';
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center">
-        <div className="flex justify-center mb-4">
+      <WindowSurface className="mx-auto max-w-4xl" bodyClassName="px-4 py-20 text-center">
+        <div className="mb-4 flex justify-center">
           <AlertCircle className="text-[var(--color-text-subtle)]" size={64} />
         </div>
         <h2 className="mb-2 text-2xl font-bold text-[var(--color-text)]">
@@ -78,33 +75,42 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
         <p className="mb-6 text-[var(--color-text-muted)]">
           {isAuthError ? '로그인이 필요하거나 비공개 게시글일 수 있습니다.' : errorMessage}
         </p>
-        <div className="flex justify-center gap-3">
-          <button onClick={() => router.push('/')} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-strong)]">메인으로</button>
-        </div>
-      </div>
+        <button
+          type="button"
+          onClick={() => router.push('/')}
+          className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--window-bg-strong)]"
+        >
+          메인으로
+        </button>
+      </WindowSurface>
     );
   }
 
-  // 백엔드 데이터 사용 (이전글/다음글)
   const prevPost = post.prevPost;
   const nextPost = post.nextPost;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
-      <Link href="/" className="mb-10 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
+    <div className="mx-auto max-w-6xl px-1 py-4 md:px-3 md:py-6">
+      <Link href="/" className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
         <ArrowLeft size={18} />
         <span>목록으로</span>
       </Link>
 
-      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,780px)_210px] xl:justify-center xl:gap-16">
-        
-        <main className="min-w-0">
-          <article>
-            <header className="mb-12 border-b border-[var(--color-line)] pb-8">
+      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,780px)_220px] xl:justify-center xl:gap-8">
+        <main className="min-w-0 space-y-6">
+          <WindowSurface
+            as="article"
+            title="Reader"
+            subtitle={post.categoryName || '미분류'}
+            bodyClassName="p-6 md:p-10"
+          >
+            <header className="mb-10 border-b border-[var(--color-line)] pb-8">
               <StatusBadge tone="neutral" className="mb-5">
                 {post.categoryName || '미분류'}
               </StatusBadge>
-              <h1 className="mb-7 break-keep text-4xl font-bold leading-[1.08] tracking-normal text-[var(--color-text)] md:text-6xl">{post.title}</h1>
+              <h1 className="mb-7 break-keep text-4xl font-bold leading-[1.08] tracking-normal text-[var(--color-text)] md:text-6xl">
+                {post.title}
+              </h1>
               <div className="flex flex-wrap items-center gap-5 text-sm text-[var(--color-text-muted)]">
                 <div className="flex items-center gap-2">
                   {profile?.imageUrl ? (
@@ -117,44 +123,76 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10"><User size={16} /></div>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10">
+                      <User size={16} />
+                    </div>
                   )}
                   <span className="font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
                 </div>
-                <div className="flex items-center gap-1.5"><Calendar size={16} />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</div>
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={16} />
+                  {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                </div>
               </div>
             </header>
 
-            <div className="prose prose-lg mb-20 max-w-none prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
+            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
               <MarkdownRenderer content={post.content || ''} />
             </div>
-          </article>
+          </WindowSurface>
 
-          <nav className="mb-16 grid grid-cols-1 gap-4 border-y border-[var(--color-line)] py-8 md:grid-cols-2">
-            {prevPost ? (
-              <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 transition-colors hover:bg-[var(--color-surface-strong)]">
-                <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]"><ChevronLeft size={16} /> 이전 글</span>
-                <span className="line-clamp-1 w-full text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{prevPost.title}</span>
-              </Link>
-            ) : <div className="hidden w-full cursor-not-allowed rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 opacity-60 md:block"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]"><ChevronLeft size={16} /> 이전 글 없음</span></div>}
+          <WindowSurface title="Navigation" bodyClassName="p-4 md:p-5">
+            <nav className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {prevPost ? (
+                <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-5 transition-colors hover:bg-[var(--window-bg-strong)]">
+                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
+                    <ChevronLeft size={16} />
+                    이전 글
+                  </span>
+                  <span className="line-clamp-1 w-full text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
+                    {prevPost.title}
+                  </span>
+                </Link>
+              ) : (
+                <Surface className="hidden w-full cursor-not-allowed p-5 opacity-60 md:block">
+                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">
+                    <ChevronLeft size={16} />
+                    이전 글 없음
+                  </span>
+                </Surface>
+              )}
 
-            {nextPost ? (
-              <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 transition-colors hover:bg-[var(--color-surface-strong)]">
-                <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">다음 글 <ChevronRight size={16} /></span>
-                <span className="line-clamp-1 w-full text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">{nextPost.title}</span>
-              </Link>
-            ) : <div className="hidden w-full cursor-not-allowed flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 opacity-60 md:flex"><span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">다음 글 없음 <ChevronRight size={16} /></span></div>}
-          </nav>
+              {nextPost ? (
+                <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-5 transition-colors hover:bg-[var(--window-bg-strong)]">
+                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
+                    다음 글
+                    <ChevronRight size={16} />
+                  </span>
+                  <span className="line-clamp-1 w-full text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
+                    {nextPost.title}
+                  </span>
+                </Link>
+              ) : (
+                <Surface className="hidden w-full cursor-not-allowed flex-col items-end gap-1 p-5 opacity-60 md:flex">
+                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">
+                    다음 글 없음
+                    <ChevronRight size={16} />
+                  </span>
+                </Surface>
+              )}
+            </nav>
+          </WindowSurface>
 
-          <CommentList postSlug={post.slug} />
+          <WindowSurface title="Comments" bodyClassName="p-5 md:p-6">
+            <CommentList postSlug={post.slug} />
+          </WindowSurface>
         </main>
 
-        <aside className="hidden w-[210px] shrink-0 xl:block">
-          <div className="sticky top-24">
-             <TOC content={post.content || ''} />
-          </div>
+        <aside className="hidden w-[220px] shrink-0 xl:block">
+          <WindowSurface title="Inspector" bodyClassName="p-4" className="sticky top-24">
+            <TOC content={post.content || ''} />
+          </WindowSurface>
         </aside>
-
       </div>
     </div>
   );

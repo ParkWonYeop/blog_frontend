@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { login } from '@/api/auth';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { useAuthStore } from '@/store/authStore';
 
 const getSafeRedirectPath = (value: string | null) => {
@@ -58,11 +59,16 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-page)] p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+    <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center px-1 py-8">
+      <WindowSurface
+        title="Login"
+        subtitle="WYPark OS"
+        className="w-full max-w-md"
+        bodyClassName="p-8"
+      >
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-[var(--color-text)]">로그인</h1>
-          <p className="mt-2 text-[var(--color-text-muted)]">블로그에 오신 것을 환영합니다.</p>
+          <p className="mt-2 text-[var(--color-text-muted)]">블로그 데스크톱으로 다시 들어갑니다.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -108,7 +114,7 @@ function LoginForm() {
             회원가입
           </Link>
         </div>
-      </div>
+      </WindowSurface>
     </div>
   );
 }
@@ -117,7 +123,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-[50vh] items-center justify-center">
           <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
         </div>
       }

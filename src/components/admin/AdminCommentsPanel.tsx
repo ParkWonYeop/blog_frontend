@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { deleteAdminComment, getAdminComments } from '@/api/comments';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { AdminComment, AdminCommentListResponse, PageMeta } from '@/types';
 
 const PAGE_SIZE = 10;
@@ -168,7 +169,7 @@ export default function AdminCommentsPanel() {
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <WindowSurface title="Comments" subtitle="Moderation" bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -283,6 +284,6 @@ export default function AdminCommentsPanel() {
           onConfirm={handleConfirmDelete}
         />
       )}
-    </section>
+    </WindowSurface>
   );
 }

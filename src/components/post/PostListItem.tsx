@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { ChevronRight, Eye } from 'lucide-react';
 import { clsx } from 'clsx';
-import { Post } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge';
+import { Post } from '@/types';
 
 interface PostListItemProps {
   post: Post;
@@ -10,7 +10,8 @@ interface PostListItemProps {
 }
 
 const isNoticePost = (post: Post) => {
-  return post.categoryName === '공지' || post.categoryName.toLowerCase() === 'notice';
+  const categoryName = post.categoryName || '';
+  return categoryName === '공지' || categoryName === '怨듭?' || categoryName.toLowerCase() === 'notice';
 };
 
 const formatDate = (value: string) => {

@@ -178,7 +178,7 @@ function SidebarContent() {
 
       <aside
         className={clsx(
-          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--color-line)] bg-[var(--color-surface-strong)]/96 backdrop-blur-xl transition-transform duration-300 ease-out',
+          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--window-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-panel)] backdrop-blur-2xl transition-transform duration-300 ease-out',
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
@@ -308,7 +308,7 @@ function SidebarContent() {
           </div>
         </nav>
 
-        <div className="shrink-0 border-t border-[var(--color-line)] bg-[var(--color-surface-strong)]/80 p-5">
+        <div className="shrink-0 border-t border-[var(--color-line)] bg-[var(--window-titlebar)] p-5">
           <div className="flex justify-center gap-3">
             <a
               href={displayProfile.githubUrl || '#'}
@@ -338,7 +338,7 @@ function SidebarContent() {
 
 export default function Sidebar() {
   return (
-    <Suspense fallback={<div className="h-screen w-72 border-r border-[var(--color-line)] bg-[var(--color-surface-strong)]" />}>
+    <Suspense fallback={<div className="h-screen w-72 border-r border-[var(--window-border)] bg-[var(--sidebar-bg)]" />}>
       <SidebarContent />
     </Suspense>
   );

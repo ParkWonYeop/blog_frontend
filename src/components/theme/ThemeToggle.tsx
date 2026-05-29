@@ -39,7 +39,7 @@ export default function ThemeToggle() {
             className={clsx(
               'inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition duration-150 sm:w-8',
               isSelected
-                ? 'bg-[var(--color-surface-strong)] text-[var(--color-text)] shadow-sm'
+                ? 'bg-[var(--window-bg-strong)] text-[var(--color-text)] shadow-sm'
                 : 'text-[var(--color-text-subtle)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
             )}
           >
