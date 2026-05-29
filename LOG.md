@@ -2,6 +2,10 @@
 
 ## 2026-05-29
 
+- Fixed post detail 404s caused by double-encoding dynamic route slugs that already arrive percent-encoded from URLs such as `/posts/soft-delete%2C-hard-delete`.
+- Updated the public post fetch helper to decode a route slug once before encoding it for the backend API path, preserving normal Korean/special-character slug requests while avoiding `%252C`-style API lookups.
+- Validation: `npm run lint` passed and `npm run build` passed. A local production server with `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me` returned real post titles for `/posts/soft-delete%2C-hard-delete`, `/posts/destructuring-%26-component%ED%95%A8%EC%88%98`, and `/posts/rtr-(refresh-token-rotation)`.
+- Recommended next task: deploy the slug normalization fix before re-checking affected live post URLs in Search Console or the browser.
 - Added a category post-list page size control with 9/18/27 options, defaulting to 9 and persisting the user's choice in `localStorage` under `categoryPageSize`.
 - Wired the selected category page size into the React Query key and `getPostsByCategory` request size, resetting to page 1 when the size changes while preserving search behavior.
 - Adjusted the category page toolbar so search, page-size controls, and grid/list controls stack cleanly on narrow screens and align in one row on desktop.

@@ -28,6 +28,14 @@ const buildPostListUrl = (params: PublicPostListParams = {}) => {
   return `${API_URL}/api/posts?${searchParams.toString()}`;
 };
 
+const encodeSlugPathSegment = (slug: string) => {
+  try {
+    return encodeURIComponent(decodeURIComponent(slug));
+  } catch {
+    return encodeURIComponent(slug);
+  }
+};
+
 export const fetchPublicPosts = async (
   params: PublicPostListParams = {},
 ): Promise<PostListResponse | null> => {
@@ -50,7 +58,7 @@ export const fetchPublicPosts = async (
 
 export const fetchPublicPost = async (slug: string): Promise<Post | null> => {
   try {
-    const response = await fetch(`${API_URL}/api/posts/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${API_URL}/api/posts/${encodeSlugPathSegment(slug)}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       next: { revalidate: 60 },
@@ -65,4 +73,3 @@ export const fetchPublicPost = async (slug: string): Promise<Post | null> => {
     return null;
   }
 };
-
