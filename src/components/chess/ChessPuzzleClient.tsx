@@ -101,7 +101,7 @@ function PageHeader() {
 
 function LoadingState() {
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-6 md:px-6">
+    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <PageHeader />
       <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <WindowSurface title="Board" bodyClassName="p-3 md:p-5">
@@ -129,7 +129,7 @@ function LoadingState() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-6 md:px-6">
+    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <PageHeader />
       <WindowSurface title="Puzzle" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-red-500" size={30} />
@@ -263,7 +263,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-6 md:px-6">
+    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <PageHeader />
 
       <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">

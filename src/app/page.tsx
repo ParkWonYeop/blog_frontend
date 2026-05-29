@@ -261,7 +261,7 @@ function HomeContent() {
 
   if (keyword) {
     return (
-      <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
+      <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
         <SearchResults keyword={keyword} data={searchData} isLoading={isSearchLoading} />
       </main>
     );
@@ -276,7 +276,7 @@ function HomeContent() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
+    <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <h1 className="sr-only">WYPark Blog</h1>
       <WindowSurface
         title="WYPark Desktop"

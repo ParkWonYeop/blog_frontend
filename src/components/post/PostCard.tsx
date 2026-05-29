@@ -41,7 +41,7 @@ export default function PostCard({ post }: { post: Post }) {
       <Surface
         as="article"
         interactive
-        className="flex h-full flex-col p-5 shadow-none"
+        className="flex h-full min-h-52 flex-col p-5 shadow-none"
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <StatusBadge tone={isNotice ? 'danger' : 'neutral'} className="shrink-0">

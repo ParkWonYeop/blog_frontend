@@ -28,7 +28,7 @@ export default function WindowSurface({
   return (
     <Component
       className={clsx(
-        'overflow-hidden rounded-lg border border-[var(--window-border)] bg-[var(--window-bg)] shadow-[var(--shadow-window)] backdrop-blur-2xl',
+        'w-full overflow-hidden rounded-lg border border-[var(--window-border)] bg-[var(--window-bg)] shadow-[var(--shadow-window)] backdrop-blur-2xl',
         className,
       )}
       {...props}

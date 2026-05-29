@@ -65,7 +65,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
-      <WindowSurface className="mx-auto max-w-4xl" bodyClassName="px-4 py-20 text-center">
+      <WindowSurface className="mx-auto md:w-[70vw] md:max-w-[980px]" bodyClassName="px-4 py-20 text-center">
         <div className="mb-4 flex justify-center">
           <AlertCircle className="text-[var(--color-text-subtle)]" size={64} />
         </div>
@@ -90,13 +90,13 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   const nextPost = post.nextPost;
 
   return (
-    <div className="mx-auto max-w-6xl px-1 py-4 md:px-3 md:py-6">
+    <div className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <Link href="/" className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
         <ArrowLeft size={18} />
         <span>목록으로</span>
       </Link>
 
-      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,780px)_220px] xl:justify-center xl:gap-8">
+      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,900px)_250px] xl:justify-center xl:gap-8">
         <main className="min-w-0 space-y-6">
           <WindowSurface
             as="article"

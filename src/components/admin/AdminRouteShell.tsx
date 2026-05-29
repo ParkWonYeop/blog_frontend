@@ -57,7 +57,7 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-1 py-4 md:px-4">
+    <div className="mx-auto w-full space-y-6 px-0 py-4 md:w-[80vw] md:max-w-[1400px] md:py-6">
       <WindowSurface title="Admin Console" subtitle="Operations toolbar" bodyClassName="p-2">
         <nav
           className="flex gap-2 overflow-x-auto rounded-lg bg-[var(--color-control)] p-1 backdrop-blur-xl"

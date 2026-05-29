@@ -5,17 +5,18 @@ import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight, LayoutGrid, List, Loader2, Search as SearchIcon } from 'lucide-react';
 import { getPostsByCategory } from '@/api/posts';
-import EmptyState from '@/components/ui/EmptyState';
 import PostCard from '@/components/post/PostCard';
 import PostListItem from '@/components/post/PostListItem';
 import PostSearch from '@/components/post/PostSearch';
+import EmptyState from '@/components/ui/EmptyState';
 import Surface from '@/components/ui/Surface';
 import WindowSurface from '@/components/ui/WindowSurface';
 
 const PAGE_SIZE = 10;
 
 const isNoticeCategoryName = (categoryName: string) => {
-  return categoryName === '공지' || categoryName === '怨듭?' || categoryName.toLowerCase() === 'notice';
+  const normalizedName = categoryName.toLowerCase();
+  return categoryName === '공지' || normalizedName === 'notice' || normalizedName === 'announcement';
 };
 
 export default function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
@@ -62,10 +63,10 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
 
   if (error) {
     return (
-      <WindowSurface className="mx-auto max-w-3xl" bodyClassName="px-5 py-10 text-center text-red-500">
+      <WindowSurface className="mx-auto md:w-[70vw] md:max-w-[900px]" bodyClassName="px-5 py-10 text-center text-red-500">
         게시글을 불러오는 중 오류가 발생했습니다.
         <br />
-        <span className="text-sm text-[var(--color-text-subtle)]">카테고리 이름을 확인해주세요.</span>
+        <span className="text-sm text-[var(--color-text-subtle)]">카테고리 이름을 확인해 주세요.</span>
       </WindowSurface>
     );
   }
@@ -84,10 +85,9 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   };
 
   return (
-    <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
+    <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <WindowSurface
-        title="Finder"
-        subtitle={`${apiCategoryName} posts`}
+        title={apiCategoryName}
         bodyClassName="p-5 md:p-6"
       >
         <div className="mb-8 flex flex-col justify-between gap-4 border-b border-[var(--color-line)] pb-5 md:flex-row md:items-center">
@@ -99,7 +99,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
           <div className="flex w-full items-center gap-3 md:w-auto">
             <PostSearch
               onSearch={handleSearch}
-              placeholder={`${apiCategoryName} 내 검색`}
+              placeholder={`${apiCategoryName} 검색`}
               className="w-full md:w-64"
             />
 
@@ -113,8 +113,8 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                     ? 'bg-[var(--window-bg-strong)] text-[var(--color-accent)] shadow-sm'
                     : 'text-[var(--color-text-subtle)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
                 )}
-                title="카드형 보기"
-                aria-label="카드형 보기"
+                title="카드로 보기"
+                aria-label="카드로 보기"
                 aria-pressed={activeViewMode === 'grid'}
               >
                 <LayoutGrid size={18} />
@@ -128,8 +128,8 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                     ? 'bg-[var(--window-bg-strong)] text-[var(--color-accent)] shadow-sm'
                     : 'text-[var(--color-text-subtle)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
                 )}
-                title="리스트형 보기"
-                aria-label="리스트형 보기"
+                title="리스트로 보기"
+                aria-label="리스트로 보기"
                 aria-pressed={activeViewMode === 'list'}
               >
                 <List size={18} />
@@ -155,7 +155,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
         ) : (
           <>
             {activeViewMode === 'grid' ? (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}

@@ -7,13 +7,15 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import {
-  Archive,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Crown,
   FileQuestion,
   Folder,
   FolderOpen,
   Github,
+  Home,
   Mail,
   Menu,
   X,
@@ -22,6 +24,11 @@ import { getCategories } from '@/api/category';
 import { getProfile } from '@/api/profile';
 import PostSearch from '@/components/post/PostSearch';
 import { Category, Profile } from '@/types';
+
+interface SidebarProps {
+  isDesktopCollapsed: boolean;
+  onDesktopCollapsedChange: (nextValue: boolean) => void;
+}
 
 interface CategoryItemProps {
   category: Category;
@@ -32,7 +39,7 @@ interface CategoryItemProps {
 
 const defaultProfile: Profile = {
   name: 'Dev Park',
-  bio: '개발자',
+  bio: '개발 기록과 실험을 모아두는 공간입니다.',
   imageUrl: 'https://api.dicebear.com/7.x/notionists/svg?seed=Felix',
   githubUrl: 'https://github.com',
   email: 'user@example.com',
@@ -68,7 +75,7 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
         className={clsx(
           'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all',
           isActive
-            ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
+            ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)] shadow-sm'
             : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
         )}
         style={{ marginLeft: `${depth * 8}px` }}
@@ -118,7 +125,10 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
   );
 }
 
-function SidebarContent() {
+function SidebarContent({
+  isDesktopCollapsed,
+  onDesktopCollapsedChange,
+}: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const pathname = usePathname();
@@ -140,6 +150,7 @@ function SidebarContent() {
   });
 
   const displayProfile = profile ? { ...defaultProfile, ...profile } : defaultProfile;
+  const decodedPathname = decodeURIComponent(pathname);
 
   const closeSidebar = () => setIsOpen(false);
 
@@ -154,6 +165,8 @@ function SidebarContent() {
     router.push('/');
     closeSidebar();
   };
+
+  const compactCategoryItems = sortedCategories?.slice(0, 8) ?? [];
 
   return (
     <>
@@ -178,19 +191,34 @@ function SidebarContent() {
 
       <aside
         className={clsx(
-          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--window-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-panel)] backdrop-blur-2xl transition-transform duration-300 ease-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--window-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-panel)] backdrop-blur-2xl transition-[transform,width] duration-300 ease-out md:translate-x-0',
+          isDesktopCollapsed ? 'md:w-20' : 'md:w-72',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="shrink-0 px-6 pb-5 pt-8 text-center">
-          <Link href="/" onClick={closeSidebar} className="block transition-opacity hover:opacity-80">
-            <div className="relative mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-black/[0.04] shadow-inner ring-1 ring-[var(--color-line)] dark:bg-white/10">
+        <div className={clsx('relative shrink-0 text-center', isDesktopCollapsed ? 'px-6 pb-5 pt-8 md:px-3 md:pb-4 md:pt-5' : 'px-6 pb-5 pt-8')}>
+          <button
+            type="button"
+            onClick={() => onDesktopCollapsedChange(!isDesktopCollapsed)}
+            className="absolute right-3 top-3 hidden h-8 w-8 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)] md:flex"
+            aria-label={isDesktopCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          >
+            {isDesktopCollapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+          </button>
+
+          <Link href="/" onClick={closeSidebar} className="block transition-opacity hover:opacity-85">
+            <div
+              className={clsx(
+                'relative mx-auto overflow-hidden rounded-2xl bg-black/[0.04] shadow-inner ring-1 ring-[var(--color-line)] transition-all dark:bg-white/10',
+                isDesktopCollapsed ? 'mb-4 h-20 w-20 md:mb-0 md:mt-8 md:h-12 md:w-12' : 'mb-4 h-20 w-20',
+              )}
+            >
               {isProfileLoading ? (
                 <div className="h-full w-full animate-pulse bg-black/[0.06] dark:bg-white/10" />
               ) : (
                 <Image
                   src={displayProfile.imageUrl || defaultProfile.imageUrl!}
-                  alt="Profile"
+                  alt="프로필"
                   fill
                   sizes="96px"
                   className="object-cover"
@@ -200,22 +228,24 @@ function SidebarContent() {
               )}
             </div>
 
-            {isProfileLoading ? (
-              <div className="flex flex-col items-center space-y-2">
-                <div className="h-6 w-24 animate-pulse rounded bg-black/[0.06] dark:bg-white/10" />
-                <div className="h-4 w-32 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
-              </div>
-            ) : (
-              <>
-                <h2 className="text-lg font-bold tracking-normal text-[var(--color-text)]">{displayProfile.name}</h2>
-                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-[var(--color-text-muted)]">{displayProfile.bio}</p>
-              </>
-            )}
+            <div className={clsx(isDesktopCollapsed && 'md:hidden')}>
+              {isProfileLoading ? (
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="h-6 w-24 animate-pulse rounded bg-black/[0.06] dark:bg-white/10" />
+                  <div className="h-4 w-32 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
+                </div>
+              ) : (
+                <>
+                  <h2 className="text-lg font-bold tracking-normal text-[var(--color-text)]">{displayProfile.name}</h2>
+                  <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-[var(--color-text-muted)]">{displayProfile.bio}</p>
+                </>
+              )}
+            </div>
           </Link>
         </div>
 
         <nav className="flex min-h-0 flex-1 flex-col px-4 py-2">
-          <div className="flex h-full flex-col">
+          <div className={clsx('flex h-full flex-col', isDesktopCollapsed && 'md:hidden')}>
             <div className="shrink-0 space-y-1">
               <div id="blog-search" className="mb-5 mt-2 px-1">
                 <PostSearch
@@ -225,26 +255,10 @@ function SidebarContent() {
                 />
               </div>
 
-              <div className="mb-4">
-                <Link
-                  href="/archive"
-                  onClick={closeSidebar}
-                  className={clsx(
-                    'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all',
-                    pathname === '/archive'
-                      ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
-                      : 'text-[var(--color-text-muted)] hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10',
-                  )}
-                >
-                  <Archive size={16} />
-                  <span>아카이브</span>
-                </Link>
-              </div>
-
               <div className="mb-4 border-t border-[var(--color-line)]" />
 
               <div className="mb-3 flex h-8 items-center justify-between px-3">
-                <p className="text-xs font-semibold uppercase text-[var(--color-text-subtle)]">카테고리</p>
+                <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">카테고리</p>
               </div>
             </div>
 
@@ -288,7 +302,7 @@ function SidebarContent() {
 
             <div className="-mx-2 mt-3 shrink-0 border-t border-[var(--color-line)] px-2 pt-3">
               <div className="mb-2 flex h-8 items-center px-3">
-                <p className="text-xs font-semibold uppercase text-[var(--color-text-subtle)]">기타</p>
+                <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">앱</p>
               </div>
 
               <Link
@@ -306,16 +320,83 @@ function SidebarContent() {
               </Link>
             </div>
           </div>
+
+          <div className={clsx('hidden flex-1 flex-col items-center gap-2 overflow-y-auto px-0 pb-4 pt-2 md:flex', !isDesktopCollapsed && 'md:hidden')}>
+            <Link
+              href="/"
+              title="홈"
+              aria-label="홈"
+              className={clsx(
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+              )}
+            >
+              <Home size={18} />
+            </Link>
+
+            <div className="my-1 h-px w-9 bg-[var(--color-line)]" />
+
+            {compactCategoryItems.map((category) => {
+              const isActive = decodedPathname === `/category/${category.name}`;
+
+              return (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.name}`}
+                  title={category.name}
+                  aria-label={category.name}
+                  className={clsx(
+                    'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
+                    isActive && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+                  )}
+                >
+                  <Folder size={18} />
+                </Link>
+              );
+            })}
+
+            <Link
+              href="/category/uncategorized"
+              title="미분류"
+              aria-label="미분류"
+              className={clsx(
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/category/uncategorized' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+              )}
+            >
+              <FileQuestion size={18} />
+            </Link>
+
+            <div className="my-1 h-px w-9 bg-[var(--color-line)]" />
+
+            <Link
+              href="/play/chess"
+              title="체스"
+              aria-label="체스"
+              className={clsx(
+                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]',
+                pathname === '/play/chess' && 'bg-[var(--window-bg-strong)] text-[var(--color-accent)]',
+              )}
+            >
+              <Crown size={18} />
+            </Link>
+          </div>
         </nav>
 
-        <div className="shrink-0 border-t border-[var(--color-line)] bg-[var(--window-titlebar)] p-5">
-          <div className="flex justify-center gap-3">
+        <div
+          className={clsx(
+            'shrink-0 border-t border-[var(--color-line)] bg-[var(--window-titlebar)] p-5',
+            isDesktopCollapsed && 'md:px-3 md:py-4',
+          )}
+        >
+          <div className={clsx('flex justify-center gap-3', isDesktopCollapsed && 'md:flex-col md:items-center')}>
             <a
               href={displayProfile.githubUrl || '#'}
               target="_blank"
               rel="noreferrer"
               className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-text)] hover:text-white dark:hover:bg-white dark:hover:text-black"
               aria-label="GitHub"
+              title="GitHub"
             >
               <Github size={18} />
             </a>
@@ -323,11 +404,12 @@ function SidebarContent() {
               href={`mailto:${displayProfile.email}`}
               className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-accent)] hover:text-white"
               aria-label="이메일"
+              title="이메일"
             >
               <Mail size={18} />
             </a>
           </div>
-          <p className="mt-4 text-center text-[10px] font-light text-[var(--color-text-subtle)]">
+          <p className={clsx('mt-4 text-center text-[10px] font-light text-[var(--color-text-subtle)]', isDesktopCollapsed && 'md:hidden')}>
             © {new Date().getFullYear()} {displayProfile.name}
           </p>
         </div>
@@ -336,10 +418,19 @@ function SidebarContent() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar(props: SidebarProps) {
   return (
-    <Suspense fallback={<div className="h-screen w-72 border-r border-[var(--window-border)] bg-[var(--sidebar-bg)]" />}>
-      <SidebarContent />
+    <Suspense
+      fallback={(
+        <div
+          className={clsx(
+            'h-screen border-r border-[var(--window-border)] bg-[var(--sidebar-bg)]',
+            props.isDesktopCollapsed ? 'w-20' : 'w-72',
+          )}
+        />
+      )}
+    >
+      <SidebarContent {...props} />
     </Suspense>
   );
 }

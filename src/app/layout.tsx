@@ -3,9 +3,7 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import Providers from './providers';
-import DesktopDock from '@/components/layout/DesktopDock';
-import DesktopMenuBar from '@/components/layout/DesktopMenuBar';
-import Sidebar from '@/components/layout/Sidebar';
+import DesktopShell from '@/components/layout/DesktopShell';
 import { THEME_INIT_SCRIPT } from '@/components/theme/theme';
 
 const pretendard = localFont({
@@ -50,17 +48,7 @@ export default function RootLayout({
         </Script>
 
         <Providers>
-          <div className="min-h-screen">
-            <Sidebar />
-            <DesktopMenuBar />
-            <DesktopDock />
-
-            <main className="relative w-full flex-1 transition-all duration-300 md:ml-72">
-              <div className="mx-auto w-full px-4 pb-28 pt-20 md:px-8 md:pb-32 md:pt-24">
-                {children}
-              </div>
-            </main>
-          </div>
+          <DesktopShell>{children}</DesktopShell>
         </Providers>
       </body>
     </html>

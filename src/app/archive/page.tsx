@@ -57,7 +57,7 @@ export default function ArchivePage() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-1 py-4 md:px-3 md:py-6">
+    <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <WindowSurface
         title="Archive"
         subtitle={`${totalPosts.toLocaleString()} posts`}
