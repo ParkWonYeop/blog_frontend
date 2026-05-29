@@ -14,9 +14,7 @@ import {
   FileQuestion,
   Folder,
   FolderOpen,
-  Github,
   Home,
-  Mail,
   Menu,
   X,
 } from 'lucide-react';
@@ -386,30 +384,10 @@ function SidebarContent({
         <div
           className={clsx(
             'shrink-0 border-t border-[var(--color-line)] bg-[var(--window-titlebar)] p-5',
-            isDesktopCollapsed && 'md:px-3 md:py-4',
+            isDesktopCollapsed && 'md:hidden',
           )}
         >
-          <div className={clsx('flex justify-center gap-3', isDesktopCollapsed && 'md:flex-col md:items-center')}>
-            <a
-              href={displayProfile.githubUrl || '#'}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-text)] hover:text-white dark:hover:bg-white dark:hover:text-black"
-              aria-label="GitHub"
-              title="GitHub"
-            >
-              <Github size={18} />
-            </a>
-            <a
-              href={`mailto:${displayProfile.email}`}
-              className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] p-2.5 text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-all hover:bg-[var(--color-accent)] hover:text-white"
-              aria-label="이메일"
-              title="이메일"
-            >
-              <Mail size={18} />
-            </a>
-          </div>
-          <p className={clsx('mt-4 text-center text-[10px] font-light text-[var(--color-text-subtle)]', isDesktopCollapsed && 'md:hidden')}>
+          <p className="text-center text-[10px] font-light text-[var(--color-text-subtle)]">
             © {new Date().getFullYear()} {displayProfile.name}
           </p>
         </div>

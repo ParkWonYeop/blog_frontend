@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { Github, Mail } from 'lucide-react';
 import { getProfile } from '@/api/profile';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 
@@ -36,7 +35,7 @@ const getAppTitle = (pathname: string) => {
   if (pathname.startsWith('/play/chess')) return 'Chess';
   if (pathname.startsWith('/login')) return 'Login';
   if (pathname.startsWith('/signup')) return 'Signup';
-  return 'Desktop';
+  return '홈';
 };
 
 export default function DesktopMenuBar({ isSidebarCollapsed }: DesktopMenuBarProps) {
@@ -50,9 +49,7 @@ export default function DesktopMenuBar({ isSidebarCollapsed }: DesktopMenuBarPro
 
   const githubUrl = profile?.githubUrl || defaultProfile.githubUrl;
   const email = profile?.email || defaultProfile.email;
-
-  const linkClass =
-    'inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-2xl transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]';
+  const menuLinkClass = 'text-xs font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-text)]';
 
   return (
     <div
@@ -70,26 +67,17 @@ export default function DesktopMenuBar({ isSidebarCollapsed }: DesktopMenuBarPro
           <span className="truncate text-sm font-semibold text-[var(--color-text-muted)]">
             {getAppTitle(pathname)}
           </span>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <div className="hidden items-center gap-2 md:flex">
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={linkClass}
-            >
-              <Github size={15} />
-              <span>GitHub</span>
+          <div className="hidden items-center gap-3 md:flex">
+            <a href={githubUrl} target="_blank" rel="noreferrer" className={menuLinkClass}>
+              GitHub
             </a>
-            <a href={`mailto:${email}`} className={linkClass}>
-              <Mail size={15} />
-              <span>Email</span>
+            <a href={`mailto:${email}`} className={menuLinkClass}>
+              Email
             </a>
           </div>
-          <ThemeToggle />
         </div>
+
+        <ThemeToggle />
       </div>
     </div>
   );

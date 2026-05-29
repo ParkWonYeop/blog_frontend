@@ -279,8 +279,7 @@ function HomeContent() {
     <main className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
       <h1 className="sr-only">WYPark Blog</h1>
       <WindowSurface
-        title="WYPark Desktop"
-        subtitle="Blog dashboard"
+        title="WYPark"
         controls={(
           <Link
             href="/archive"

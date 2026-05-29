@@ -37,8 +37,10 @@ export default function DesktopShell({ children }: { children: ReactNode }) {
 
       <main
         className={clsx(
-          'relative w-full flex-1 transition-[margin] duration-300 ease-out',
-          isSidebarCollapsed ? 'md:ml-20' : 'md:ml-72',
+          'relative w-full flex-1 transition-[margin,width] duration-300 ease-out',
+          isSidebarCollapsed
+            ? 'md:ml-20 md:w-[calc(100%-5rem)]'
+            : 'md:ml-72 md:w-[calc(100%-18rem)]',
         )}
       >
         <div className="mx-auto w-full px-4 pb-28 pt-20 md:px-6 md:pb-32 md:pt-24 lg:px-8">
