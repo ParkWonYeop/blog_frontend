@@ -22,6 +22,7 @@ import {
 import { getCategories } from '@/api/category';
 import { uploadImage } from '@/api/image';
 import { createPost, getPost, updatePost } from '@/api/posts';
+import { useTheme } from '@/components/theme/ThemeProvider';
 import Surface from '@/components/ui/Surface';
 import WindowSurface from '@/components/ui/WindowSurface';
 import { useAuthStore } from '@/store/authStore';
@@ -187,6 +188,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const { resolvedTheme } = useTheme();
   const { isLoggedIn, role, _hasHydrated, accessToken, refreshToken, login } = useAuthStore();
   const isAdmin = _hasHydrated && role?.includes('ADMIN');
   const isEditMode = Boolean(editSlug);
@@ -528,12 +530,21 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
                 className="mb-5 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-2xl font-bold tracking-normal text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] md:text-3xl"
               />
 
-              <div className="wy-editor-shell" data-color-mode="auto">
+              <div className="wy-editor-shell" data-color-mode={resolvedTheme}>
                 <MDEditor
                   value={content}
                   onChange={(value) => setContent(value || '')}
                   height={680}
                   preview="edit"
+                  data-color-mode={resolvedTheme}
+                  textareaProps={{
+                    style: {
+                      color: 'var(--color-text)',
+                      WebkitTextFillColor: 'var(--color-text)',
+                      caretColor: 'var(--color-accent)',
+                      background: 'transparent',
+                    },
+                  }}
                   className="wy-markdown-editor"
                 />
               </div>

@@ -432,9 +432,27 @@ html[data-theme="dark"] .w-md-editor-toolbar {
   color: var(--color-text) !important;
 }
 
+.wy-editor-shell .w-md-editor-text {
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-text-pre,
+.wy-editor-shell .w-md-editor-text-pre *,
+.wy-editor-shell .w-md-editor-text-pre > code,
+.wy-editor-shell .w-md-editor-text-pre code,
+.wy-editor-shell .w-md-editor-text-pre .token,
+.wy-editor-shell .w-md-editor-text-pre .punctuation {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
 .wy-editor-shell .w-md-editor-text-input {
+  opacity: 1 !important;
+  background: transparent !important;
+  color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent);
+  text-shadow: none !important;
 }
 
 .wy-editor-shell .w-md-editor-text-input::placeholder {
@@ -442,8 +460,6 @@ html[data-theme="dark"] .w-md-editor-toolbar {
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
 
-.wy-editor-shell .w-md-editor-text-pre > code,
-.wy-editor-shell .w-md-editor-text-pre code,
 .wy-editor-shell .wmde-markdown,
 .wy-editor-shell .wmde-markdown p,
 .wy-editor-shell .wmde-markdown li,
