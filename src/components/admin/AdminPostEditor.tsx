@@ -3,24 +3,27 @@
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   ArrowLeft,
+  CheckCircle2,
   Clock,
   FileText,
   Folder,
   Image as ImageIcon,
   Loader2,
   Save,
+  Tags,
   Trash2,
   UploadCloud,
-  X,
 } from 'lucide-react';
 import { getCategories } from '@/api/category';
 import { uploadImage } from '@/api/image';
 import { createPost, getPost, updatePost } from '@/api/posts';
+import Surface from '@/components/ui/Surface';
+import WindowSurface from '@/components/ui/WindowSurface';
 import { useAuthStore } from '@/store/authStore';
 import { ApiResponse, AuthResponse, Category, Post, PostSaveRequest } from '@/types';
 
@@ -62,6 +65,17 @@ const findCategoryByName = (categories: Category[], name: string): Category | nu
   return null;
 };
 
+const findCategoryById = (categories: Category[], id: number): Category | null => {
+  for (const category of categories) {
+    if (category.id === id) return category;
+
+    const found = findCategoryById(category.children || [], id);
+    if (found) return found;
+  }
+
+  return null;
+};
+
 const isTokenExpired = (token: string) => {
   try {
     const base64Url = token.split('.')[1];
@@ -92,25 +106,22 @@ function CategoryOptions({
   depth?: number;
 }) {
   return (
-    <>
+    <div className={depth === 0 ? 'space-y-1' : 'mt-1 space-y-1'}>
       {categories.map((category) => (
         <div key={category.id}>
-          <label className="flex cursor-pointer items-center gap-2 rounded p-2 transition-colors hover:bg-gray-50">
+          <label
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--color-text-muted)] transition hover:bg-black/[0.04] hover:text-[var(--color-text)] dark:hover:bg-white/10"
+            style={{ marginLeft: `${depth * 10}px` }}
+          >
             <input
               type="radio"
               name="category"
               value={category.id}
               checked={selectedId === category.id}
               onChange={(event) => onSelect(Number(event.target.value))}
-              className="text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 accent-[var(--color-accent)]"
             />
-            <span
-              style={{ marginLeft: `${depth * 10}px` }}
-              className={depth === 0 ? 'font-medium' : 'text-gray-600'}
-            >
-              {depth > 0 && '- '}
-              {category.name}
-            </span>
+            <span className={depth === 0 ? 'font-semibold' : ''}>{category.name}</span>
           </label>
           {category.children?.length > 0 && (
             <CategoryOptions
@@ -122,7 +133,7 @@ function CategoryOptions({
           )}
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -136,39 +147,38 @@ function DraftLoadDialog({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-gray-950/35 px-4 py-6 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-xl">
-        <div className="border-b border-gray-100 p-5">
-          <h3 className="text-lg font-bold text-gray-950">임시저장 불러오기</h3>
-          <p className="mt-1 text-sm leading-6 text-gray-500">
-            현재 작성 중인 내용이 선택한 임시저장 글로 바뀝니다.
-          </p>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 px-4 py-6 backdrop-blur-sm sm:items-center">
+      <WindowSurface
+        title="임시저장 불러오기"
+        className="w-full max-w-md"
+        bodyClassName="p-5"
+      >
+        <p className="text-sm leading-6 text-[var(--color-text-muted)]">
+          현재 작성 중인 내용이 선택한 임시저장 글로 바뀝니다.
+        </p>
 
-        <div className="p-5">
-          <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-            <p className="line-clamp-2 text-sm font-semibold text-gray-950">{draft.title}</p>
-            <p className="mt-1 text-xs text-gray-500">{draft.savedAt}</p>
-          </div>
+        <Surface strong className="mt-4 p-4 shadow-none">
+          <p className="line-clamp-2 text-sm font-semibold text-[var(--color-text)]">{draft.title}</p>
+          <p className="mt-1 text-xs text-[var(--color-text-subtle)]">{draft.savedAt}</p>
+        </Surface>
 
-          <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-            >
-              취소
-            </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              불러오기
-            </button>
-          </div>
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          >
+            불러오기
+          </button>
         </div>
-      </div>
+      </WindowSurface>
     </div>
   );
 }
@@ -182,7 +192,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   const isEditMode = Boolean(editSlug);
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('**Hello world!**');
+  const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | ''>('');
   const [tags, setTags] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -246,6 +256,17 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
     }
   }, [existingPost, categories]);
 
+  const selectedCategoryName = useMemo(() => {
+    if (categoryId === '') return '선택 안 됨';
+
+    return findCategoryById(categories, categoryId)?.name || '선택 안 됨';
+  }, [categories, categoryId]);
+
+  const contentLength = content.trim().length;
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const readingMinutes = Math.max(1, Math.ceil(wordCount / 350));
+  const canSubmit = Boolean(title.trim() && content.trim() && categoryId !== '');
+
   const saveDrafts = (nextDrafts: DraftPost[]) => {
     setDrafts(nextDrafts);
     localStorage.setItem('temp_drafts', JSON.stringify(nextDrafts));
@@ -253,12 +274,12 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
 
   const handleTempSave = () => {
     if (!title.trim() && !content.trim()) {
-      toast.error('제목이나 내용을 입력해주세요.');
+      toast.error('제목이나 내용을 입력해 주세요.');
       return;
     }
 
     if (drafts.length >= 10) {
-      toast.error('임시저장은 최대 10개까지만 가능합니다.\n기존 저장분을 삭제해주세요.');
+      toast.error('임시저장은 최대 10개까지 가능합니다. 기존 저장분을 삭제해 주세요.');
       setShowDraftList(true);
       return;
     }
@@ -272,7 +293,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
       },
       ...drafts,
     ]);
-    toast.success('임시저장 되었습니다.');
+    toast.success('임시저장했습니다.');
   };
 
   const handleLoadDraft = (draft: DraftPost) => {
@@ -286,12 +307,12 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
     setContent(draftToLoad.content);
     setShowDraftList(false);
     setDraftToLoad(null);
-    toast.success('불러오기 완료');
+    toast.success('임시저장을 불러왔습니다.');
   };
 
   const handleDeleteDraft = (id: number) => {
     saveDrafts(drafts.filter((draft) => draft.id !== id));
-    toast.success('삭제되었습니다.');
+    toast.success('삭제했습니다.');
   };
 
   const mutation = useMutation({
@@ -316,7 +337,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
         queryClient.removeQueries({ queryKey: ['post', newSlug] });
       }
 
-      toast.success(isEditMode ? '게시글이 수정되었습니다.' : '게시글이 발행되었습니다.');
+      toast.success(isEditMode ? '게시글을 수정했습니다.' : '게시글을 발행했습니다.');
       router.push(newSlug ? `/posts/${newSlug}` : '/admin');
     },
     onError: (error) => {
@@ -350,13 +371,13 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
 
       return false;
     } catch {
-      toast.error('세션이 만료되었습니다.\n작성 중인 글을 복사해두고 다시 로그인해주세요.', { duration: 5000 });
+      toast.error('세션이 만료되었습니다. 작성 중인 글을 복사해 두고 다시 로그인해 주세요.', { duration: 5000 });
       return false;
     }
   };
 
   const appendImageMarkdown = (imageUrl: string) => {
-    setContent((previous) => `${previous}\n![image](${imageUrl})`);
+    setContent((previous) => `${previous}${previous ? '\n\n' : ''}![image](${imageUrl})`);
   };
 
   const uploadEditorImage = async (file: File, successMessage: string, toastId: string) => {
@@ -374,11 +395,11 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
-      toast.error('제목과 내용을 입력해주세요.');
+      toast.error('제목과 내용을 입력해 주세요.');
       return;
     }
     if (categoryId === '') {
-      toast.error('카테고리를 선택해주세요.');
+      toast.error('카테고리를 선택해 주세요.');
       return;
     }
 
@@ -406,7 +427,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
     const uploadToast = toast.loading('이미지 업로드 중...');
 
     try {
-      await uploadEditorImage(file, '이미지가 업로드되었습니다.', uploadToast);
+      await uploadEditorImage(file, '이미지를 추가했습니다.', uploadToast);
     } catch (error) {
       toast.error(getErrorMessage(error, '이미지 업로드 실패'), { id: uploadToast });
     } finally {
@@ -430,7 +451,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
       const uploadToast = toast.loading('이미지 업로드 중...');
 
       try {
-        await uploadEditorImage(file, '이미지 붙여넣기 완료.', uploadToast);
+        await uploadEditorImage(file, '붙여넣은 이미지를 추가했습니다.', uploadToast);
       } catch (error) {
         toast.error(getErrorMessage(error, '이미지 업로드 실패'), { id: uploadToast });
       } finally {
@@ -442,175 +463,217 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   if (!_hasHydrated || !isAdmin || (isEditMode && isLoadingPost)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-blue-500" size={40} />
+        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8" onPaste={handlePaste}>
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
+    <main className="mx-auto w-full px-0 py-4 md:w-[80vw] md:max-w-[1400px] md:py-6" onPaste={handlePaste}>
+      <WindowSurface
+        title={isEditMode ? '글 수정' : '새 글 작성'}
+        subtitle="Markdown Studio"
+        controls={(
           <button
             type="button"
             onClick={() => router.push('/admin/posts')}
-            className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100"
-            aria-label="게시글 관리로 돌아가기"
+            className="inline-flex h-8 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={14} />
+            목록
           </button>
-          <h1 className="text-2xl font-bold text-gray-800">{isEditMode ? '게시글 수정' : '새 글 작성'}</h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative">
-            <div className="flex items-center rounded-lg border border-gray-300 bg-white shadow-sm">
-              <button
-                type="button"
-                onClick={handleTempSave}
-                className="flex items-center gap-2 rounded-l-lg border-r border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                title="현재 내용 임시저장"
-              >
-                <FileText size={16} className="text-gray-500" />
-                <span className="hidden sm:inline">임시저장</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDraftList(!showDraftList)}
-                className="flex items-center gap-1 rounded-r-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                title="임시저장 목록 보기"
-              >
-                <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-bold text-gray-600">
-                  {drafts.length}
-                </span>
-              </button>
-            </div>
-
-            {showDraftList && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowDraftList(false)} />
-                <div className="absolute right-0 top-full z-20 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
-                  <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
-                    <h3 className="text-sm font-bold text-gray-700">임시저장 목록 ({drafts.length}/10)</h3>
-                    <button type="button" onClick={() => setShowDraftList(false)} aria-label="임시저장 목록 닫기">
-                      <X size={16} className="text-gray-400 hover:text-gray-600" />
-                    </button>
-                  </div>
-
-                  <div className="max-h-80 overflow-y-auto">
-                    {drafts.length === 0 ? (
-                      <div className="p-8 text-center text-sm text-gray-400">저장된 글이 없습니다.</div>
-                    ) : (
-                      <ul className="divide-y divide-gray-100">
-                        {drafts.map((draft) => (
-                          <li key={draft.id} className="group p-3 transition-colors hover:bg-blue-50">
-                            <div className="flex items-start justify-between gap-2">
-                              <button type="button" onClick={() => handleLoadDraft(draft)} className="flex-1 text-left">
-                                <p className="mb-1 line-clamp-1 text-sm font-medium text-gray-800 group-hover:text-blue-600">
-                                  {draft.title}
-                                </p>
-                                <div className="flex items-center gap-1 text-xs text-gray-400">
-                                  <Clock size={12} />
-                                  {draft.savedAt}
-                                </div>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteDraft(draft.id)}
-                                className="rounded p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
-                                title="삭제"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+        )}
+        bodyClassName="p-4 md:p-6"
+      >
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+          <section className="min-w-0 space-y-4">
+            <Surface strong className="p-4 shadow-none md:p-5">
+              <div className="mb-4 flex flex-col gap-3 border-b border-[var(--color-line)] pb-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-normal text-[var(--color-text-subtle)]">Document</p>
+                  <h1 className="mt-1 text-xl font-bold text-[var(--color-text)]">
+                    {isEditMode ? '게시글 수정' : '게시글 작성'}
+                  </h1>
                 </div>
-              </>
-            )}
-          </div>
 
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting || isUploading}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 font-bold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-            {isEditMode ? '수정하기' : '작성하기'}
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="space-y-4 lg:col-span-3">
-          <input
-            type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="제목을 입력하세요"
-            className="w-full border-none bg-transparent py-2 text-3xl font-bold outline-none placeholder:text-gray-300"
-          />
-          <div data-color-mode="light">
-            <MDEditor
-              value={content}
-              onChange={(value) => setContent(value || '')}
-              height={600}
-              preview="edit"
-              className="rounded-lg border border-gray-200 shadow-sm !font-sans"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="sticky top-6 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-700">
-              <Folder size={18} />
-              카테고리
-            </h3>
-            <div className="max-h-60 space-y-1 overflow-y-auto border-t border-gray-100 pt-2 text-sm">
-              {categories.length > 0 ? (
-                <CategoryOptions categories={categories} selectedId={categoryId} onSelect={setCategoryId} />
-              ) : (
-                <p className="text-sm text-gray-400">로딩 중...</p>
-              )}
-            </div>
-          </div>
-
-          <div className="sticky top-[280px] rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-700">
-              <ImageIcon size={18} />
-              이미지 업로드
-            </h3>
-            <p className="mb-3 text-xs leading-relaxed text-gray-500">
-              에디터에 이미지를 <br />
-              <strong>복사 & 붙여넣기(Ctrl+V)</strong> 하거나
-              <br /> 아래 버튼을 사용하세요.
-            </p>
-
-            <label
-              className={`flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-all duration-200 hover:border-blue-400 hover:bg-gray-50 ${isUploading ? 'cursor-wait opacity-50' : ''}`}
-            >
-              <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                <UploadCloud className="mb-2 h-8 w-8 text-gray-400" />
-                <p className="text-xs font-medium text-gray-500">
-                  {isUploading ? '업로드 중...' : '클릭하여 이미지 선택'}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTempSave}
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]"
+                  >
+                    <FileText size={16} />
+                    임시저장
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting || isUploading || !canSubmit}
+                    className="inline-flex h-9 items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 text-sm font-bold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-55"
+                  >
+                    {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                    {isEditMode ? '수정하기' : '발행하기'}
+                  </button>
+                </div>
               </div>
+
+              <label className="mb-2 block text-xs font-bold uppercase tracking-normal text-[var(--color-text-subtle)]">
+                제목
+              </label>
               <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={isUploading}
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="제목을 입력하세요"
+                className="mb-5 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-4 py-3 text-2xl font-bold tracking-normal text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] md:text-3xl"
               />
-            </label>
-          </div>
+
+              <div className="wy-editor-shell" data-color-mode="auto">
+                <MDEditor
+                  value={content}
+                  onChange={(value) => setContent(value || '')}
+                  height={680}
+                  preview="edit"
+                  className="wy-markdown-editor"
+                />
+              </div>
+            </Surface>
+          </section>
+
+          <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+            <Surface strong className="p-4 shadow-none">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <CheckCircle2 size={17} className="text-[var(--color-accent)]" />
+                발행 상태
+              </h2>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3">
+                  <p className="text-lg font-bold tabular-nums text-[var(--color-text)]">{contentLength.toLocaleString()}</p>
+                  <p className="text-[10px] font-semibold text-[var(--color-text-subtle)]">글자</p>
+                </div>
+                <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3">
+                  <p className="text-lg font-bold tabular-nums text-[var(--color-text)]">{wordCount.toLocaleString()}</p>
+                  <p className="text-[10px] font-semibold text-[var(--color-text-subtle)]">단어</p>
+                </div>
+                <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3">
+                  <p className="text-lg font-bold tabular-nums text-[var(--color-text)]">{readingMinutes}</p>
+                  <p className="text-[10px] font-semibold text-[var(--color-text-subtle)]">분</p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-[var(--color-text-muted)]">
+                카테고리: <span className="font-semibold text-[var(--color-text)]">{selectedCategoryName}</span>
+              </p>
+            </Surface>
+
+            <Surface strong className="p-4 shadow-none">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Folder size={17} />
+                카테고리
+              </h2>
+              <div className="max-h-64 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-2">
+                {categories.length > 0 ? (
+                  <CategoryOptions categories={categories} selectedId={categoryId} onSelect={setCategoryId} />
+                ) : (
+                  <div className="flex min-h-24 items-center justify-center text-sm text-[var(--color-text-subtle)]">
+                    불러오는 중...
+                  </div>
+                )}
+              </div>
+            </Surface>
+
+            <Surface strong className="p-4 shadow-none">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Tags size={17} />
+                태그
+              </h2>
+              <input
+                type="text"
+                value={tags}
+                onChange={(event) => setTags(event.target.value)}
+                placeholder="react, nextjs, essay"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
+              />
+              <p className="mt-2 text-xs text-[var(--color-text-subtle)]">쉼표로 구분해서 입력하세요.</p>
+            </Surface>
+
+            <Surface strong className="p-4 shadow-none">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <ImageIcon size={17} />
+                이미지
+              </h2>
+              <label
+                className={`flex min-h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-control)] p-4 text-center transition hover:border-[var(--color-accent)] hover:bg-[var(--window-bg-strong)] ${isUploading ? 'cursor-wait opacity-60' : ''}`}
+              >
+                <UploadCloud className="mb-2 h-7 w-7 text-[var(--color-text-subtle)]" />
+                <span className="text-sm font-semibold text-[var(--color-text)]">
+                  {isUploading ? '업로드 중...' : '이미지 선택'}
+                </span>
+                <span className="mt-1 text-xs leading-5 text-[var(--color-text-subtle)]">
+                  파일 선택 또는 에디터에 붙여넣기
+                </span>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                />
+              </label>
+            </Surface>
+
+            <Surface strong className="overflow-hidden shadow-none">
+              <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
+                <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                  <Clock size={17} />
+                  임시저장
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setShowDraftList((previous) => !previous)}
+                  className="rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-2.5 py-1 text-xs font-bold text-[var(--color-text-muted)] transition hover:bg-[var(--window-bg-strong)] hover:text-[var(--color-text)]"
+                >
+                  {drafts.length}/10
+                </button>
+              </div>
+
+              {showDraftList ? (
+                <div className="max-h-72 overflow-y-auto p-2">
+                  {drafts.length === 0 ? (
+                    <div className="flex min-h-24 items-center justify-center text-sm text-[var(--color-text-subtle)]">
+                      저장된 글이 없습니다.
+                    </div>
+                  ) : (
+                    <ul className="space-y-1">
+                      {drafts.map((draft) => (
+                        <li key={draft.id} className="group rounded-lg px-3 py-2 transition hover:bg-black/[0.04] dark:hover:bg-white/10">
+                          <div className="flex items-start justify-between gap-2">
+                            <button type="button" onClick={() => handleLoadDraft(draft)} className="min-w-0 flex-1 text-left">
+                              <p className="line-clamp-1 text-sm font-semibold text-[var(--color-text)]">{draft.title}</p>
+                              <p className="mt-1 text-xs text-[var(--color-text-subtle)]">{draft.savedAt}</p>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDraft(draft.id)}
+                              className="rounded p-1.5 text-[var(--color-text-subtle)] transition hover:bg-[var(--color-danger-soft)] hover:text-red-500"
+                              title="삭제"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : (
+                <div className="p-4 text-xs leading-5 text-[var(--color-text-muted)]">
+                  임시저장 목록은 필요할 때만 펼쳐 볼 수 있습니다.
+                </div>
+              )}
+            </Surface>
+          </aside>
         </div>
-      </div>
+      </WindowSurface>
 
       {draftToLoad && (
         <DraftLoadDialog
@@ -619,6 +682,6 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
           onConfirm={confirmLoadDraft}
         />
       )}
-    </div>
+    </main>
   );
 }

@@ -383,3 +383,90 @@ html[data-theme="dark"] .w-md-editor-toolbar {
   background-color: var(--window-titlebar) !important;
   border-color: var(--color-line) !important;
 }
+
+.wy-editor-shell {
+  --color-canvas-default: transparent;
+  --color-canvas-subtle: transparent;
+  --color-border-default: var(--color-line);
+  --color-border-muted: var(--color-line);
+  --color-fg-default: var(--color-text);
+  --color-fg-muted: var(--color-text-muted);
+  --color-accent-fg: var(--color-accent);
+  color: var(--color-text);
+}
+
+.wy-editor-shell .w-md-editor {
+  min-height: 520px;
+  overflow: hidden;
+  border-radius: 0.5rem !important;
+  border: 1px solid var(--color-line) !important;
+  background-color: var(--window-bg-strong) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.wy-editor-shell .w-md-editor-toolbar {
+  border-color: var(--color-line) !important;
+  background-color: var(--window-titlebar) !important;
+}
+
+.wy-editor-shell .w-md-editor-toolbar button,
+.wy-editor-shell .w-md-editor-toolbar li,
+.wy-editor-shell .w-md-editor-toolbar svg {
+  color: var(--color-text-muted) !important;
+}
+
+.wy-editor-shell .w-md-editor-toolbar button:hover {
+  background-color: var(--color-control) !important;
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-content,
+.wy-editor-shell .w-md-editor-area,
+.wy-editor-shell .w-md-editor-text,
+.wy-editor-shell .w-md-editor-text-pre,
+.wy-editor-shell .w-md-editor-text-input,
+.wy-editor-shell .w-md-editor-preview,
+.wy-editor-shell .wmde-markdown {
+  background: transparent !important;
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .w-md-editor-text-input {
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent);
+}
+
+.wy-editor-shell .w-md-editor-text-input::placeholder {
+  color: var(--color-text-subtle) !important;
+  -webkit-text-fill-color: var(--color-text-subtle) !important;
+}
+
+.wy-editor-shell .w-md-editor-text-pre > code,
+.wy-editor-shell .w-md-editor-text-pre code,
+.wy-editor-shell .wmde-markdown,
+.wy-editor-shell .wmde-markdown p,
+.wy-editor-shell .wmde-markdown li,
+.wy-editor-shell .wmde-markdown h1,
+.wy-editor-shell .wmde-markdown h2,
+.wy-editor-shell .wmde-markdown h3,
+.wy-editor-shell .wmde-markdown h4,
+.wy-editor-shell .wmde-markdown h5,
+.wy-editor-shell .wmde-markdown h6 {
+  color: var(--color-text) !important;
+}
+
+.wy-editor-shell .wmde-markdown a {
+  color: var(--color-accent) !important;
+}
+
+.wy-editor-shell .wmde-markdown blockquote {
+  color: var(--color-text-muted) !important;
+  border-left-color: var(--color-line) !important;
+}
+
+.wy-editor-shell .wmde-markdown pre,
+.wy-editor-shell .wmde-markdown code {
+  background-color: rgba(30, 30, 30, 0.9) !important;
+  color: #f4f4f5 !important;
+}
