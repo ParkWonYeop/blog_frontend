@@ -100,16 +100,16 @@ const homeDockTone = createDockTone(
 
 const dockToneStyles: Record<string, DockToneStyle> = {
   home: homeDockTone,
-  archive: dockGlassTone,
-  chess: dockGlassTone,
-  admin: dockGlassTone,
-  write: dockGlassTone,
-  login: dockGlassTone,
-  signup: dockGlassTone,
-  logout: dockGlassTone,
-  pin: dockGlassTone,
-  menu: dockGlassTone,
-  more: dockGlassTone,
+  archive: createDockTone('rgba(222, 216, 255, 0.34)', 'rgba(222, 216, 255, 0.48)', 'rgba(222, 216, 255, 0.58)', 'rgba(255, 255, 255, 0.2)', 'rgba(151, 132, 214, 0.3)', '#6f668f', '#514274', 'rgba(151, 132, 214, 0.18)'),
+  chess: createDockTone('rgba(255, 229, 162, 0.34)', 'rgba(255, 229, 162, 0.48)', 'rgba(255, 229, 162, 0.58)', 'rgba(255, 255, 255, 0.22)', 'rgba(184, 134, 42, 0.3)', '#7b6d4a', '#665125', 'rgba(184, 134, 42, 0.17)'),
+  admin: createDockTone('rgba(192, 226, 255, 0.34)', 'rgba(192, 226, 255, 0.48)', 'rgba(192, 226, 255, 0.58)', 'rgba(255, 255, 255, 0.21)', 'rgba(81, 145, 195, 0.3)', '#627f96', '#3f6686', 'rgba(81, 145, 195, 0.17)'),
+  write: createDockTone('rgba(255, 209, 184, 0.34)', 'rgba(255, 209, 184, 0.48)', 'rgba(255, 209, 184, 0.58)', 'rgba(255, 255, 255, 0.22)', 'rgba(187, 106, 70, 0.3)', '#8c705f', '#724d38', 'rgba(187, 106, 70, 0.17)'),
+  login: createDockTone('rgba(190, 236, 238, 0.34)', 'rgba(190, 236, 238, 0.48)', 'rgba(190, 236, 238, 0.58)', 'rgba(255, 255, 255, 0.21)', 'rgba(68, 150, 158, 0.3)', '#63898c', '#446d72', 'rgba(68, 150, 158, 0.17)'),
+  signup: createDockTone('rgba(237, 207, 250, 0.34)', 'rgba(237, 207, 250, 0.48)', 'rgba(237, 207, 250, 0.58)', 'rgba(255, 255, 255, 0.21)', 'rgba(153, 91, 176, 0.3)', '#846c8e', '#684a78', 'rgba(153, 91, 176, 0.17)'),
+  logout: createDockTone('rgba(255, 207, 216, 0.34)', 'rgba(255, 207, 216, 0.48)', 'rgba(255, 207, 216, 0.58)', 'rgba(255, 255, 255, 0.22)', 'rgba(188, 84, 99, 0.3)', '#8f6970', '#714850', 'rgba(188, 84, 99, 0.17)'),
+  pin: createDockTone('rgba(255, 219, 170, 0.36)', 'rgba(255, 219, 170, 0.5)', 'rgba(255, 219, 170, 0.6)', 'rgba(255, 255, 255, 0.22)', 'rgba(184, 118, 44, 0.32)', '#8a704e', '#6b4f2d', 'rgba(184, 118, 44, 0.18)'),
+  menu: createDockTone('rgba(213, 234, 203, 0.34)', 'rgba(213, 234, 203, 0.48)', 'rgba(213, 234, 203, 0.58)', 'rgba(255, 255, 255, 0.21)', 'rgba(98, 143, 80, 0.3)', '#6f8366', '#526f44', 'rgba(98, 143, 80, 0.17)'),
+  more: createDockTone('rgba(210, 228, 255, 0.34)', 'rgba(210, 228, 255, 0.48)', 'rgba(210, 228, 255, 0.58)', 'rgba(255, 255, 255, 0.21)', 'rgba(86, 126, 183, 0.3)', '#6d7f98', '#4f688d', 'rgba(86, 126, 183, 0.17)'),
   default: dockGlassTone,
 };
 
@@ -361,7 +361,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     const active = item.isActive?.(pathname) ?? false;
     const toneStyle = getDockToneStyle(item.key);
     const itemClass = clsx(
-      'group/item relative flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)] focus-visible:-translate-y-1',
+      'group/item relative flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition duration-150 hover:-translate-y-1 hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)] focus-visible:-translate-y-1',
       active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
     );
 
@@ -413,7 +413,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     const active = activeOverride ?? item.isActive?.(pathname) ?? false;
     const toneStyle = getDockToneStyle(item.key);
     const itemClass = clsx(
-      'flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-1 text-[10px] font-semibold leading-none text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition-colors',
+      'flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-1 text-[10px] font-semibold leading-none text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors',
       'hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)] focus-visible:bg-[var(--dock-item-bg-active)]',
       active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
     );
@@ -521,7 +521,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
             }}
             onClick={handlePinnedChange}
             className={clsx(
-              'group/item relative ml-1 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] shadow-[var(--shadow-control)] ring-1 ring-[var(--dock-item-ring)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--dock-item-bg-hover)]',
+              'group/item relative ml-1 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] shadow-[var(--shadow-control)] ring-1 ring-[var(--dock-item-ring)] backdrop-blur-[18px] transition duration-150 hover:-translate-y-1 hover:bg-[var(--dock-item-bg-hover)]',
               isPinned && 'shadow-[var(--shadow-dock)]',
             )}
             style={getDockToneStyle('pin')}
@@ -550,7 +550,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
                 const active = item.isActive?.(pathname) ?? false;
                 const toneStyle = getDockToneStyle(item.key);
                 const className = clsx(
-                  'inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-3 text-sm font-semibold text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition-colors hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)]',
+                  'inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-3 text-sm font-semibold text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)]',
                   active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
                 );
 

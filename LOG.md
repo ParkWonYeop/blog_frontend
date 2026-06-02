@@ -9,6 +9,7 @@
 - Softened the Dock button palette to quieter pastel tones and made the light-mode Dock bar read as a cleaner white glass surface.
 - Fixed the Dock pin toggle so mouse-based unpinning no longer leaves button focus holding the Dock open, and changed the Dock Home button to a white neutral tone.
 - Reworked the Dock material away from cute pastel tiles into a more macOS-like neutral frosted glass texture with translucent white glass buttons.
+- Corrected the Dock button direction so only Home stays white, while the other actions keep subtle pastel tints with a translucent macOS-style glass material.
 - Rebalanced the home page around latest posts with popular posts as a supporting panel, converted the post detail page into a quieter reader surface, and hardened Markdown/code/table wrapping against mobile overflow.
 - Added a client-side archive explorer with year, month, category, and compact/comfort density controls over the existing server-fetched post list.
 - Rebuilt the chess page with safer viewport-aware board sizing, quieter puzzle panels, and enough layout clearance for the Dock.
@@ -18,6 +19,7 @@
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3106/` confirmed the light-mode Dock bar renders as a cleaner white glass surface and the Dock button colors use quieter pastel tones.
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3107/` confirmed the Dock Home button renders white and mouse-based unpinning collapses the Dock after the pointer leaves.
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3108/` confirmed the Dock uses neutral translucent glass material, with non-home buttons rendering as subtle white glass rather than pastel color tiles.
+- Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3109/` confirmed Home stays white while the other Dock buttons keep pastel-tinted translucent glass backgrounds with button-level blur.
 - Recommended next task: run a browser pass against a reachable backend API, especially one real post detail route and the populated chess puzzle board, then tune any remaining content-specific long-title or board-height edge cases.
 
 ## 2026-05-29
