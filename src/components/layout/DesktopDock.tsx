@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { type FocusEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -41,13 +41,61 @@ const isActivePath = (target: string) => (pathname: string) => {
   return pathname.startsWith(target);
 };
 
+const DOCK_LEAVE_DELAY_MS = 120;
+const DOCK_COLLAPSE_MS = 560;
+
 export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: DesktopDockProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoggedIn, role, logout, _hasHydrated } = useAuthStore();
   const [isPinned, setIsPinned] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isDockHovered, setIsDockHovered] = useState(false);
+  const [isDockFocused, setIsDockFocused] = useState(false);
+  const [isDockClosing, setIsDockClosing] = useState(false);
+  const dockZoneRef = useRef<HTMLDivElement>(null);
+  const dockLeaveTimerRef = useRef<number | null>(null);
+  const dockCollapseTimerRef = useRef<number | null>(null);
   const isAdmin = _hasHydrated && isLoggedIn && role?.includes('ADMIN');
+  const isDockOpen = isPinned || isDockHovered || isDockFocused;
+  const isDockRangeExpanded = isDockOpen || isDockClosing;
+
+  const clearDockTimers = () => {
+    if (dockLeaveTimerRef.current !== null) {
+      window.clearTimeout(dockLeaveTimerRef.current);
+      dockLeaveTimerRef.current = null;
+    }
+
+    if (dockCollapseTimerRef.current !== null) {
+      window.clearTimeout(dockCollapseTimerRef.current);
+      dockCollapseTimerRef.current = null;
+    }
+  };
+
+  const expandDock = () => {
+    clearDockTimers();
+    setIsDockClosing(false);
+    setIsDockHovered(true);
+  };
+
+  const startDockCollapse = () => {
+    clearDockTimers();
+    setIsDockHovered(false);
+    setIsDockClosing(true);
+    dockCollapseTimerRef.current = window.setTimeout(() => {
+      setIsDockClosing(false);
+      dockCollapseTimerRef.current = null;
+    }, DOCK_COLLAPSE_MS);
+  };
+
+  const scheduleDockCollapse = () => {
+    if (isPinned || isDockFocused) return;
+
+    clearDockTimers();
+    dockLeaveTimerRef.current = window.setTimeout(() => {
+      startDockCollapse();
+    }, DOCK_LEAVE_DELAY_MS);
+  };
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -65,12 +113,58 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     return () => window.cancelAnimationFrame(frameId);
   }, [pathname]);
 
+  useEffect(() => {
+    return () => clearDockTimers();
+  }, []);
+
   const handlePinnedChange = () => {
     setIsPinned((previous) => {
       const nextValue = !previous;
       window.localStorage.setItem('dock-pinned', String(nextValue));
+      clearDockTimers();
+      setIsDockClosing(false);
+      setIsDockHovered(!nextValue);
       return nextValue;
     });
+  };
+
+  const handleDockZoneFocus = () => {
+    clearDockTimers();
+    setIsDockClosing(false);
+    setIsDockFocused(true);
+  };
+
+  const handleDockHandleFocus = () => {
+    handleDockZoneFocus();
+
+    window.requestAnimationFrame(() => {
+      dockZoneRef.current
+        ?.querySelector<HTMLElement>('[data-dock-panel="true"] a, [data-dock-panel="true"] button')
+        ?.focus();
+    });
+  };
+
+  const handleDockBlur = (event: FocusEvent<HTMLDivElement>) => {
+    const nextTarget = event.relatedTarget;
+
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+
+    if (!nextTarget) {
+      window.setTimeout(() => {
+        if (dockZoneRef.current?.contains(document.activeElement)) return;
+
+        setIsDockFocused(false);
+        if (!isPinned && !isDockHovered) {
+          startDockCollapse();
+        }
+      }, 80);
+      return;
+    }
+
+    setIsDockFocused(false);
+    if (!isPinned && !isDockHovered) {
+      startDockCollapse();
+    }
   };
 
   const handleLogout = () => {
@@ -257,28 +351,54 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
       <nav
         aria-label="빠른 실행 Dock"
         className={clsx(
-          'group fixed bottom-2 left-1/2 z-40 hidden -translate-x-1/2 md:bottom-4 md:block',
+          'fixed bottom-0 left-1/2 z-40 hidden -translate-x-1/2 md:block',
           'transition-[left] duration-300 ease-out',
           isSidebarCollapsed ? 'md:left-[calc(50%+2.5rem)]' : 'md:left-[calc(50%+9rem)]',
         )}
       >
         <div
+          ref={dockZoneRef}
+          onMouseEnter={expandDock}
+          onMouseLeave={scheduleDockCollapse}
+          onFocus={handleDockZoneFocus}
+          onBlur={handleDockBlur}
           className={clsx(
-            'pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-2 transition-opacity',
-            isPinned && 'opacity-0',
+            'relative flex items-end justify-center transition-[width,height,padding] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isDockRangeExpanded
+              ? 'h-32 w-[min(calc(100vw-2rem),56rem)] px-8 pb-7 pt-12'
+              : 'h-12 w-16 px-0 pb-0 pt-0',
           )}
-          aria-hidden="true"
         >
-          <span className="block h-1.5 w-10 rounded-full border border-[var(--dock-border)] bg-[var(--dock-bg)] shadow-[var(--shadow-control)] backdrop-blur-[18px]" />
-        </div>
+          <button
+            type="button"
+            aria-label="Dock 열기"
+            tabIndex={isDockRangeExpanded ? -1 : 0}
+            onMouseEnter={expandDock}
+            onFocus={handleDockHandleFocus}
+            className={clsx(
+              'absolute bottom-0 left-1/2 z-10 flex h-9 w-12 -translate-x-1/2 items-start justify-center rounded-t-lg border border-b-0 border-[var(--dock-border)] bg-[var(--dock-bg)] pt-1.5 text-[var(--color-text-subtle)] shadow-[var(--shadow-control)] backdrop-blur-[22px]',
+              'transition-[transform,opacity,width,height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[var(--color-text)] focus-visible:text-[var(--color-text)]',
+              isDockRangeExpanded
+                ? 'pointer-events-none translate-y-5 scale-75 opacity-0'
+                : 'pointer-events-auto translate-y-0 scale-100 opacity-100 hover:h-10 hover:w-14',
+            )}
+          >
+            <MoreHorizontal size={18} strokeWidth={2.3} />
+          </button>
 
-        <div
-          className={clsx(
-            'flex max-w-[calc(100vw-2rem)] items-end gap-2 overflow-visible rounded-lg border border-[var(--dock-border)] bg-[var(--dock-bg)] px-2 py-2 shadow-[var(--shadow-dock)] backdrop-blur-[30px]',
-            'transition-[transform,opacity] duration-300 ease-out',
-            !isPinned && 'md:translate-y-[calc(100%-0.875rem)] md:opacity-80 md:hover:translate-y-0 md:hover:opacity-100 md:focus-within:translate-y-0 md:focus-within:opacity-100',
-          )}
-        >
+          <div
+            data-dock-panel="true"
+            className={clsx(
+              'flex max-w-[calc(100vw-2rem)] origin-bottom items-end gap-2 overflow-visible rounded-lg border border-[var(--dock-border)] bg-[var(--dock-bg)] px-2 py-2 shadow-[var(--shadow-dock)] backdrop-blur-[30px]',
+              'transition-[transform,opacity,filter] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+              isDockOpen
+                ? 'pointer-events-auto translate-y-0 scale-x-100 scale-y-100 opacity-100 blur-0'
+                : clsx(
+                    'translate-y-8 scale-x-[0.16] scale-y-[0.22] opacity-0 blur-sm',
+                    isDockClosing ? 'pointer-events-auto' : 'pointer-events-none',
+                  ),
+            )}
+          >
           {desktopItems.map(renderDesktopItem)}
           <button
             type="button"
@@ -296,6 +416,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
               {isPinned ? '고정 해제' : '고정'}
             </span>
           </button>
+          </div>
         </div>
       </nav>
 
