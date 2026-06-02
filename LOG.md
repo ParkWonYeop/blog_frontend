@@ -7,6 +7,7 @@
 - Smoothed the desktop Dock hide/show interaction by separating hover-open, closing, and fully-collapsed states; the Dock now keeps the expanded hit area during the closing animation so re-entering mid-collapse reverses smoothly.
 - Changed the desktop Dock's default state to pinned/open and added distinct soft pastel tones to Dock buttons, including stronger visual treatment for pin/unpin and auth actions.
 - Softened the Dock button palette to quieter pastel tones and made the light-mode Dock bar read as a cleaner white glass surface.
+- Fixed the Dock pin toggle so mouse-based unpinning no longer leaves button focus holding the Dock open, and changed the Dock Home button to a white neutral tone.
 - Rebalanced the home page around latest posts with popular posts as a supporting panel, converted the post detail page into a quieter reader surface, and hardened Markdown/code/table wrapping against mobile overflow.
 - Added a client-side archive explorer with year, month, category, and compact/comfort density controls over the existing server-fetched post list.
 - Rebuilt the chess page with safer viewport-aware board sizing, quieter puzzle panels, and enough layout clearance for the Dock.
@@ -14,6 +15,7 @@
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on a local `next start` server confirmed the desktop Dock starts as a small bottom tab, uses 560ms transitions for tab/panel geometry, and expands into the larger Dock hit area when opened.
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on a local `next start` server confirmed the Dock opens by default and Home/Archive/Chess/Login/Signup/Pin buttons render distinct pastel colors.
 - Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3106/` confirmed the light-mode Dock bar renders as a cleaner white glass surface and the Dock button colors use quieter pastel tones.
+- Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3107/` confirmed the Dock Home button renders white and mouse-based unpinning collapses the Dock after the pointer leaves.
 - Recommended next task: run a browser pass against a reachable backend API, especially one real post detail route and the populated chess puzzle board, then tune any remaining content-specific long-title or board-height edge cases.
 
 ## 2026-05-29

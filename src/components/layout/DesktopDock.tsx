@@ -77,7 +77,7 @@ const createDockTone = (
 });
 
 const dockToneStyles: Record<string, DockToneStyle> = {
-  home: createDockTone('rgba(232, 248, 239, 0.58)', 'rgba(220, 244, 232, 0.74)', 'rgba(211, 239, 224, 0.82)', 'rgba(65, 151, 106, 0.16)', 'rgba(65, 151, 106, 0.24)', '#5b8f72', '#377458', 'rgba(65, 151, 106, 0.16)'),
+  home: createDockTone('rgba(255, 255, 255, 0.78)', 'rgba(255, 255, 255, 0.92)', 'rgba(255, 255, 255, 0.98)', 'rgba(148, 163, 184, 0.16)', 'rgba(148, 163, 184, 0.26)', '#687386', '#334155', 'rgba(148, 163, 184, 0.18)'),
   archive: createDockTone('rgba(239, 235, 255, 0.56)', 'rgba(231, 226, 250, 0.72)', 'rgba(224, 217, 246, 0.8)', 'rgba(111, 92, 176, 0.15)', 'rgba(111, 92, 176, 0.23)', '#7a6d9f', '#5f5289', 'rgba(111, 92, 176, 0.15)'),
   chess: createDockTone('rgba(255, 247, 222, 0.62)', 'rgba(255, 240, 207, 0.78)', 'rgba(252, 234, 194, 0.84)', 'rgba(164, 122, 36, 0.16)', 'rgba(164, 122, 36, 0.24)', '#8a7a4b', '#6f5d2e', 'rgba(164, 122, 36, 0.15)'),
   admin: createDockTone('rgba(232, 244, 255, 0.6)', 'rgba(220, 238, 252, 0.76)', 'rgba(209, 232, 247, 0.84)', 'rgba(60, 129, 181, 0.16)', 'rgba(60, 129, 181, 0.25)', '#5f86a8', '#3d6f98', 'rgba(60, 129, 181, 0.15)'),
@@ -105,6 +105,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const dockZoneRef = useRef<HTMLDivElement>(null);
   const dockLeaveTimerRef = useRef<number | null>(null);
   const dockCollapseTimerRef = useRef<number | null>(null);
+  const pinToggleStartedByPointerRef = useRef(false);
   const isAdmin = _hasHydrated && isLoggedIn && role?.includes('ADMIN');
   const isDockOpen = isPinned || isDockHovered || isDockFocused;
   const isDockRangeExpanded = isDockOpen || isDockClosing;
@@ -168,14 +169,45 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   }, []);
 
   const handlePinnedChange = () => {
-    setIsPinned((previous) => {
-      const nextValue = !previous;
-      window.localStorage.setItem(DOCK_PINNED_STORAGE_KEY, String(nextValue));
-      clearDockTimers();
+    const nextValue = !isPinned;
+    const startedByPointer = pinToggleStartedByPointerRef.current;
+    const isPointerInsideDock = dockZoneRef.current?.matches(':hover') ?? false;
+
+    pinToggleStartedByPointerRef.current = false;
+    window.localStorage.setItem(DOCK_PINNED_STORAGE_KEY, String(nextValue));
+    clearDockTimers();
+    setIsPinned(nextValue);
+
+    if (nextValue) {
       setIsDockClosing(false);
-      setIsDockHovered(!nextValue);
-      return nextValue;
-    });
+      setIsDockHovered(false);
+      return;
+    }
+
+    if (startedByPointer) {
+      setIsDockFocused(false);
+
+      if (
+        document.activeElement instanceof HTMLElement &&
+        dockZoneRef.current?.contains(document.activeElement)
+      ) {
+        document.activeElement.blur();
+      }
+    }
+
+    if (isPointerInsideDock) {
+      setIsDockClosing(false);
+      setIsDockHovered(true);
+      return;
+    }
+
+    if (!isDockFocused || startedByPointer) {
+      startDockCollapse();
+      return;
+    }
+
+    setIsDockHovered(false);
+    setIsDockClosing(false);
   };
 
   const handleDockZoneFocus = () => {
@@ -462,6 +494,9 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
             title={isPinned ? 'Dock 고정 해제' : 'Dock 고정'}
             aria-label={isPinned ? 'Dock 고정 해제' : 'Dock 고정'}
             aria-pressed={isPinned}
+            onPointerDown={() => {
+              pinToggleStartedByPointerRef.current = true;
+            }}
             onClick={handlePinnedChange}
             className={clsx(
               'group/item relative ml-1 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] shadow-[var(--shadow-control)] ring-1 ring-[var(--dock-item-ring)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--dock-item-bg-hover)]',
