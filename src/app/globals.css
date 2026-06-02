@@ -42,8 +42,8 @@
   --control-border: rgba(39, 54, 82, 0.12);
   --menubar-bg: rgba(255, 255, 255, 0.5);
   --menubar-border: rgba(255, 255, 255, 0.7);
-  --dock-bg: rgba(255, 255, 255, 0.54);
-  --dock-border: rgba(255, 255, 255, 0.72);
+  --dock-bg: rgba(255, 255, 255, 0.86);
+  --dock-border: rgba(255, 255, 255, 0.92);
   --sidebar-bg: rgba(255, 255, 255, 0.48);
   --sidebar-border: rgba(255, 255, 255, 0.6);
   --color-surface: var(--card-bg);
