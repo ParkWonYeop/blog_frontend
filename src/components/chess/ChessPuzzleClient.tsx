@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Chess as ChessGame, type Color, type Move, type PieceSymbol, type Square } from 'chess.js';
@@ -23,6 +24,9 @@ const TIMEZONE = 'Asia/Seoul';
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = [8, 7, 6, 5, 4, 3, 2, 1] as const;
 const BOARD_SQUARES = RANKS.flatMap((rank) => FILES.map((file) => `${file}${rank}` as Square));
+const BOARD_SIZE_STYLE: CSSProperties = {
+  width: 'min(100%, clamp(18rem, calc(100svh - 15rem), 42rem))',
+};
 
 const PIECE_SYMBOLS: Record<Color, Record<PieceSymbol, string>> = {
   w: {
@@ -59,7 +63,7 @@ const getReadyFeedback = (puzzle: ChessPuzzle): { tone: FeedbackTone; message: s
 
   return {
     tone: 'neutral',
-    message: `${turnLabel(game.turn())} 차례 · 체크메이트 한 수`,
+    message: `${turnLabel(game.turn())} 차례. 체크메이트를 찾으세요.`,
   };
 };
 
@@ -85,27 +89,45 @@ const formatDate = (value: string) => {
 
 function PageHeader() {
   return (
-    <section className="flex flex-col gap-2 border-b border-[var(--color-line)] pb-6">
-      <div className="flex items-center gap-2 text-[var(--color-accent)]">
-        <Target size={23} />
-        <h1 className="text-2xl font-bold tracking-normal text-[var(--color-text)] md:text-3xl">
+    <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-5">
+      <div className="flex min-w-0 items-center gap-2 text-[var(--color-accent)]">
+        <Target size={23} className="shrink-0" />
+        <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)] md:text-3xl">
           오늘의 체스 퍼즐
         </h1>
       </div>
-      <p className="max-w-2xl text-sm leading-6 text-[var(--color-text-muted)]">
-        매일 하나씩 바뀌는 한 수 메이트 퍼즐입니다.
+      <p className="max-w-2xl break-words text-sm leading-6 text-[var(--color-text-muted)]">
+        매일 하나씩 바뀌는 메이트 체스 퍼즐입니다.
       </p>
     </section>
   );
 }
 
+function ChessPageFrame({ children }: { children: ReactNode }) {
+  return (
+    <main className="mx-auto flex w-full min-w-0 max-w-[1160px] flex-col gap-5 px-0 py-3 md:py-6">
+      {children}
+    </main>
+  );
+}
+
+function BoardWindow({ children }: { children: ReactNode }) {
+  return (
+    <WindowSurface title="Board" showTrafficLights={false} bodyClassName="p-3 md:p-5">
+      <div className="mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
+        {children}
+      </div>
+    </WindowSurface>
+  );
+}
+
 function LoadingState() {
   return (
-    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
+    <ChessPageFrame>
       <PageHeader />
-      <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <WindowSurface title="Board" bodyClassName="p-3 md:p-5">
-          <div className="mx-auto grid aspect-square w-full max-w-[min(78vh,680px)] grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
+      <section className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <BoardWindow>
+          <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
             {BOARD_SQUARES.map((square, index) => (
               <div
                 key={square}
@@ -117,25 +139,25 @@ function LoadingState() {
               />
             ))}
           </div>
-        </WindowSurface>
-        <WindowSurface title="Puzzle" as="aside" bodyClassName="flex min-h-72 flex-col items-center justify-center p-5 text-center">
+        </BoardWindow>
+        <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="flex min-h-72 flex-col items-center justify-center p-5 text-center">
           <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={28} />
           <p className="text-sm font-semibold text-[var(--color-text)]">오늘의 퍼즐을 불러오는 중입니다.</p>
         </WindowSurface>
       </section>
-    </main>
+    </ChessPageFrame>
   );
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
+    <ChessPageFrame>
       <PageHeader />
-      <WindowSurface title="Puzzle" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Puzzle" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-red-500" size={30} />
-        <h2 className="text-lg font-bold text-[var(--color-text)]">오늘의 퍼즐을 불러오지 못했습니다.</h2>
-        <p className="mt-2 max-w-md text-sm leading-6 text-[var(--color-text-muted)]">
-          백엔드 API가 아직 준비되지 않았거나 잠시 응답하지 않습니다.
+        <h2 className="break-words text-lg font-bold text-[var(--color-text)]">오늘의 퍼즐을 불러오지 못했습니다.</h2>
+        <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">
+          백엔드 API가 준비되지 않았거나 잠시 응답하지 않을 수 있습니다.
         </p>
         <button
           type="button"
@@ -146,7 +168,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           다시 시도
         </button>
       </WindowSurface>
-    </main>
+    </ChessPageFrame>
   );
 }
 
@@ -212,7 +234,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
       setLastMoveSquares(null);
       setFeedback({
         tone: 'error',
-        message: `${move.san}는 아직 메이트가 아닙니다.`,
+        message: `${move.san}은 아직 메이트가 아닙니다.`,
       });
     } catch {
       setFeedback({
@@ -263,12 +285,12 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   };
 
   return (
-    <main className="mx-auto flex w-full flex-col gap-6 px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
+    <ChessPageFrame>
       <PageHeader />
 
-      <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <WindowSurface title="Board" bodyClassName="p-3 md:p-5">
-          <div className="mx-auto grid aspect-square w-full max-w-[min(78vh,680px)] grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)] shadow-[var(--shadow-control)]">
+      <section className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <BoardWindow>
+          <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)] shadow-[var(--shadow-control)]">
             {BOARD_SQUARES.map((square, index) => {
               const piece = game.get(square);
               const file = square[0];
@@ -286,7 +308,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
                   type="button"
                   onClick={() => handleSquareClick(square)}
                   className={clsx(
-                    'relative flex aspect-square items-center justify-center overflow-hidden text-[clamp(1.75rem,8vw,4.8rem)] leading-none transition',
+                    'relative flex aspect-square items-center justify-center overflow-hidden text-[2rem] leading-none transition sm:text-[2.5rem] md:text-[3.75rem]',
                     isLight ? 'bg-[#eef0e6]' : 'bg-[#5f8d68]',
                     isSelected && 'z-10 ring-4 ring-[var(--color-accent)] ring-inset',
                     isLastMoveSquare && 'bg-[var(--color-accent-soft)]',
@@ -339,25 +361,25 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
               );
             })}
           </div>
-        </WindowSurface>
+        </BoardWindow>
 
-        <WindowSurface title="Puzzle" as="aside" bodyClassName="p-5">
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase text-[var(--color-text-subtle)]">
+        <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+          <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">
                 {formatDate(puzzle.date)}
               </p>
-              <h2 className="mt-1 text-xl font-bold tracking-normal text-[var(--color-text)]">
+              <h2 className="mt-1 break-words text-xl font-bold tracking-normal text-[var(--color-text)]">
                 {puzzle.title}
               </h2>
-              <p className="mt-1 text-sm text-[var(--color-text-muted)]">{puzzle.theme}</p>
+              <p className="mt-1 break-words text-sm text-[var(--color-text-muted)]">{puzzle.theme}</p>
             </div>
             {solved && <CheckCircle2 size={24} className="shrink-0 text-emerald-500" />}
           </div>
 
           <div
             className={clsx(
-              'mb-4 rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
+              'mb-4 break-words rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
               feedback.tone === 'success' && 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
               feedback.tone === 'error' && 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300',
               feedback.tone === 'neutral' && 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
@@ -367,13 +389,13 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
           </div>
 
           <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-              <dt className="text-xs text-[var(--color-text-subtle)]">난이도</dt>
-              <dd className="mt-0.5 font-semibold text-[var(--color-text)]">{puzzle.rating}</dd>
+            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
+              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{puzzle.rating}</dd>
             </div>
-            <div className="rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
               <dt className="text-xs text-[var(--color-text-subtle)]">정답</dt>
-              <dd className="mt-0.5 font-semibold text-[var(--color-text)]">
+              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">
                 {solved ? puzzle.answer : '숨김'}
               </dd>
             </div>
@@ -404,14 +426,14 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
             href={puzzle.sourceUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
+            className="mt-4 inline-flex max-w-full items-center gap-1.5 break-words text-xs font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
           >
-            Lichess 원문
-            <ExternalLink size={13} />
+            <span className="truncate">Lichess 원문</span>
+            <ExternalLink size={13} className="shrink-0" />
           </a>
         </WindowSurface>
       </section>
-    </main>
+    </ChessPageFrame>
   );
 }
 

@@ -54,7 +54,7 @@ export default function DesktopMenuBar({ isSidebarCollapsed }: DesktopMenuBarPro
   return (
     <div
       className={clsx(
-        'fixed left-16 right-3 top-3 z-40 transition-[left] duration-300 ease-out md:right-6',
+        'fixed right-6 top-3 z-40 hidden transition-[left] duration-300 ease-out md:block',
         isSidebarCollapsed ? 'md:left-24' : 'md:left-[19rem]',
       )}
     >

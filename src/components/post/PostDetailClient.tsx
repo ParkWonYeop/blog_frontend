@@ -65,7 +65,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
-      <WindowSurface className="mx-auto md:w-[70vw] md:max-w-[980px]" bodyClassName="px-4 py-20 text-center">
+      <WindowSurface className="mx-auto max-w-[980px]" bodyClassName="px-4 py-20 text-center">
         <div className="mb-4 flex justify-center">
           <AlertCircle className="text-[var(--color-text-subtle)]" size={64} />
         </div>
@@ -90,44 +90,39 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
   const nextPost = post.nextPost;
 
   return (
-    <div className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
-      <Link href="/" className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
+    <div className="mx-auto min-w-0 max-w-[1120px] px-0 py-3 md:py-6">
+      <Link href="/" className="mb-5 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-accent)]">
         <ArrowLeft size={18} />
         <span>목록으로</span>
       </Link>
 
-      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,900px)_250px] xl:justify-center xl:gap-8">
+      <div className="relative grid min-w-0 gap-6 xl:grid-cols-[minmax(0,820px)_220px] xl:justify-center xl:gap-8">
         <main className="min-w-0 space-y-6">
-          <WindowSurface
-            as="article"
-            title="Reader"
-            subtitle={post.categoryName || '미분류'}
-            bodyClassName="p-6 md:p-10"
-          >
-            <header className="mb-10 border-b border-[var(--color-line)] pb-8">
+          <Surface as="article" strong className="mx-auto w-full max-w-[820px] px-5 py-7 md:px-10 md:py-10">
+            <header className="mb-9 border-b border-[var(--color-line)] pb-7">
               <StatusBadge tone="neutral" className="mb-5">
                 {post.categoryName || '미분류'}
               </StatusBadge>
-              <h1 className="mb-7 break-keep text-4xl font-bold leading-[1.08] tracking-normal text-[var(--color-text)] md:text-6xl">
+              <h1 className="mb-6 break-words text-3xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-4xl lg:text-[2.75rem]">
                 {post.title}
               </h1>
-              <div className="flex flex-wrap items-center gap-5 text-sm text-[var(--color-text-muted)]">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-text-muted)]">
+                <div className="flex min-w-0 items-center gap-2">
                   {profile?.imageUrl ? (
                     <Image
                       src={profile.imageUrl}
                       alt="작성자"
                       width={32}
                       height={32}
-                      className="h-8 w-8 rounded-full border border-[var(--color-line)] object-cover shadow-sm"
+                      className="h-8 w-8 shrink-0 rounded-full border border-[var(--color-line)] object-cover shadow-sm"
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10">
                       <User size={16} />
                     </div>
                   )}
-                  <span className="font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
+                  <span className="min-w-0 truncate font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar size={16} />
@@ -136,20 +131,20 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               </div>
             </header>
 
-            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100">
+            <div className="prose prose-base min-w-0 max-w-none break-words prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 md:prose-lg [overflow-wrap:anywhere]">
               <MarkdownRenderer content={post.content || ''} />
             </div>
-          </WindowSurface>
+          </Surface>
 
-          <WindowSurface title="Navigation" bodyClassName="p-4 md:p-5">
-            <nav className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <WindowSurface title="Navigation" showTrafficLights={false} className="mx-auto max-w-[820px]" bodyClassName="p-4 md:p-5">
+            <nav className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
               {prevPost ? (
-                <Link href={`/posts/${prevPost.slug}`} className="group flex w-full flex-col items-start gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)]">
+                <Link href={`/posts/${prevPost.slug}`} className="group flex min-w-0 flex-col items-start gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)] md:p-5">
                   <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
                     <ChevronLeft size={16} />
                     이전 글
                   </span>
-                  <span className="line-clamp-1 w-full text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
+                  <span className="line-clamp-2 w-full break-words text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
                     {prevPost.title}
                   </span>
                 </Link>
@@ -163,12 +158,12 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               )}
 
               {nextPost ? (
-                <Link href={`/posts/${nextPost.slug}`} className="group flex w-full flex-col items-end gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)]">
+                <Link href={`/posts/${nextPost.slug}`} className="group flex min-w-0 flex-col items-end gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)] md:p-5">
                   <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
                     다음 글
                     <ChevronRight size={16} />
                   </span>
-                  <span className="line-clamp-1 w-full text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
+                  <span className="line-clamp-2 w-full break-words text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
                     {nextPost.title}
                   </span>
                 </Link>
@@ -183,13 +178,13 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             </nav>
           </WindowSurface>
 
-          <WindowSurface title="Comments" bodyClassName="p-5 md:p-6">
+          <WindowSurface title="Comments" showTrafficLights={false} className="mx-auto max-w-[820px]" bodyClassName="p-5 md:p-6">
             <CommentList postSlug={post.slug} />
           </WindowSurface>
         </main>
 
         <aside className="hidden w-[220px] shrink-0 xl:block">
-          <WindowSurface title="Inspector" bodyClassName="p-4" className="sticky top-24">
+          <WindowSurface title="목차" showTrafficLights={false} bodyClassName="p-4" className="sticky top-24 shadow-[var(--shadow-card)]">
             <TOC content={post.content || ''} />
           </WindowSurface>
         </aside>

@@ -15,8 +15,6 @@ import {
   Folder,
   FolderOpen,
   Home,
-  Menu,
-  X,
 } from 'lucide-react';
 import { getCategories } from '@/api/category';
 import { getProfile } from '@/api/profile';
@@ -25,7 +23,9 @@ import { Category, Profile } from '@/types';
 
 interface SidebarProps {
   isDesktopCollapsed: boolean;
+  isMobileOpen: boolean;
   onDesktopCollapsedChange: (nextValue: boolean) => void;
+  onMobileOpenChange: (nextValue: boolean) => void;
 }
 
 interface CategoryItemProps {
@@ -125,10 +125,10 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
 
 function SidebarContent({
   isDesktopCollapsed,
+  isMobileOpen,
   onDesktopCollapsedChange,
+  onMobileOpenChange,
 }: SidebarProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -150,7 +150,7 @@ function SidebarContent({
   const displayProfile = profile ? { ...defaultProfile, ...profile } : defaultProfile;
   const decodedPathname = decodeURIComponent(pathname);
 
-  const closeSidebar = () => setIsOpen(false);
+  const closeSidebar = () => onMobileOpenChange(false);
 
   const handleSearch = (newKeyword: string) => {
     const trimmedKeyword = newKeyword.trim();
@@ -170,28 +170,19 @@ function SidebarContent({
     <>
       <button
         type="button"
-        onClick={() => setIsOpen((previous) => !previous)}
-        className="fixed left-4 top-4 z-50 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-2 shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)] md:hidden"
-        aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      <button
-        type="button"
         aria-label="사이드바 닫기"
         onClick={closeSidebar}
         className={clsx(
-          'fixed inset-0 z-30 bg-black/35 backdrop-blur-sm transition-opacity md:hidden',
-          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+          'fixed inset-0 z-50 bg-black/35 backdrop-blur-sm transition-opacity md:hidden',
+          isMobileOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
 
       <aside
         className={clsx(
-          'fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-sidebar)] backdrop-blur-[30px] transition-[transform,width] duration-300 ease-out md:translate-x-0',
+          'fixed left-0 top-0 z-[60] flex h-screen w-72 max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-sidebar)] backdrop-blur-[30px] transition-[transform,width] duration-300 ease-out md:z-40 md:max-w-none md:translate-x-0',
           isDesktopCollapsed ? 'md:w-20' : 'md:w-72',
-          isOpen ? 'translate-x-0' : '-translate-x-full',
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         <div className={clsx('relative shrink-0 text-center', isDesktopCollapsed ? 'px-6 pb-5 pt-8 md:px-3 md:pb-4 md:pt-5' : 'px-6 pb-5 pt-8')}>

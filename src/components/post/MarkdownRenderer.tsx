@@ -31,7 +31,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
       return (
         <code
-          className="mx-1 break-words rounded-md bg-black/[0.05] px-1.5 py-0.5 font-mono text-[0.9em] font-medium text-red-600 dark:bg-white/10 dark:text-red-300"
+          className="mx-1 max-w-full break-words rounded-md bg-black/[0.05] px-1.5 py-0.5 font-mono text-[0.9em] font-medium text-red-600 [overflow-wrap:anywhere] dark:bg-white/10 dark:text-red-300"
           {...props}
         >
           {children}
@@ -56,10 +56,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           href={href}
           target={isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener noreferrer' : undefined}
-          className="inline-flex items-center gap-0.5 font-semibold text-[var(--color-accent)] underline-offset-4 transition-colors hover:underline"
+          className="break-words font-semibold text-[var(--color-accent)] underline-offset-4 transition-colors [overflow-wrap:anywhere] hover:underline"
         >
           {children}
-          {isExternal && <ExternalLink size={12} className="opacity-70" />}
+          {isExternal && <ExternalLink size={12} className="ml-0.5 inline-block align-text-bottom opacity-70" />}
         </a>
       );
     },
@@ -67,8 +67,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // 4. 테이블
     table({ children }) {
       return (
-        <div className="my-8 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-          <table className="w-full text-left text-sm text-[var(--color-text-muted)]">
+        <div className="my-8 max-w-full overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+          <table className="w-full min-w-[520px] text-left text-sm text-[var(--color-text-muted)]">
             {children}
           </table>
         </div>
@@ -78,10 +78,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       return <thead className="border-b border-[var(--color-line)] bg-black/[0.03] text-xs text-[var(--color-text-muted)] dark:bg-white/10">{children}</thead>;
     },
     th({ children }) {
-      return <th className="px-5 py-3 font-bold text-[var(--color-text)]">{children}</th>;
+      return <th className="break-words px-5 py-3 font-bold text-[var(--color-text)]">{children}</th>;
     },
     td({ children }) {
-      return <td className="border-b border-[var(--color-line)] px-5 py-4 whitespace-pre-wrap">{children}</td>;
+      return <td className="whitespace-pre-wrap break-words border-b border-[var(--color-line)] px-5 py-4">{children}</td>;
     },
 
     // 5. 이미지
@@ -157,18 +157,18 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
   };
 
   return (
-    <div className="group relative my-8 overflow-hidden rounded-lg border border-gray-700/50 bg-[#1e1e1e] shadow-[var(--shadow-card)]">
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d] border-b border-gray-700 select-none">
-        <div className="flex items-center gap-2">
+    <div className="group relative my-8 max-w-full overflow-hidden rounded-lg border border-gray-700/50 bg-[#1e1e1e] shadow-[var(--shadow-card)]">
+      <div className="flex min-w-0 items-center justify-between gap-3 border-b border-gray-700 bg-[#2d2d2d] px-4 py-2.5 select-none">
+        <div className="flex min-w-0 items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]" />
             <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
             <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
           </div>
           {language && (
-            <div className="ml-4 flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-medium text-gray-400 bg-gray-700/50 border border-gray-600/50">
+            <div className="ml-2 flex min-w-0 items-center gap-1.5 rounded border border-gray-600/50 bg-gray-700/50 px-2 py-0.5 font-mono text-[10px] font-medium text-gray-400 sm:ml-4">
               <Terminal size={10} />
-              <span className="uppercase tracking-wider">{language}</span>
+              <span className="truncate uppercase tracking-wider">{language}</span>
             </div>
           )}
         </div>
@@ -176,7 +176,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         <button
           onClick={handleCopy}
           className={clsx(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border",
+            "flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium transition-all duration-200",
             isCopied 
               ? "bg-green-500/10 text-green-400 border-green-500/20" 
               : "bg-gray-700/50 text-gray-400 border-transparent hover:bg-gray-600 hover:text-white"
@@ -188,17 +188,19 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         </button>
       </div>
       
-      <div className="relative font-mono text-[14px] leading-relaxed">
+      <div className="relative max-w-full overflow-x-auto font-mono text-[14px] leading-relaxed">
         <SyntaxHighlighter
           style={vscDarkPlus}
           language={language}
           PreTag="div"
           showLineNumbers={true}
+          wrapLongLines={false}
           lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: '#6e7681', textAlign: 'right' }}
           customStyle={{
             margin: 0,
             padding: '1.5rem',
             background: 'transparent',
+            maxWidth: '100%',
           }}
         >
           {code}

@@ -124,9 +124,13 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--desktop-bg);
   background-attachment: fixed;
   color: var(--foreground);
@@ -139,6 +143,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+pre,
+code,
+table {
+  max-width: 100%;
 }
 
 ::selection {

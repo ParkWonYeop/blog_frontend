@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-06-02
+
+- Refined the public layout after desktop/mobile review: the shell now guards horizontal overflow, uses route-aware bottom padding, hides the top menubar on mobile, and opens the mobile sidebar/search panel from the Dock.
+- Reworked the Dock so mobile uses it as the primary navigation hub, while desktop keeps a folded Dock that expands on hover/focus and includes a pin toggle.
+- Rebalanced the home page around latest posts with popular posts as a supporting panel, converted the post detail page into a quieter reader surface, and hardened Markdown/code/table wrapping against mobile overflow.
+- Added a client-side archive explorer with year, month, category, and compact/comfort density controls over the existing server-fetched post list.
+- Rebuilt the chess page with safer viewport-aware board sizing, quieter puzzle panels, and enough layout clearance for the Dock.
+- Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on a local `next start` server confirmed no horizontal overflow on `/`, `/archive`, and `/play/chess` at mobile width, mobile Dock-centered navigation opens the sidebar panel without overflow, desktop CSS loads, the mobile Dock is hidden on desktop, and the desktop Dock starts folded with a pin control. The live chess board itself could not be verified because the local backend chess API was unavailable, so `/play/chess` rendered the error state.
+- Recommended next task: run a browser pass against a reachable backend API, especially one real post detail route and the populated chess puzzle board, then tune any remaining content-specific long-title or board-height edge cases.
+
 ## 2026-05-29
 
 - Fixed post detail 404s caused by double-encoding dynamic route slugs that already arrive percent-encoded from URLs such as `/posts/soft-delete%2C-hard-delete`.
