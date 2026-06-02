@@ -76,19 +76,41 @@ const createDockTone = (
   '--dock-item-ring': ring,
 });
 
+const dockGlassTone = createDockTone(
+  'rgba(255, 255, 255, 0.24)',
+  'rgba(255, 255, 255, 0.36)',
+  'rgba(255, 255, 255, 0.46)',
+  'rgba(255, 255, 255, 0.2)',
+  'rgba(255, 255, 255, 0.34)',
+  'var(--color-text-muted)',
+  'var(--color-text)',
+  'rgba(255, 255, 255, 0.34)',
+);
+
+const homeDockTone = createDockTone(
+  'rgba(255, 255, 255, 0.36)',
+  'rgba(255, 255, 255, 0.5)',
+  'rgba(255, 255, 255, 0.62)',
+  'rgba(255, 255, 255, 0.28)',
+  'rgba(255, 255, 255, 0.46)',
+  'var(--color-text-muted)',
+  'var(--color-text)',
+  'rgba(255, 255, 255, 0.42)',
+);
+
 const dockToneStyles: Record<string, DockToneStyle> = {
-  home: createDockTone('rgba(255, 255, 255, 0.78)', 'rgba(255, 255, 255, 0.92)', 'rgba(255, 255, 255, 0.98)', 'rgba(148, 163, 184, 0.16)', 'rgba(148, 163, 184, 0.26)', '#687386', '#334155', 'rgba(148, 163, 184, 0.18)'),
-  archive: createDockTone('rgba(239, 235, 255, 0.56)', 'rgba(231, 226, 250, 0.72)', 'rgba(224, 217, 246, 0.8)', 'rgba(111, 92, 176, 0.15)', 'rgba(111, 92, 176, 0.23)', '#7a6d9f', '#5f5289', 'rgba(111, 92, 176, 0.15)'),
-  chess: createDockTone('rgba(255, 247, 222, 0.62)', 'rgba(255, 240, 207, 0.78)', 'rgba(252, 234, 194, 0.84)', 'rgba(164, 122, 36, 0.16)', 'rgba(164, 122, 36, 0.24)', '#8a7a4b', '#6f5d2e', 'rgba(164, 122, 36, 0.15)'),
-  admin: createDockTone('rgba(232, 244, 255, 0.6)', 'rgba(220, 238, 252, 0.76)', 'rgba(209, 232, 247, 0.84)', 'rgba(60, 129, 181, 0.16)', 'rgba(60, 129, 181, 0.25)', '#5f86a8', '#3d6f98', 'rgba(60, 129, 181, 0.15)'),
-  write: createDockTone('rgba(255, 239, 229, 0.62)', 'rgba(255, 230, 215, 0.78)', 'rgba(251, 221, 203, 0.84)', 'rgba(177, 94, 58, 0.16)', 'rgba(177, 94, 58, 0.24)', '#9a755f', '#7e5843', 'rgba(177, 94, 58, 0.15)'),
-  login: createDockTone('rgba(230, 248, 249, 0.58)', 'rgba(218, 241, 244, 0.74)', 'rgba(205, 235, 239, 0.82)', 'rgba(47, 139, 148, 0.16)', 'rgba(47, 139, 148, 0.24)', '#5f9298', '#3d7880', 'rgba(47, 139, 148, 0.15)'),
-  signup: createDockTone('rgba(249, 235, 255, 0.58)', 'rgba(243, 225, 251, 0.74)', 'rgba(236, 216, 246, 0.82)', 'rgba(139, 75, 160, 0.16)', 'rgba(139, 75, 160, 0.24)', '#94739f', '#795586', 'rgba(139, 75, 160, 0.15)'),
-  logout: createDockTone('rgba(255, 237, 240, 0.62)', 'rgba(255, 226, 231, 0.78)', 'rgba(249, 216, 223, 0.84)', 'rgba(173, 70, 86, 0.16)', 'rgba(173, 70, 86, 0.25)', '#9a6870', '#7e4b55', 'rgba(173, 70, 86, 0.15)'),
-  pin: createDockTone('rgba(255, 244, 226, 0.72)', 'rgba(255, 235, 210, 0.86)', 'rgba(250, 227, 197, 0.92)', 'rgba(181, 115, 45, 0.2)', 'rgba(181, 115, 45, 0.32)', '#957049', '#765530', 'rgba(181, 115, 45, 0.18)'),
-  menu: createDockTone('rgba(238, 247, 232, 0.58)', 'rgba(228, 241, 221, 0.74)', 'rgba(219, 235, 211, 0.82)', 'rgba(91, 140, 75, 0.16)', 'rgba(91, 140, 75, 0.24)', '#728c64', '#58734a', 'rgba(91, 140, 75, 0.15)'),
-  more: createDockTone('rgba(235, 243, 255, 0.6)', 'rgba(225, 236, 252, 0.76)', 'rgba(214, 228, 246, 0.84)', 'rgba(76, 118, 178, 0.16)', 'rgba(76, 118, 178, 0.24)', '#6e86a8', '#526d91', 'rgba(76, 118, 178, 0.15)'),
-  default: createDockTone('rgba(246, 247, 250, 0.58)', 'rgba(237, 240, 246, 0.76)', 'rgba(228, 233, 242, 0.84)', 'rgba(98, 110, 132, 0.14)', 'rgba(98, 110, 132, 0.22)', '#747d8d', '#596578', 'rgba(98, 110, 132, 0.14)'),
+  home: homeDockTone,
+  archive: dockGlassTone,
+  chess: dockGlassTone,
+  admin: dockGlassTone,
+  write: dockGlassTone,
+  login: dockGlassTone,
+  signup: dockGlassTone,
+  logout: dockGlassTone,
+  pin: dockGlassTone,
+  menu: dockGlassTone,
+  more: dockGlassTone,
+  default: dockGlassTone,
 };
 
 const getDockToneStyle = (key: string) => dockToneStyles[key] ?? dockToneStyles.default;

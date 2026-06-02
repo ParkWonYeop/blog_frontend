@@ -42,8 +42,8 @@
   --control-border: rgba(39, 54, 82, 0.12);
   --menubar-bg: rgba(255, 255, 255, 0.5);
   --menubar-border: rgba(255, 255, 255, 0.7);
-  --dock-bg: rgba(255, 255, 255, 0.86);
-  --dock-border: rgba(255, 255, 255, 0.92);
+  --dock-bg: rgba(248, 250, 252, 0.46);
+  --dock-border: rgba(255, 255, 255, 0.62);
   --sidebar-bg: rgba(255, 255, 255, 0.48);
   --sidebar-border: rgba(255, 255, 255, 0.6);
   --color-surface: var(--card-bg);
@@ -62,7 +62,7 @@
   --shadow-menubar: 0 16px 40px rgba(70, 92, 130, 0.12), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
   --shadow-panel: var(--shadow-sidebar);
   --shadow-card: 0 14px 34px rgba(70, 92, 130, 0.09), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-  --shadow-dock: 0 22px 58px rgba(70, 92, 130, 0.18), 0 8px 18px rgba(70, 92, 130, 0.1), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
+  --shadow-dock: 0 28px 78px rgba(15, 23, 42, 0.18), 0 12px 32px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.68) inset, 0 -1px 0 rgba(15, 23, 42, 0.06) inset;
   --shadow-control: 0 12px 26px rgba(70, 92, 130, 0.1), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
   --focus-ring: 0 0 0 4px rgba(0, 102, 204, 0.14);
   --background: var(--color-page);
@@ -96,8 +96,8 @@ html[data-theme="dark"] {
   --control-border: rgba(255, 255, 255, 0.13);
   --menubar-bg: rgba(24, 27, 38, 0.62);
   --menubar-border: rgba(255, 255, 255, 0.16);
-  --dock-bg: rgba(27, 30, 42, 0.66);
-  --dock-border: rgba(255, 255, 255, 0.18);
+  --dock-bg: rgba(18, 20, 28, 0.46);
+  --dock-border: rgba(255, 255, 255, 0.16);
   --sidebar-bg: rgba(21, 24, 34, 0.64);
   --sidebar-border: rgba(255, 255, 255, 0.14);
   --color-surface: var(--card-bg);
@@ -116,7 +116,7 @@ html[data-theme="dark"] {
   --shadow-menubar: 0 18px 46px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.09) inset;
   --shadow-panel: var(--shadow-sidebar);
   --shadow-card: 0 16px 34px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-  --shadow-dock: 0 26px 68px rgba(0, 0, 0, 0.44), 0 10px 24px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  --shadow-dock: 0 30px 86px rgba(0, 0, 0, 0.48), 0 12px 34px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.14) inset, 0 -1px 0 rgba(0, 0, 0, 0.36) inset;
   --shadow-control: 0 14px 30px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
   --focus-ring: 0 0 0 4px rgba(41, 151, 255, 0.18);
   --background: var(--color-page);
