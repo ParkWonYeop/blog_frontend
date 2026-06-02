@@ -1,6 +1,6 @@
 'use client';
 
-import { type FocusEvent, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, type FocusEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -43,12 +43,61 @@ const isActivePath = (target: string) => (pathname: string) => {
 
 const DOCK_LEAVE_DELAY_MS = 120;
 const DOCK_COLLAPSE_MS = 560;
+const DOCK_PINNED_STORAGE_KEY = 'dock-pinned-v2';
+
+type DockToneStyle = CSSProperties & {
+  '--dock-item-bg': string;
+  '--dock-item-bg-hover': string;
+  '--dock-item-bg-active': string;
+  '--dock-item-border': string;
+  '--dock-item-border-hover': string;
+  '--dock-item-fg': string;
+  '--dock-item-fg-strong': string;
+  '--dock-item-ring': string;
+};
+
+const createDockTone = (
+  bg: string,
+  hover: string,
+  active: string,
+  border: string,
+  borderHover: string,
+  fg: string,
+  fgStrong: string,
+  ring: string,
+): DockToneStyle => ({
+  '--dock-item-bg': bg,
+  '--dock-item-bg-hover': hover,
+  '--dock-item-bg-active': active,
+  '--dock-item-border': border,
+  '--dock-item-border-hover': borderHover,
+  '--dock-item-fg': fg,
+  '--dock-item-fg-strong': fgStrong,
+  '--dock-item-ring': ring,
+});
+
+const dockToneStyles: Record<string, DockToneStyle> = {
+  home: createDockTone('rgba(215, 246, 231, 0.78)', 'rgba(197, 238, 219, 0.92)', 'rgba(183, 231, 208, 0.96)', 'rgba(66, 178, 126, 0.28)', 'rgba(45, 153, 102, 0.44)', '#287653', '#135c3c', 'rgba(45, 153, 102, 0.26)'),
+  archive: createDockTone('rgba(230, 224, 255, 0.78)', 'rgba(218, 210, 250, 0.92)', 'rgba(207, 196, 246, 0.96)', 'rgba(126, 100, 214, 0.28)', 'rgba(105, 78, 190, 0.44)', '#63509b', '#4f3d86', 'rgba(105, 78, 190, 0.24)'),
+  chess: createDockTone('rgba(255, 239, 190, 0.82)', 'rgba(255, 231, 161, 0.94)', 'rgba(250, 220, 133, 0.96)', 'rgba(195, 145, 34, 0.28)', 'rgba(170, 119, 18, 0.42)', '#7a5a12', '#654706', 'rgba(170, 119, 18, 0.24)'),
+  admin: createDockTone('rgba(211, 236, 255, 0.8)', 'rgba(190, 226, 252, 0.94)', 'rgba(173, 215, 247, 0.96)', 'rgba(62, 145, 205, 0.3)', 'rgba(36, 119, 181, 0.46)', '#2c6f9d', '#155a86', 'rgba(36, 119, 181, 0.25)'),
+  write: createDockTone('rgba(255, 225, 207, 0.82)', 'rgba(255, 212, 189, 0.94)', 'rgba(250, 198, 169, 0.96)', 'rgba(205, 110, 68, 0.3)', 'rgba(181, 88, 48, 0.44)', '#995333', '#7d3e20', 'rgba(181, 88, 48, 0.24)'),
+  login: createDockTone('rgba(211, 244, 246, 0.8)', 'rgba(190, 234, 238, 0.94)', 'rgba(170, 225, 230, 0.96)', 'rgba(53, 163, 172, 0.3)', 'rgba(28, 136, 146, 0.45)', '#237984', '#12626c', 'rgba(28, 136, 146, 0.24)'),
+  signup: createDockTone('rgba(245, 223, 255, 0.8)', 'rgba(238, 207, 252, 0.94)', 'rgba(228, 190, 244, 0.96)', 'rgba(166, 93, 191, 0.3)', 'rgba(139, 68, 166, 0.44)', '#814b93', '#6b347f', 'rgba(139, 68, 166, 0.24)'),
+  logout: createDockTone('rgba(255, 224, 229, 0.82)', 'rgba(255, 207, 216, 0.94)', 'rgba(250, 190, 202, 0.96)', 'rgba(204, 82, 98, 0.3)', 'rgba(179, 58, 76, 0.46)', '#9b4250', '#81303d', 'rgba(179, 58, 76, 0.24)'),
+  pin: createDockTone('rgba(255, 231, 196, 0.9)', 'rgba(255, 219, 170, 0.98)', 'rgba(250, 204, 137, 1)', 'rgba(205, 132, 48, 0.38)', 'rgba(177, 101, 22, 0.58)', '#90571f', '#713f10', 'rgba(177, 101, 22, 0.3)'),
+  menu: createDockTone('rgba(223, 241, 215, 0.82)', 'rgba(207, 231, 197, 0.94)', 'rgba(190, 218, 178, 0.96)', 'rgba(105, 157, 88, 0.3)', 'rgba(82, 134, 66, 0.45)', '#557a43', '#3f6630', 'rgba(82, 134, 66, 0.24)'),
+  more: createDockTone('rgba(221, 235, 255, 0.82)', 'rgba(204, 224, 252, 0.94)', 'rgba(185, 211, 245, 0.96)', 'rgba(89, 137, 205, 0.3)', 'rgba(67, 112, 181, 0.45)', '#4f6f9a', '#395a86', 'rgba(67, 112, 181, 0.24)'),
+  default: createDockTone('rgba(239, 241, 246, 0.78)', 'rgba(226, 230, 238, 0.94)', 'rgba(214, 220, 232, 0.96)', 'rgba(110, 122, 145, 0.24)', 'rgba(86, 99, 124, 0.38)', '#626d82', '#47566f', 'rgba(86, 99, 124, 0.2)'),
+};
+
+const getDockToneStyle = (key: string) => dockToneStyles[key] ?? dockToneStyles.default;
 
 export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: DesktopDockProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoggedIn, role, logout, _hasHydrated } = useAuthStore();
-  const [isPinned, setIsPinned] = useState(false);
+  const [isPinned, setIsPinned] = useState(true);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isDockHovered, setIsDockHovered] = useState(false);
   const [isDockFocused, setIsDockFocused] = useState(false);
@@ -99,7 +148,8 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
-      setIsPinned(window.localStorage.getItem('dock-pinned') === 'true');
+      const savedValue = window.localStorage.getItem(DOCK_PINNED_STORAGE_KEY);
+      setIsPinned(savedValue === null ? true : savedValue === 'true');
     });
 
     return () => window.cancelAnimationFrame(frameId);
@@ -120,7 +170,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const handlePinnedChange = () => {
     setIsPinned((previous) => {
       const nextValue = !previous;
-      window.localStorage.setItem('dock-pinned', String(nextValue));
+      window.localStorage.setItem(DOCK_PINNED_STORAGE_KEY, String(nextValue));
       clearDockTimers();
       setIsDockClosing(false);
       setIsDockHovered(!nextValue);
@@ -255,9 +305,10 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const renderDesktopItem = (item: DockAction) => {
     const Icon = item.icon;
     const active = item.isActive?.(pathname) ?? false;
+    const toneStyle = getDockToneStyle(item.key);
     const itemClass = clsx(
-      'group/item relative flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] focus-visible:-translate-y-1',
-      active && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent-soft)]',
+      'group/item relative flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)] focus-visible:-translate-y-1',
+      active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
     );
 
     const content = (
@@ -267,7 +318,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
           {item.label}
         </span>
         {active && (
-          <span className="absolute -bottom-1 h-1 w-1 rounded-full bg-[var(--color-accent)]" />
+          <span className="absolute -bottom-1 h-1 w-1 rounded-full bg-[var(--dock-item-fg-strong)]" />
         )}
       </>
     );
@@ -281,6 +332,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
           aria-label={item.label}
           aria-current={active ? 'page' : undefined}
           className={itemClass}
+          style={toneStyle}
         >
           {content}
         </Link>
@@ -295,6 +347,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
         aria-label={item.label}
         onClick={item.onClick}
         className={itemClass}
+        style={toneStyle}
       >
         {content}
       </button>
@@ -304,10 +357,11 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const renderMobileItem = (item: DockAction, activeOverride?: boolean) => {
     const Icon = item.icon;
     const active = activeOverride ?? item.isActive?.(pathname) ?? false;
+    const toneStyle = getDockToneStyle(item.key);
     const itemClass = clsx(
-      'flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg border border-transparent px-1 text-[10px] font-semibold leading-none text-[var(--color-text-subtle)] transition-colors',
-      'hover:bg-[var(--card-bg)] hover:text-[var(--color-text)] focus-visible:bg-[var(--card-bg-strong)]',
-      active && 'border-[var(--control-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]',
+      'flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-1 text-[10px] font-semibold leading-none text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition-colors',
+      'hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)] focus-visible:bg-[var(--dock-item-bg-active)]',
+      active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
     );
     const content = (
       <>
@@ -325,6 +379,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
           aria-label={item.label}
           aria-current={active ? 'page' : undefined}
           className={itemClass}
+          style={toneStyle}
           onClick={() => setIsMoreOpen(false)}
         >
           {content}
@@ -340,6 +395,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
         aria-label={item.label}
         onClick={item.onClick}
         className={itemClass}
+        style={toneStyle}
       >
         {content}
       </button>
@@ -376,12 +432,13 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
             onMouseEnter={expandDock}
             onFocus={handleDockHandleFocus}
             className={clsx(
-              'absolute bottom-0 left-1/2 z-10 flex h-9 w-12 -translate-x-1/2 items-start justify-center rounded-t-lg border border-b-0 border-[var(--dock-border)] bg-[var(--dock-bg)] pt-1.5 text-[var(--color-text-subtle)] shadow-[var(--shadow-control)] backdrop-blur-[22px]',
-              'transition-[transform,opacity,width,height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[var(--color-text)] focus-visible:text-[var(--color-text)]',
+              'absolute bottom-0 left-1/2 z-10 flex h-9 w-12 -translate-x-1/2 items-start justify-center rounded-t-lg border border-b-0 border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] pt-1.5 text-[var(--dock-item-fg-strong)] shadow-[var(--shadow-control)] backdrop-blur-[22px]',
+              'transition-[transform,opacity,width,height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[var(--dock-item-bg-hover)] focus-visible:bg-[var(--dock-item-bg-hover)]',
               isDockRangeExpanded
                 ? 'pointer-events-none translate-y-5 scale-75 opacity-0'
                 : 'pointer-events-auto translate-y-0 scale-100 opacity-100 hover:h-10 hover:w-14',
             )}
+            style={getDockToneStyle('more')}
           >
             <MoreHorizontal size={18} strokeWidth={2.3} />
           </button>
@@ -407,9 +464,10 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
             aria-pressed={isPinned}
             onClick={handlePinnedChange}
             className={clsx(
-              'group/item relative ml-1 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
-              isPinned && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
+              'group/item relative ml-1 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] shadow-[var(--shadow-control)] ring-1 ring-[var(--dock-item-ring)] transition duration-150 hover:-translate-y-1 hover:bg-[var(--dock-item-bg-hover)]',
+              isPinned && 'shadow-[var(--shadow-dock)]',
             )}
+            style={getDockToneStyle('pin')}
           >
             {isPinned ? <PinOff size={19} /> : <Pin size={19} />}
             <span className="pointer-events-none absolute -top-9 whitespace-nowrap rounded-full border border-[var(--card-border)] bg-[var(--card-bg-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text)] opacity-0 shadow-[var(--shadow-control)] backdrop-blur-[18px] transition group-hover/item:opacity-100">
@@ -433,9 +491,10 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
               {authItems.map((item) => {
                 const Icon = item.icon;
                 const active = item.isActive?.(pathname) ?? false;
+                const toneStyle = getDockToneStyle(item.key);
                 const className = clsx(
-                  'inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition-colors hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
-                  active && 'text-[var(--color-accent)]',
+                  'inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--dock-item-border)] bg-[var(--dock-item-bg)] px-3 text-sm font-semibold text-[var(--dock-item-fg)] shadow-[var(--shadow-control)] transition-colors hover:border-[var(--dock-item-border-hover)] hover:bg-[var(--dock-item-bg-hover)] hover:text-[var(--dock-item-fg-strong)]',
+                  active && 'border-[var(--dock-item-border-hover)] bg-[var(--dock-item-bg-active)] text-[var(--dock-item-fg-strong)] ring-1 ring-[var(--dock-item-ring)]',
                 );
 
                 if (item.href) {
@@ -444,6 +503,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
                       key={item.key}
                       href={item.href}
                       className={className}
+                      style={toneStyle}
                       onClick={() => setIsMoreOpen(false)}
                     >
                       <Icon size={16} />
@@ -457,6 +517,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
                     key={item.key}
                     type="button"
                     className={className}
+                    style={toneStyle}
                     onClick={item.onClick}
                   >
                     <Icon size={16} />
