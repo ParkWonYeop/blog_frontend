@@ -1,5 +1,12 @@
 # Work Log
 
+## 2026-06-06
+
+- Fixed the desktop Dock so route changes from Dock menu links no longer leave focus-held open state behind when the Dock is not pinned.
+- Kept the saved `dock-pinned-v2` preference unchanged during navigation and only released transient Dock focus/hover state after menu clicks and pathname changes.
+- Validation: `npm run lint` passed and `npm run build` passed. In-app browser verification on `http://localhost:3111/` confirmed that after unpinning the Dock, clicking the Dock archive menu navigates to `/archive`, the pin button remains `aria-pressed=false`, and the Dock collapses after the pointer leaves.
+- Recommended next task: do one visual pass on the Dock at narrow desktop widths to confirm the collapse animation still feels smooth around the sidebar offset.
+
 ## 2026-06-02
 
 - Refined the public layout after desktop/mobile review: the shell now guards horizontal overflow, uses route-aware bottom padding, hides the top menubar on mobile, and opens the mobile sidebar/search panel from the Dock.

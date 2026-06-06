@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, type FocusEvent, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, type FocusEvent, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -124,6 +124,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const [isDockHovered, setIsDockHovered] = useState(false);
   const [isDockFocused, setIsDockFocused] = useState(false);
   const [isDockClosing, setIsDockClosing] = useState(false);
+  const isPinnedRef = useRef(isPinned);
   const dockZoneRef = useRef<HTMLDivElement>(null);
   const dockLeaveTimerRef = useRef<number | null>(null);
   const dockCollapseTimerRef = useRef<number | null>(null);
@@ -132,7 +133,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   const isDockOpen = isPinned || isDockHovered || isDockFocused;
   const isDockRangeExpanded = isDockOpen || isDockClosing;
 
-  const clearDockTimers = () => {
+  const clearDockTimers = useCallback(() => {
     if (dockLeaveTimerRef.current !== null) {
       window.clearTimeout(dockLeaveTimerRef.current);
       dockLeaveTimerRef.current = null;
@@ -142,7 +143,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
       window.clearTimeout(dockCollapseTimerRef.current);
       dockCollapseTimerRef.current = null;
     }
-  };
+  }, []);
 
   const expandDock = () => {
     clearDockTimers();
@@ -150,7 +151,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     setIsDockHovered(true);
   };
 
-  const startDockCollapse = () => {
+  const startDockCollapse = useCallback(() => {
     clearDockTimers();
     setIsDockHovered(false);
     setIsDockClosing(true);
@@ -158,7 +159,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
       setIsDockClosing(false);
       dockCollapseTimerRef.current = null;
     }, DOCK_COLLAPSE_MS);
-  };
+  }, [clearDockTimers]);
 
   const scheduleDockCollapse = () => {
     if (isPinned || isDockFocused) return;
@@ -169,10 +170,44 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     }, DOCK_LEAVE_DELAY_MS);
   };
 
+  const blurFocusedDockItem = useCallback(() => {
+    if (
+      document.activeElement instanceof HTMLElement &&
+      dockZoneRef.current?.contains(document.activeElement)
+    ) {
+      document.activeElement.blur();
+    }
+  }, []);
+
+  const releaseUnpinnedDockAfterNavigation = useCallback(() => {
+    if (isPinnedRef.current) return;
+
+    const isPointerInsideDock = dockZoneRef.current?.matches(':hover') ?? false;
+
+    blurFocusedDockItem();
+    setIsDockFocused(false);
+
+    if (isPointerInsideDock) {
+      clearDockTimers();
+      setIsDockClosing(false);
+      setIsDockHovered(true);
+      return;
+    }
+
+    startDockCollapse();
+  }, [blurFocusedDockItem, clearDockTimers, startDockCollapse]);
+
+  useEffect(() => {
+    isPinnedRef.current = isPinned;
+  }, [isPinned]);
+
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
       const savedValue = window.localStorage.getItem(DOCK_PINNED_STORAGE_KEY);
-      setIsPinned(savedValue === null ? true : savedValue === 'true');
+      const nextValue = savedValue === null ? true : savedValue === 'true';
+
+      isPinnedRef.current = nextValue;
+      setIsPinned(nextValue);
     });
 
     return () => window.cancelAnimationFrame(frameId);
@@ -181,14 +216,15 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
       setIsMoreOpen(false);
+      releaseUnpinnedDockAfterNavigation();
     });
 
     return () => window.cancelAnimationFrame(frameId);
-  }, [pathname]);
+  }, [pathname, releaseUnpinnedDockAfterNavigation]);
 
   useEffect(() => {
     return () => clearDockTimers();
-  }, []);
+  }, [clearDockTimers]);
 
   const handlePinnedChange = () => {
     const nextValue = !isPinned;
@@ -198,6 +234,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
     pinToggleStartedByPointerRef.current = false;
     window.localStorage.setItem(DOCK_PINNED_STORAGE_KEY, String(nextValue));
     clearDockTimers();
+    isPinnedRef.current = nextValue;
     setIsPinned(nextValue);
 
     if (nextValue) {
@@ -208,13 +245,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
 
     if (startedByPointer) {
       setIsDockFocused(false);
-
-      if (
-        document.activeElement instanceof HTMLElement &&
-        dockZoneRef.current?.contains(document.activeElement)
-      ) {
-        document.activeElement.blur();
-      }
+      blurFocusedDockItem();
     }
 
     if (isPointerInsideDock) {
@@ -387,6 +418,7 @@ export default function DesktopDock({ isSidebarCollapsed, onOpenMobileMenu }: De
           aria-current={active ? 'page' : undefined}
           className={itemClass}
           style={toneStyle}
+          onClick={releaseUnpinnedDockAfterNavigation}
         >
           {content}
         </Link>
