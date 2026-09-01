@@ -4,7 +4,6 @@ import {
 } from '@/api/publicPosts';
 import { parseApiDate, SITE_URL } from '@/lib/site';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

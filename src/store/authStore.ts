@@ -9,26 +9,19 @@ interface UserInfo {
 }
 
 interface JwtPayload {
-  userId?: number;
   memberId?: number;
-  id?: number;
-  role?: string;
-  roles?: string;
   auth?: string;
   nickname?: string;
-  name?: string;
   sub?: string;
-  [key: string]: unknown;
 }
 
 interface AuthState {
   accessToken: string | null;
-  refreshToken: string | null;
   isLoggedIn: boolean;
   role: string | null;
   user: UserInfo | null;
   _hasHydrated: boolean;
-  login: (accessToken: string, refreshToken?: string) => void;
+  login: (accessToken: string) => void;
   logout: () => void;
   setHydrated: () => void;
 }
@@ -38,10 +31,10 @@ const parseToken = (token: string): { role: string; user: UserInfo | null } => {
     const decoded = jwtDecode<JwtPayload>(token);
 
     return {
-      role: decoded.role || decoded.roles || decoded.auth || 'USER',
+      role: decoded.auth || 'USER',
       user: {
-        memberId: Number(decoded.userId || decoded.memberId || decoded.id || 0),
-        nickname: decoded.nickname || decoded.name || 'User',
+        memberId: decoded.memberId ?? 0,
+        nickname: decoded.nickname || 'User',
         email: decoded.sub || '',
       }
     };
@@ -54,30 +47,17 @@ export const useAuthStore = create<AuthState>()(
   persist<AuthState>(
     (set) => ({
       accessToken: null,
-      refreshToken: null,
       isLoggedIn: false,
       role: null,
       user: null,
       _hasHydrated: false,
       
-      login: (accessToken: string, refreshToken?: string) => {
+      login: (accessToken: string) => {
         const { role, user } = parseToken(accessToken);
-        set({ 
-          accessToken, 
-          refreshToken: refreshToken || null, 
-          isLoggedIn: true, 
-          role,
-          user 
-        });
+        set({ accessToken, isLoggedIn: true, role, user });
       },
       
-      logout: () => set({ 
-        accessToken: null, 
-        refreshToken: null, 
-        isLoggedIn: false, 
-        role: null,
-        user: null 
-      }),
+      logout: () => set({ accessToken: null, isLoggedIn: false, role: null, user: null }),
       
       setHydrated: () => set({ _hasHydrated: true }),
     }),

@@ -5,11 +5,12 @@ import type { ApiResponse, AuthResponse } from '@/types';
 /**
  * Refresh requests intentionally bypass the shared client so a rejected refresh
  * cannot recursively enter the response interceptor.
+ * The refresh token travels in an httpOnly cookie (withCredentials), not the body.
  */
-export const reissueAuth = async (accessToken: string, refreshToken: string) => {
+export const reissueAuth = async () => {
   const response = await axios.post<ApiResponse<AuthResponse>>(
     `${API_BASE_URL}/api/auth/reissue`,
-    { accessToken, refreshToken },
+    {},
     { headers: { 'Content-Type': 'application/json' }, withCredentials: true },
   );
 

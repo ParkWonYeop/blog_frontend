@@ -13,7 +13,6 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-query-devtools": "^5.91.1",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@uiw/react-md-editor": "^4.0.11",
     "axios": "^1.13.2",
     "chess.js": "^1.4.0",
@@ -45,6 +44,7 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",

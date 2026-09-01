@@ -8,6 +8,8 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 60;
+
 const getPostDescription = (content?: string) => {
   const plainText = content
     ?.replace(/```[\s\S]*?```/g, ' ')
@@ -86,5 +88,25 @@ export default async function PostDetailPage({ params }: Props) {
     notFound();
   }
 
-  return <PostDetailClient slug={slug} initialPost={post} />;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: getPostDescription(post.content),
+    image: getFirstMarkdownImage(post.content),
+    datePublished: parseApiDate(post.createdAt).toISOString(),
+    dateModified: parseApiDate(post.updatedAt || post.createdAt).toISOString(),
+    author: { '@type': 'Person', name: 'WYPark', url: SITE_URL },
+    mainEntityOfPage: getCanonicalUrl(`/posts/${encodeURIComponent(post.slug)}`),
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <PostDetailClient slug={slug} initialPost={post} />
+    </>
+  );
 }

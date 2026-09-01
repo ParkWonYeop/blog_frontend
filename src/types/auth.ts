@@ -1,7 +1,7 @@
 export interface AuthResponse {
   grantType: string;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   accessTokenExpiresIn: number;
 }
 

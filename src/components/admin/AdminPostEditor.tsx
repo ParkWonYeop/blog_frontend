@@ -38,7 +38,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { resolvedTheme } = useTheme();
-  const { isLoggedIn, role, _hasHydrated, accessToken, refreshToken } = useAuthStore();
+  const { isLoggedIn, role, _hasHydrated, accessToken } = useAuthStore();
   const isAdmin = _hasHydrated && Boolean(role?.includes('ADMIN'));
   const isEditMode = Boolean(editSlug);
 
@@ -184,7 +184,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   });
 
   const ensureAuthToken = async (): Promise<boolean> => {
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
       toast.error('로그인이 필요합니다.');
       return false;
     }

@@ -10,7 +10,6 @@ type RetriableRequestConfig = AxiosRequestConfig & {
 };
 
 const AUTHORIZATION_HEADER = 'Authorization';
-const REFRESHABLE_STATUS_CODES = new Set([401, 403]);
 
 export const http = axios.create({
   baseURL: API_BASE_URL,
@@ -32,7 +31,7 @@ http.interceptors.response.use(
     }
 
     const originalRequest = error.config as RetriableRequestConfig;
-    if (originalRequest._retry || !REFRESHABLE_STATUS_CODES.has(error.response.status)) {
+    if (originalRequest._retry || error.response.status !== 401) {
       return Promise.reject(error);
     }
 

@@ -28,7 +28,7 @@ function LoginForm() {
     try {
       const response = await login(formData);
       if (response.code === 'SUCCESS' && response.data) {
-        setLoginState(response.data.accessToken, response.data.refreshToken);
+        setLoginState(response.data.accessToken);
         router.push(redirectPath);
       } else {
         setError(response.message || '로그인에 실패했습니다.');

@@ -10,11 +10,11 @@ import { useAuthStore } from '@/store/authStore';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 function AuthInitializer() {
-  const { accessToken, refreshToken, logout } = useAuthStore();
+  const { accessToken, logout } = useAuthStore();
 
   useEffect(() => {
     const initializeAuth = async () => {
-      if (!accessToken || !refreshToken) return;
+      if (!accessToken) return;
 
       if (isTokenExpired(accessToken, 60)) {
         try {
@@ -26,7 +26,7 @@ function AuthInitializer() {
     };
 
     initializeAuth();
-  }, [accessToken, refreshToken, logout]);
+  }, [accessToken, logout]);
 
   return null;
 }
