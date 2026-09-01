@@ -1,15 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import {
-  Archive,
-  ChevronRight,
-  Clock,
-  FileText,
-  HardDrive,
-  Search,
-  TrendingUp,
-} from 'lucide-react';
+import { Archive, ChevronRight, FileText, Search } from 'lucide-react';
 import { fetchPublicPosts } from '@/features/post/publicApi';
 import EmptyState from '@/shared/ui/EmptyState';
 import StatusBadge from '@/shared/ui/StatusBadge';
@@ -194,50 +186,98 @@ function clsxSafe(...classes: Array<string | false | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
-function PostListPanel({
+function HeroPost({ post }: { post: Post }) {
+  const summary = getPostSummary(post.content, 160);
+
+  return (
+    <Link href={`/posts/${post.slug}`} className="group block min-w-0">
+      <Surface as="article" strong interactive className="min-w-0 p-6 md:px-7">
+        <div className="mb-3 flex min-w-0 flex-wrap items-center gap-2.5">
+          <span className="shrink-0 rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[var(--color-accent)]">
+            최신 글
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-[var(--color-text-muted)]">
+            {post.categoryName || '미분류'}
+          </span>
+          <time className="ml-auto shrink-0 text-xs text-[var(--color-text-subtle)]">
+            {formatKoreanDate(post.createdAt)}
+          </time>
+        </div>
+        <h2 className="break-words text-2xl font-extrabold leading-snug tracking-tight text-[var(--color-text)] transition group-hover:text-[var(--color-accent)] md:text-[26px]">
+          {post.title}
+        </h2>
+        {summary && (
+          <p className="mt-2.5 max-w-[62ch] break-words text-sm leading-relaxed text-[var(--color-text-muted)]">
+            {summary}
+          </p>
+        )}
+        <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)]">
+          계속 읽기
+          <ChevronRight size={15} className="transition group-hover:translate-x-0.5" />
+        </span>
+      </Surface>
+    </Link>
+  );
+}
+
+function PostListSection({
   title,
-  icon,
+  action,
   posts,
   isPopular = false,
-  featured = false,
+  emptyTitle,
 }: {
   title: string;
-  icon: ReactNode;
+  action?: ReactNode;
   posts: Post[];
   isPopular?: boolean;
-  featured?: boolean;
+  emptyTitle: string;
 }) {
   return (
-    <Surface as="section" strong className="min-w-0 overflow-hidden shadow-none">
-      <div className="flex min-h-12 min-w-0 items-center justify-between gap-3 border-b border-[var(--window-titlebar-border)] bg-[var(--window-titlebar)] px-4 py-3 md:px-5">
-        <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-[var(--color-text)]">
-          {icon}
-          <span className="truncate">{title}</span>
-        </h2>
-        <Link href="/archive" className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
-          전체 보기
-          <ChevronRight size={14} />
-        </Link>
+    <section className="min-w-0">
+      <div className="flex items-center justify-between gap-3 px-1 pb-2.5">
+        <h2 className="text-sm font-bold text-[var(--color-text)]">{title}</h2>
+        {action}
       </div>
-
-      <div className="p-4 md:p-6">
+      <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-4">
         {posts.length > 0 ? (
           <div className="divide-y divide-[var(--color-line)]">
             {posts.map((post, index) => (
-              <CompactPostRow
+              <Link
                 key={post.id}
-                post={post}
-                rank={isPopular ? index + 1 : undefined}
-                showViews={isPopular}
-                featured={featured}
-              />
+                href={`/posts/${post.slug}`}
+                className="group flex min-w-0 items-baseline gap-3 py-3.5"
+              >
+                {isPopular && (
+                  <span className="w-4 shrink-0 text-[13px] font-extrabold tabular-nums text-[var(--color-accent)]">
+                    {index + 1}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h3 className="line-clamp-1 break-words text-sm font-semibold text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">
+                    {post.title}
+                  </h3>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-subtle)]">
+                    {isPopular ? (
+                      <span className="tabular-nums">조회 {post.viewCount.toLocaleString()}</span>
+                    ) : (
+                      <>
+                        <span className="font-medium text-[var(--color-text-muted)]">
+                          {post.categoryName || '미분류'}
+                        </span>
+                        <time>{formatKoreanDate(post.createdAt)}</time>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         ) : (
-          <EmptyState title={isPopular ? '인기 글을 집계 중입니다.' : '아직 공개된 글이 없습니다.'} className="min-h-72" />
+          <EmptyState title={emptyTitle} className="min-h-48" />
         )}
       </div>
-    </Surface>
+    </section>
   );
 }
 
@@ -263,6 +303,8 @@ export default async function Home({ searchParams }: HomePageProps) {
   const notices = noticesData?.content || [];
   const latestList = (latestData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 7);
   const popularList = (popularData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
+  const heroPost = latestList[0];
+  const recentList = latestList.slice(1, 6);
 
   return (
     <div className="mx-auto min-w-0 max-w-[1180px] px-0 py-3 md:py-6">
@@ -281,37 +323,32 @@ export default async function Home({ searchParams }: HomePageProps) {
         )}
         bodyClassName="space-y-6 p-4 md:p-6"
       >
-        <div className="flex min-w-0 flex-col justify-between gap-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-3 md:flex-row md:items-center">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--card-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]">
-              <HardDrive size={20} />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-[var(--color-text)]">최근 기록</p>
-              <p className="truncate text-xs text-[var(--color-text-subtle)]">
-                최신 글 {latestList.length.toLocaleString()}개 · 인기 글 {popularList.length.toLocaleString()}개
-              </p>
-            </div>
-          </div>
-          <span className="text-xs font-semibold tabular-nums text-[var(--color-text-subtle)]">
-            {formatKoreanDate(new Date(), { dateStyle: 'medium' })}
-          </span>
-        </div>
-
         <NoticeStrip notices={notices} />
 
-        <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
-          <PostListPanel
-            title="최신 글"
-            icon={<Clock size={18} className="shrink-0 text-[var(--color-accent)]" />}
-            posts={latestList}
-            featured
+        {heroPost ? (
+          <HeroPost post={heroPost} />
+        ) : (
+          <EmptyState title="아직 공개된 글이 없습니다." className="min-h-48" />
+        )}
+
+        <section className="grid min-w-0 gap-6 lg:grid-cols-2">
+          <PostListSection
+            title="최근 게시글"
+            action={(
+              <Link href="/archive" className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
+                전체 보기
+                <ChevronRight size={14} />
+              </Link>
+            )}
+            posts={recentList}
+            emptyTitle="아직 공개된 글이 없습니다."
           />
-          <PostListPanel
+          <PostListSection
             title="인기 글"
-            icon={<TrendingUp size={18} className="shrink-0 text-[var(--color-accent)]" />}
+            action={<span className="text-xs text-[var(--color-text-subtle)]">조회수 기준</span>}
             posts={popularList}
             isPopular
+            emptyTitle="인기 글을 집계 중입니다."
           />
         </section>
       </WindowSurface>

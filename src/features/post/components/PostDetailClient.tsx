@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AlertCircle, ArrowLeft, Calendar, ChevronLeft, ChevronRight, Loader2, Monitor, User } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, ChevronLeft, ChevronRight, Loader2, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,7 +13,6 @@ import CommentList from '@/features/comment/components/CommentList';
 import MarkdownRenderer from '@/features/post/components/MarkdownRenderer';
 import TOC from '@/features/post/components/TOC';
 import StatusBadge from '@/shared/ui/StatusBadge';
-import Surface from '@/shared/ui/Surface';
 import WindowSurface from '@/shared/ui/WindowSurface';
 import type { Post } from '@/shared/types';
 
@@ -20,6 +20,34 @@ interface PostDetailClientProps {
   slug: string;
   initialPost: Post;
 }
+
+/** 페이지 스크롤 기준 읽기 진행률(0-100). rAF로 스크롤 이벤트를 스로틀한다. */
+const useReadingProgress = () => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(100, Math.round((window.scrollY / max) * 100)) : 0);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  return progress;
+};
 
 const getPostErrorInfo = (error: unknown) => {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -39,6 +67,7 @@ const getPostErrorInfo = (error: unknown) => {
 
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const router = useRouter();
+  const readingProgress = useReadingProgress();
 
   const { data: post, isLoading: isPostLoading, error } = useQuery({
     queryKey: queryKeys.posts.detail(slug),
@@ -104,14 +133,20 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             title="Reader"
             subtitle={post.categoryName || '미분류'}
             className="mx-auto w-full max-w-[820px]"
-            bodyClassName="px-5 py-7 md:px-10 md:py-10"
+            bodyClassName="relative px-5 py-7 md:px-10 md:py-10"
             controls={(
-              <div className="hidden items-center gap-1.5 text-xs font-semibold text-[var(--color-text-subtle)] sm:flex">
-                <Monitor size={14} />
-                <span className="max-w-44 truncate">{post.slug}</span>
-              </div>
+              <span className="text-xs font-bold tabular-nums text-[var(--color-accent)]" aria-label="읽기 진행률">
+                {readingProgress}%
+              </span>
             )}
           >
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-[var(--color-line)]" aria-hidden="true">
+              <div
+                className="h-full bg-[var(--color-accent)] transition-[width] duration-150 ease-out"
+                style={{ width: `${readingProgress}%` }}
+              />
+            </div>
+            <div className="mx-auto min-w-0 max-w-[68ch]">
             <header className="mb-9 border-b border-[var(--color-line)] pb-7">
               <StatusBadge tone="neutral" className="mb-5">
                 {post.categoryName || '미분류'}
@@ -147,48 +182,42 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             <div className="prose prose-base min-w-0 max-w-none break-words prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 md:prose-lg [overflow-wrap:anywhere]">
               <MarkdownRenderer content={post.content || ''} />
             </div>
-          </WindowSurface>
+            </div>
 
-          <WindowSurface title="Navigation" showTrafficLights={false} className="mx-auto max-w-[820px]" bodyClassName="p-4 md:p-5">
-            <nav className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
-              {prevPost ? (
-                <Link href={`/posts/${prevPost.slug}`} className="group flex min-w-0 flex-col items-start gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)] md:p-5">
-                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
-                    <ChevronLeft size={16} />
-                    이전 글
-                  </span>
-                  <span className="line-clamp-2 w-full break-words text-left font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
-                    {prevPost.title}
-                  </span>
-                </Link>
-              ) : (
-                <Surface className="hidden w-full cursor-not-allowed p-5 opacity-60 md:block">
-                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">
-                    <ChevronLeft size={16} />
-                    이전 글 없음
-                  </span>
-                </Surface>
-              )}
+            {(prevPost || nextPost) && (
+              <nav
+                aria-label="이전/다음 글"
+                className="-mx-5 -mb-7 mt-10 grid grid-cols-1 divide-y divide-[var(--window-titlebar-border)] border-t border-[var(--window-titlebar-border)] md:-mx-10 md:-mb-10 md:grid-cols-2 md:divide-x md:divide-y-0"
+              >
+                {prevPost ? (
+                  <Link href={`/posts/${prevPost.slug}`} className="group flex min-w-0 flex-col gap-1 px-5 py-4 transition-colors hover:bg-[var(--card-bg)] md:px-6">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)]">
+                      <ChevronLeft size={14} />
+                      이전 글
+                    </span>
+                    <span className="line-clamp-1 break-words text-sm font-semibold text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent)]">
+                      {prevPost.title}
+                    </span>
+                  </Link>
+                ) : (
+                  <span className="hidden md:block" aria-hidden="true" />
+                )}
 
-              {nextPost ? (
-                <Link href={`/posts/${nextPost.slug}`} className="group flex min-w-0 flex-col items-end gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--card-bg-strong)] md:p-5">
-                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
-                    다음 글
-                    <ChevronRight size={16} />
-                  </span>
-                  <span className="line-clamp-2 w-full break-words text-right font-bold text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-accent)]">
-                    {nextPost.title}
-                  </span>
-                </Link>
-              ) : (
-                <Surface className="hidden w-full cursor-not-allowed flex-col items-end gap-1 p-5 opacity-60 md:flex">
-                  <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)]">
-                    다음 글 없음
-                    <ChevronRight size={16} />
-                  </span>
-                </Surface>
-              )}
-            </nav>
+                {nextPost ? (
+                  <Link href={`/posts/${nextPost.slug}`} className="group flex min-w-0 flex-col items-end gap-1 px-5 py-4 text-right transition-colors hover:bg-[var(--card-bg)] md:px-6">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)]">
+                      다음 글
+                      <ChevronRight size={14} />
+                    </span>
+                    <span className="line-clamp-1 w-full break-words text-sm font-semibold text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent)]">
+                      {nextPost.title}
+                    </span>
+                  </Link>
+                ) : (
+                  <span className="hidden md:block" aria-hidden="true" />
+                )}
+              </nav>
+            )}
           </WindowSurface>
 
           <WindowSurface title="Comments" showTrafficLights={false} className="mx-auto max-w-[820px]" bodyClassName="p-5 md:p-6">

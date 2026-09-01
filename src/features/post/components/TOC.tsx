@@ -92,18 +92,18 @@ export default function TOC({ content }: TOCProps) {
 
   return (
     <aside className="w-full">
-      <div className="border-l border-[var(--color-line)] pl-4">
+      <div>
         <h4 className="mb-4 text-xs font-semibold uppercase text-[var(--color-text-subtle)]">목차</h4>
-        <ul className="space-y-2.5">
+        <ul className="space-y-1">
           {headings.map((heading, index) => (
-            <li 
+            <li
               key={`${heading.slug}-${index}`}
               className={clsx(
-                "text-sm transition-colors duration-150",
-                heading.level === 3 ? "ml-3 text-xs" : "",
-                activeId === heading.slug 
-                  ? "font-semibold text-[var(--color-accent)]" 
-                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                "border-l-2 py-0.5 pl-3 text-sm transition-colors duration-150",
+                heading.level === 3 ? "pl-6 text-xs" : "",
+                activeId === heading.slug
+                  ? "border-[var(--color-accent)] font-semibold text-[var(--color-accent)]"
+                  : "border-[var(--color-line)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
               )}
             >
               <a 
