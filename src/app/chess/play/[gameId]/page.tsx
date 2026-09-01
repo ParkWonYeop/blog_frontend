@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ChessGamePlayClient from '@/components/chess/ChessGamePlayClient';
+import ChessGamePlayClient from '@/features/chess/components/ChessGamePlayClient';
 
 export const metadata: Metadata = {
   title: 'Maia 대국 | WYPark Blog',

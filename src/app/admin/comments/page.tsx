@@ -1,4 +1,4 @@
-import AdminCommentsPanel from '@/components/admin/AdminCommentsPanel';
+import AdminCommentsPanel from '@/features/admin/components/AdminCommentsPanel';
 
 export default function AdminCommentsPage() {
   return <AdminCommentsPanel />;

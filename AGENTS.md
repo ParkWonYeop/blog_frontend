@@ -61,8 +61,8 @@ npm run start
 
 - `src/app/`: App Router pages, layouts, providers, metadata, sitemap, and robots.
 - `src/app/admin/`: administrator routes protected by `AdminRouteShell`.
-- `src/components/layout/DesktopShell.tsx`: persistent shell and the application’s only `main` landmark.
-- `src/components/layout/`: Sidebar, desktop menu bar, Dock, and shell behavior.
+- `src/shared/layout/DesktopShell.tsx`: persistent shell and the application’s only `main` landmark.
+- `src/shared/layout/`: Sidebar, desktop menu bar, Dock, and shell behavior.
 
 Use Server Components by default. Add `'use client'` only for hooks, events, browser APIs, React Query, Zustand, or client-only libraries.
 
@@ -76,13 +76,13 @@ Rules:
 
 ### API Boundary
 
-- `src/api/http.ts`: shared authenticated Axios client and retry interceptor.
-- `src/api/authSession.ts`: in-tab refresh deduplication, Web Locks coordination, and persisted-token synchronization.
-- `src/api/authRefresh.ts`: direct refresh request that intentionally bypasses the shared interceptor.
-- `src/api/publicPosts.ts`: server-side public post fetches with Next.js revalidation.
-- Other `src/api/*.ts` files: domain-specific backend calls.
+- `src/shared/api/http.ts`: shared authenticated Axios client and retry interceptor.
+- `src/features/auth/authSession.ts`: in-tab refresh deduplication, Web Locks coordination, and persisted-token synchronization.
+- `src/features/auth/authRefresh.ts`: direct refresh request that intentionally bypasses the shared interceptor.
+- `src/features/post/publicApi.ts`: server-side public post fetches with Next.js revalidation.
+- Other `src/features/*/api.ts` files: domain-specific backend calls.
 
-UI code must call `src/api` functions instead of backend endpoints directly. Add a typed API function before consuming a new endpoint in a component.
+UI code must call feature api functions (`src/features/*/api.ts`) instead of backend endpoints directly. Add a typed API function before consuming a new endpoint in a component.
 
 Use the shared `http` client for authenticated JSON requests. Direct Axios calls are restricted to refresh paths or another documented recursion boundary.
 
@@ -90,7 +90,7 @@ Most JSON responses use `ApiResponse<T>` and expose useful data through `respons
 
 ### Server State
 
-React Query keys are created in `src/lib/queryKeys.ts`. Do not add ad hoc array literals for an existing domain.
+React Query keys are created in `src/shared/lib/queryKeys.ts`. Do not add ad hoc array literals for an existing domain.
 
 After a mutation:
 
@@ -102,7 +102,7 @@ Keep query keys serializable and deterministic.
 
 ### Authentication
 
-- Zustand auth state is defined in `src/store/authStore.ts`.
+- Zustand auth state is defined in `src/features/auth/store.ts`.
 - Persisted storage key: `auth-storage`.
 - Admin checks require hydration and an `ADMIN` role.
 - Browser-only state must not be read during server rendering.
@@ -130,9 +130,9 @@ Verify storage constants at their definitions before changing persistence behavi
 
 ### Types And Utilities
 
-- `src/types/`: domain types split by API, auth, category, chess, comment, dashboard, post, and profile.
-- `src/types/index.ts`: type-only barrel for existing `@/types` imports.
-- `src/lib/`: pure helpers for dates, errors, pagination, categories, posts, paths, auth tokens, and query keys.
+- types: shared API envelope in `src/shared/types/`, feature types in `src/features/*/types.ts` (re-exported by the `@/shared/types` barrel).
+- `src/shared/types/index.ts`: type-only barrel for `@/shared/types` imports.
+- `src/shared/lib/`: pure helpers (dates, errors, pagination, paths, site, query keys); feature-specific helpers live in `src/features/*/lib.ts`.
 - `src/config/environment.ts`: public environment defaults.
 
 TypeScript uses `strict` and `noUncheckedIndexedAccess`. Do not weaken compiler options to make a change pass.
@@ -147,12 +147,12 @@ Guidelines:
 
 ### Components And Styling
 
-- `src/components/ui/`: reusable primitives such as `WindowSurface`, `Surface`, `EmptyState`, `StatusBadge`, and `SegmentedControl`.
-- `src/components/post/`: post cards, lists, search, reader, Markdown renderer, archive explorer, and TOC.
-- `src/components/comment/`: comment form, recursive list, and item UI.
-- `src/components/chess/`: shared board, public daily puzzle, authenticated Maia game, and game-history UI.
-- `src/components/admin/`: admin panels, dashboard widgets, editor modules, and destructive-action dialogs.
-- `src/components/theme/`: light/dark/system theme implementation.
+- `src/shared/ui/`: reusable primitives such as `WindowSurface`, `Surface`, `EmptyState`, `StatusBadge`, and `SegmentedControl`.
+- `src/features/post/components/`: post cards, lists, search, reader, Markdown renderer, archive explorer, and TOC.
+- `src/features/comment/components/`: comment form, recursive list, and item UI.
+- `src/features/chess/components/`: shared board, public daily puzzle, authenticated Maia game, and game-history UI.
+- `src/features/admin/components/`: admin panels, dashboard widgets, editor modules, and destructive-action dialogs.
+- `src/shared/theme/`: light/dark/system theme implementation.
 
 Use Tailwind classes for component styling. Use `globals.css` only for application-wide tokens, shell behavior, typography, or third-party overrides.
 
@@ -164,7 +164,7 @@ Keep components focused:
 
 - extract cohesive UI sections when a component mixes unrelated forms, dialogs, storage, and rendering;
 - colocate feature-specific child components in a feature folder;
-- put reusable domain logic in `src/lib`, not inside JSX files;
+- put reusable domain logic in `src/shared/lib` or the feature's `lib.ts`, not inside JSX files;
 - avoid creating generic abstractions used only once.
 
 ### Accessibility And Responsive Behavior
@@ -182,7 +182,7 @@ Admin destructive operations must remain confirmed and visually distinct. Preser
 
 ### Markdown And User Content
 
-Render post bodies through `src/components/post/MarkdownRenderer.tsx`.
+Render post bodies through `src/features/post/components/MarkdownRenderer.tsx`.
 
 Do not remove `rehype-sanitize` without an explicit security review. When adding Markdown features, validate:
 

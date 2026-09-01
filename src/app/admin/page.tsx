@@ -11,30 +11,30 @@ import {
   PenLine,
   Settings,
 } from 'lucide-react';
-import { getAdminDashboard } from '@/api/dashboard';
-import { getCategories } from '@/api/category';
-import { getAdminComments } from '@/api/comments';
-import { getPosts } from '@/api/posts';
-import AdminDashboardActionCenter from '@/components/admin/dashboard/AdminDashboardActionCenter';
-import AdminDashboardCategoryHealth from '@/components/admin/dashboard/AdminDashboardCategoryHealth';
-import AdminDashboardOverview from '@/components/admin/dashboard/AdminDashboardOverview';
-import AdminDashboardPostPerformance from '@/components/admin/dashboard/AdminDashboardPostPerformance';
-import AdminDashboardTrafficChart from '@/components/admin/dashboard/AdminDashboardTrafficChart';
-import EmptyState from '@/components/ui/EmptyState';
-import StatusBadge from '@/components/ui/StatusBadge';
-import Surface from '@/components/ui/Surface';
-import { countCategories } from '@/lib/categories';
-import { getAdminCommentAuthor } from '@/lib/comments';
-import { formatKoreanReadableDate } from '@/lib/dates';
-import { getPageMeta } from '@/lib/pagination';
-import { queryKeys } from '@/lib/queryKeys';
+import { getAdminDashboard } from '@/features/admin/api/dashboard';
+import { getCategories } from '@/features/category/api';
+import { getAdminComments } from '@/features/comment/api';
+import { getPosts } from '@/features/post/api';
+import AdminDashboardActionCenter from '@/features/admin/components/dashboard/AdminDashboardActionCenter';
+import AdminDashboardCategoryHealth from '@/features/admin/components/dashboard/AdminDashboardCategoryHealth';
+import AdminDashboardOverview from '@/features/admin/components/dashboard/AdminDashboardOverview';
+import AdminDashboardPostPerformance from '@/features/admin/components/dashboard/AdminDashboardPostPerformance';
+import AdminDashboardTrafficChart from '@/features/admin/components/dashboard/AdminDashboardTrafficChart';
+import EmptyState from '@/shared/ui/EmptyState';
+import StatusBadge from '@/shared/ui/StatusBadge';
+import Surface from '@/shared/ui/Surface';
+import { countCategories } from '@/features/category/lib';
+import { getAdminCommentAuthor } from '@/features/comment/lib';
+import { formatKoreanReadableDate } from '@/shared/lib/dates';
+import { getPageMeta } from '@/shared/lib/pagination';
+import { queryKeys } from '@/shared/lib/queryKeys';
 import type {
   AdminComment,
   DashboardPostStat,
   DashboardRange,
   DashboardTrafficPoint,
   Post,
-} from '@/types';
+} from '@/shared/types';
 
 const dashboardRangeDays: Record<DashboardRange, number> = {
   '7d': 7,

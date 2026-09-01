@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchPublicPost } from '@/api/publicPosts';
-import PostDetailClient from '@/components/post/PostDetailClient';
-import { DEFAULT_DESCRIPTION, getCanonicalUrl, parseApiDate, SITE_NAME, SITE_URL } from '@/lib/site';
+import { fetchPublicPost } from '@/features/post/publicApi';
+import PostDetailClient from '@/features/post/components/PostDetailClient';
+import { DEFAULT_DESCRIPTION, getCanonicalUrl, parseApiDate, SITE_NAME, SITE_URL } from '@/shared/lib/site';
 
 type Props = {
   params: Promise<{ slug: string }>;

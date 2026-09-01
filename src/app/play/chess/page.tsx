@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ChessPuzzleClient from '@/components/chess/ChessPuzzleClient';
+import ChessPuzzleClient from '@/features/chess/components/ChessPuzzleClient';
 
 export const metadata: Metadata = {
   title: '오늘의 체스 퍼즐',

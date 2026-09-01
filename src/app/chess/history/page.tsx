@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ChessHistoryClient from '@/components/chess/ChessHistoryClient';
+import ChessHistoryClient from '@/features/chess/components/ChessHistoryClient';
 
 export const metadata: Metadata = {
   title: '대국 기록 | WYPark Blog',

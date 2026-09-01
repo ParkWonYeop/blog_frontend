@@ -10,15 +10,15 @@ import {
   Search,
   TrendingUp,
 } from 'lucide-react';
-import { fetchPublicPosts } from '@/api/publicPosts';
-import EmptyState from '@/components/ui/EmptyState';
-import StatusBadge from '@/components/ui/StatusBadge';
-import Surface from '@/components/ui/Surface';
-import WindowSurface from '@/components/ui/WindowSurface';
-import { formatKoreanDate } from '@/lib/dates';
-import { getPostSummary, isNoticePost } from '@/lib/posts';
-import { DEFAULT_DESCRIPTION, SITE_NAME } from '@/lib/site';
-import type { Post, PostListResponse } from '@/types';
+import { fetchPublicPosts } from '@/features/post/publicApi';
+import EmptyState from '@/shared/ui/EmptyState';
+import StatusBadge from '@/shared/ui/StatusBadge';
+import Surface from '@/shared/ui/Surface';
+import WindowSurface from '@/shared/ui/WindowSurface';
+import { formatKoreanDate } from '@/shared/lib/dates';
+import { getPostSummary, isNoticePost } from '@/features/post/lib';
+import { DEFAULT_DESCRIPTION, SITE_NAME } from '@/shared/lib/site';
+import type { Post, PostListResponse } from '@/shared/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 300;

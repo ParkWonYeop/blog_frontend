@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Archive } from 'lucide-react';
-import { fetchPublicPosts } from '@/api/publicPosts';
-import ArchiveExplorer from '@/components/post/ArchiveExplorer';
-import WindowSurface from '@/components/ui/WindowSurface';
-import { SITE_NAME } from '@/lib/site';
-import type { PostListResponse } from '@/types';
+import { fetchPublicPosts } from '@/features/post/publicApi';
+import ArchiveExplorer from '@/features/post/components/ArchiveExplorer';
+import WindowSurface from '@/shared/ui/WindowSurface';
+import { SITE_NAME } from '@/shared/lib/site';
+import type { PostListResponse } from '@/shared/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 300;

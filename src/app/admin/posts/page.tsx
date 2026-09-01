@@ -1,4 +1,4 @@
-import AdminPostsPanel from '@/components/admin/AdminPostsPanel';
+import AdminPostsPanel from '@/features/admin/components/AdminPostsPanel';
 
 export default function AdminPostsPage() {
   return <AdminPostsPanel />;

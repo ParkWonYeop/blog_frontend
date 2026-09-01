@@ -1,4 +1,4 @@
-import AdminCategoryPanel from '@/components/admin/AdminCategoryPanel';
+import AdminCategoryPanel from '@/features/admin/components/AdminCategoryPanel';
 
 export default function AdminCategoriesPage() {
   return <AdminCategoryPanel />;

@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next';
 import {
   fetchPublicPosts,
-} from '@/api/publicPosts';
-import { parseApiDate, SITE_URL } from '@/lib/site';
+} from '@/features/post/publicApi';
+import { parseApiDate, SITE_URL } from '@/shared/lib/site';
 
 export const revalidate = 300;
 

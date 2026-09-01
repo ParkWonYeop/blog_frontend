@@ -5,10 +5,10 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MailCheck, UserPlus } from 'lucide-react';
-import { signup, verifyEmail } from '@/api/auth';
-import WindowSurface from '@/components/ui/WindowSurface';
-import { getErrorMessage } from '@/lib/errors';
-import type { SignupRequest } from '@/types';
+import { signup, verifyEmail } from '@/features/auth/api';
+import WindowSurface from '@/shared/ui/WindowSurface';
+import { getErrorMessage } from '@/shared/lib/errors';
+import type { SignupRequest } from '@/shared/types';
 
 export default function SignupPage() {
   const router = useRouter();

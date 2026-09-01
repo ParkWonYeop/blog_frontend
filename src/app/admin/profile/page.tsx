@@ -1,4 +1,4 @@
-import AdminProfilePanel from '@/components/admin/AdminProfilePanel';
+import AdminProfilePanel from '@/features/admin/components/AdminProfilePanel';
 
 export default function AdminProfilePage() {
   return <AdminProfilePanel />;

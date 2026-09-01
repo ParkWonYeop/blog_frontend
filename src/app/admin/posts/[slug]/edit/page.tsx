@@ -1,4 +1,4 @@
-import AdminPostEditor from '@/components/admin/AdminPostEditor';
+import AdminPostEditor from '@/features/admin/components/AdminPostEditor';
 
 interface EditAdminPostPageProps {
   params: Promise<{

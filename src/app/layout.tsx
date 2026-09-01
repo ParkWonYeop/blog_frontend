@@ -3,9 +3,9 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import Providers from './providers';
-import DesktopShell from '@/components/layout/DesktopShell';
-import { THEME_INIT_SCRIPT } from '@/components/theme/theme';
-import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
+import DesktopShell from '@/shared/layout/DesktopShell';
+import { THEME_INIT_SCRIPT } from '@/shared/theme/theme';
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from '@/shared/lib/site';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',

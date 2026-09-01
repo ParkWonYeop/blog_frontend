@@ -4,17 +4,17 @@ import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight, FolderOpen, LayoutGrid, List, Loader2, Search as SearchIcon } from 'lucide-react';
-import { getPostsByCategory } from '@/api/posts';
-import PostCard from '@/components/post/PostCard';
-import PostListItem from '@/components/post/PostListItem';
-import PostSearch from '@/components/post/PostSearch';
-import EmptyState from '@/components/ui/EmptyState';
-import SegmentedControl from '@/components/ui/SegmentedControl';
-import Surface from '@/components/ui/Surface';
-import WindowSurface from '@/components/ui/WindowSurface';
-import { isNoticeCategoryName } from '@/lib/posts';
-import { decodePathSegment } from '@/lib/paths';
-import { queryKeys } from '@/lib/queryKeys';
+import { getPostsByCategory } from '@/features/post/api';
+import PostCard from '@/features/post/components/PostCard';
+import PostListItem from '@/features/post/components/PostListItem';
+import PostSearch from '@/features/post/components/PostSearch';
+import EmptyState from '@/shared/ui/EmptyState';
+import SegmentedControl from '@/shared/ui/SegmentedControl';
+import Surface from '@/shared/ui/Surface';
+import WindowSurface from '@/shared/ui/WindowSurface';
+import { isNoticeCategoryName } from '@/features/post/lib';
+import { decodePathSegment } from '@/shared/lib/paths';
+import { queryKeys } from '@/shared/lib/queryKeys';
 
 const PAGE_SIZE_OPTIONS = [
   { label: '9개', value: '9' },

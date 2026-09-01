@@ -4,11 +4,11 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, LockKeyhole, UserRound } from 'lucide-react';
-import { login } from '@/api/auth';
-import WindowSurface from '@/components/ui/WindowSurface';
-import { getErrorMessage } from '@/lib/errors';
-import { getSafeRedirectPath } from '@/lib/paths';
-import { useAuthStore } from '@/store/authStore';
+import { login } from '@/features/auth/api';
+import WindowSurface from '@/shared/ui/WindowSurface';
+import { getErrorMessage } from '@/shared/lib/errors';
+import { getSafeRedirectPath } from '@/shared/lib/paths';
+import { useAuthStore } from '@/features/auth/store';
 
 function LoginForm() {
   const router = useRouter();

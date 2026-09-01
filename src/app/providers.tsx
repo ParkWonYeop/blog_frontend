@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { refreshAccessToken } from '@/api/authSession';
-import { isTokenExpired } from '@/lib/authToken';
-import { useAuthStore } from '@/store/authStore';
-import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { refreshAccessToken } from '@/features/auth/authSession';
+import { isTokenExpired } from '@/features/auth/authToken';
+import { useAuthStore } from '@/features/auth/store';
+import { ThemeProvider } from '@/shared/theme/ThemeProvider';
 
 function AuthInitializer() {
   const { accessToken, logout } = useAuthStore();
