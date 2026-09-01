@@ -1,0 +1,46 @@
+name: Deploy blog-frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    # 서버에 설치된 self-hosted 러너에서 실행 (docker, git은 호스트에 이미 있음)
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          if [ -f Dockerfile ]; then
+            DOCKERFILE_NAME="Dockerfile"
+          elif [ -f DockerFile ]; then
+            DOCKERFILE_NAME="DockerFile"
+          else
+            echo "Dockerfile not found!"
+            exit 1
+          fi
+
+          docker build \
+            -f $DOCKERFILE_NAME \
+            --build-arg NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
+            -t blog-frontend:latest .
+
+      - name: Deploy container
+        run: |
+          docker stop blog-frontend || true
+          docker rm blog-frontend || true
+
+          docker run -d \
+            --name blog-frontend \
+            --restart unless-stopped \
+            -p 3005:3000 \
+            -e NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
+            blog-frontend:latest
+
+      - name: Cleanup old images
+        run: docker image prune -f
