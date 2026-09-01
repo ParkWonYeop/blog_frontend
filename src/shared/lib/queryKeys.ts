@@ -18,6 +18,9 @@ export const queryKeys = {
   profile: {
     all: ['profile'] as const,
   },
+  blogStats: {
+    summary: ['blog-stats', 'summary'] as const,
+  },
   posts: {
     all: ['posts'] as const,
     detail: (slug?: string) => ['post', slug] as const,

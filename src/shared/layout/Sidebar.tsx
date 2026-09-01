@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { getCategories } from '@/features/category/api';
 import { getProfile } from '@/features/profile/api';
+import { getBlogStats } from '@/shared/api/stats';
 import PostSearch from '@/features/post/components/PostSearch';
 import { sortCategoriesById } from '@/features/category/lib';
 import { queryKeys } from '@/shared/lib/queryKeys';
@@ -138,6 +139,13 @@ function SidebarContent({
   });
 
   const sortedCategories = useMemo(() => sortCategoriesById(categories), [categories]);
+
+  const { data: blogStats } = useQuery({
+    queryKey: queryKeys.blogStats.summary,
+    queryFn: getBlogStats,
+    staleTime: 1000 * 60 * 10,
+    retry: 0,
+  });
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: queryKeys.profile.all,
@@ -343,6 +351,15 @@ function SidebarContent({
             isDesktopCollapsed && 'md:hidden',
           )}
         >
+          {blogStats && (
+            <div className="mb-4 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
+              <p className="mb-1.5 text-[11px] font-bold tracking-wide text-[var(--color-text-subtle)]">이번 달</p>
+              <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+                <span>새 글 {blogStats.monthlyPostCount.toLocaleString()}편</span>
+                <span className="tabular-nums">조회 {blogStats.monthlyViewCount.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
           <p className="text-center text-[10px] font-light text-[var(--color-text-subtle)]">
             © {new Date().getFullYear()} {displayProfile.name}
           </p>
