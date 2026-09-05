@@ -132,13 +132,17 @@ export const getGameOverTitle = (outcome: ChessOutcome, status: string) => {
   }
 };
 
-export const TIME_CONTROLS: readonly { key: TimeControlKey; label: string; description: string }[] = [
-  { key: 'BLITZ_1', label: '1분', description: '블리츠 1분' },
-  { key: 'BLITZ_3', label: '3분', description: '블리츠 3분' },
-  { key: 'RAPID_10', label: '10분', description: '래피드 10분' },
-  { key: 'RAPID_15_10', label: '15|10', description: '래피드 15분, 한 수마다 10초 추가' },
-  { key: 'RAPID_30_15', label: '30|15', description: '래피드 30분, 한 수마다 15초 추가' },
+export type TimeControlGroup = '블리츠' | '래피드';
+
+export const TIME_CONTROLS: readonly { key: TimeControlKey; group: TimeControlGroup; label: string; description: string }[] = [
+  { key: 'BLITZ_1', group: '블리츠', label: '1분', description: '블리츠 1분' },
+  { key: 'BLITZ_3', group: '블리츠', label: '3분', description: '블리츠 3분' },
+  { key: 'RAPID_10', group: '래피드', label: '10분', description: '래피드 10분' },
+  { key: 'RAPID_15_10', group: '래피드', label: '15|10', description: '래피드 15분, 한 수마다 10초 추가' },
+  { key: 'RAPID_30_15', group: '래피드', label: '30|15', description: '래피드 30분, 한 수마다 15초 추가' },
 ];
+
+export const TIME_CONTROL_GROUPS: readonly TimeControlGroup[] = ['블리츠', '래피드'];
 
 export const getOutcomeFor = (result: string | null, color: ChessColor, status: string): ChessOutcome => {
   if (status === 'IN_PROGRESS') return 'IN_PROGRESS';

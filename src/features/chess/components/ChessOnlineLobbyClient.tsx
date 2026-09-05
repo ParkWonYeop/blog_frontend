@@ -9,7 +9,7 @@ import { Copy, Link as LinkIcon, Loader2, LockKeyhole, Shuffle, Users, X } from 
 import toast from 'react-hot-toast';
 import { getActiveOnlineGame } from '@/features/chess/api';
 import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
-import { TIME_CONTROLS } from '@/features/chess/lib';
+import { TIME_CONTROLS, TIME_CONTROL_GROUPS } from '@/features/chess/lib';
 import { useChessSocket, useChessSocketMessage, type ChessSocketStatus } from '@/features/chess/online/socket';
 import SegmentedControl, { SegmentedControlOption } from '@/shared/ui/SegmentedControl';
 import WindowSurface from '@/shared/ui/WindowSurface';
@@ -19,9 +19,11 @@ import type { OnlineServerMessage, TimeControlKey } from '@/shared/types';
 
 const LOBBY_PATH = '/chess/online';
 
-const TIME_CONTROL_OPTIONS: readonly SegmentedControlOption<TimeControlKey>[] = TIME_CONTROLS.map((control) => ({
-  label: control.label,
-  value: control.key,
+const TIME_CONTROL_SECTIONS = TIME_CONTROL_GROUPS.map((group) => ({
+  group,
+  options: TIME_CONTROLS.filter((control) => control.group === group).map(
+    (control): SegmentedControlOption<TimeControlKey> => ({ label: control.label, value: control.key }),
+  ),
 }));
 
 const primaryButtonClass =
@@ -174,18 +176,23 @@ function OnlineLobby({ onMatch }: { onMatch: (gameId: string) => void }) {
       )}
     >
       <WindowSurface title="Time Control" showTrafficLights={false} bodyClassName="p-4 md:p-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <SegmentedControl
-            ariaLabel="시간 설정"
-            options={TIME_CONTROL_OPTIONS}
-            value={timeControl}
-            onChange={setTimeControl}
-            className="max-w-full overflow-x-auto"
-          />
-          <span className="text-xs font-semibold text-[var(--color-text-subtle)]">
-            {TIME_CONTROLS.find((control) => control.key === timeControl)?.description}
-          </span>
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          {TIME_CONTROL_SECTIONS.map((section) => (
+            <div key={section.group} className="min-w-0">
+              <p className="mb-2 text-sm font-semibold text-[var(--color-text)]">{section.group}</p>
+              <SegmentedControl
+                ariaLabel={`${section.group} 시간 설정`}
+                options={section.options}
+                value={timeControl}
+                onChange={setTimeControl}
+                className="max-w-full overflow-x-auto"
+              />
+            </div>
+          ))}
         </div>
+        <p className="mt-3 text-xs font-semibold text-[var(--color-text-subtle)]">
+          {TIME_CONTROLS.find((control) => control.key === timeControl)?.description}
+        </p>
       </WindowSurface>
 
       <section className="grid min-w-0 items-start gap-5 md:grid-cols-2">
