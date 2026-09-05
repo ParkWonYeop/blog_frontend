@@ -29,6 +29,7 @@ export const outcomeBadgeTones: Record<ChessOutcome, 'neutral' | 'info' | 'succe
 
 export const getChessOutcomeLabel = (outcome: ChessOutcome, status?: string) => {
   if (status === 'RESIGNED' && outcome === 'LOSS') return '기권패';
+  if (status === 'ABORTED') return '무효';
 
   return outcomeLabels[outcome];
 };

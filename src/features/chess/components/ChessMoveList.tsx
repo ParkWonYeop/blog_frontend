@@ -64,10 +64,10 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
           <button type="button" className={navButtonClass} onClick={() => onSelectPly(0)} disabled={currentPly === 0} aria-label="처음으로">
             <ChevronFirst size={16} />
           </button>
-          <button type="button" className={navButtonClass} onClick={() => onSelectPly(currentPly - 1)} disabled={currentPly === 0} aria-label="이전 수">
+          <button type="button" className={navButtonClass} onClick={() => onSelectPly(currentPly - 1)} disabled={currentPly === 0} aria-label="이전 수" title="이전 수 (←)">
             <ChevronLeft size={16} />
           </button>
-          <button type="button" className={navButtonClass} onClick={() => onSelectPly(currentPly + 1)} disabled={currentPly >= lastPly} aria-label="다음 수">
+          <button type="button" className={navButtonClass} onClick={() => onSelectPly(currentPly + 1)} disabled={currentPly >= lastPly} aria-label="다음 수" title="다음 수 (→)">
             <ChevronRight size={16} />
           </button>
           <button type="button" className={navButtonClass} onClick={() => onSelectPly(lastPly)} disabled={currentPly >= lastPly} aria-label="마지막으로">
@@ -91,7 +91,6 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
           </ol>
         )}
       </div>
-      <p className="mt-1.5 text-[11px] text-[var(--color-text-subtle)]">← → 키로 이전·다음 수를 볼 수 있습니다.</p>
     </div>
   );
 }

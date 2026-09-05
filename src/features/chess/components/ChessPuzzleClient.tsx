@@ -12,10 +12,10 @@ import {
   Lightbulb,
   Loader2,
   RotateCcw,
-  Target,
 } from 'lucide-react';
 import { getTodayChessPuzzle } from '@/features/chess/api';
 import ChessBoard, { BOARD_SQUARES, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
 import ChessPromotionPicker from '@/features/chess/components/ChessPromotionPicker';
 import { getKingInCheckSquare, pickMoveToSquare, type PromotionPiece } from '@/features/chess/lib';
 import { BOARD_SIZE_STYLE } from '@/features/chess/components/chessUi';
@@ -50,30 +50,6 @@ const formatDate = (value: string) => {
   }, value);
 };
 
-function PageHeader() {
-  return (
-    <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-5">
-      <div className="flex min-w-0 items-center gap-2 text-[var(--color-accent)]">
-        <Target size={23} className="shrink-0" />
-        <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)] md:text-3xl">
-          오늘의 체스 퍼즐
-        </h1>
-      </div>
-      <p className="max-w-2xl break-words text-sm leading-6 text-[var(--color-text-muted)]">
-        매일 하나씩 바뀌는 메이트 체스 퍼즐입니다.
-      </p>
-    </section>
-  );
-}
-
-function ChessPageFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1160px] flex-col gap-5 px-0 py-3 md:py-6">
-      {children}
-    </div>
-  );
-}
-
 function BoardWindow({ children }: { children: ReactNode }) {
   return (
     <WindowSurface title="Board" showTrafficLights={false} bodyClassName="p-2 md:p-3">
@@ -86,8 +62,7 @@ function BoardWindow({ children }: { children: ReactNode }) {
 
 function LoadingState() {
   return (
-    <ChessPageFrame>
-      <PageHeader />
+    <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
       <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
           <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
@@ -115,14 +90,10 @@ function LoadingState() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <ChessPageFrame>
-      <PageHeader />
+    <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
       <WindowSurface title="Puzzle" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-red-500" size={30} />
         <h2 className="break-words text-lg font-bold text-[var(--color-text)]">오늘의 퍼즐을 불러오지 못했습니다.</h2>
-        <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">
-          백엔드 API가 준비되지 않았거나 잠시 응답하지 않을 수 있습니다.
-        </p>
         <button
           type="button"
           onClick={onRetry}
@@ -275,8 +246,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   };
 
   return (
-    <ChessPageFrame>
-      <PageHeader />
+    <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
 
       <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>

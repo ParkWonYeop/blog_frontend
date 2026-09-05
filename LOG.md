@@ -1,5 +1,20 @@
 # Work Log
 
+## 2026-09-05 (online play)
+
+- Added WebSocket online play under the Online tile: `/chess/online` lobby with a time-control picker (블리츠 1·3분, 래피드 10분·15|10·30|15), random-queue matching, and invite codes/links (`/chess/online/join/[code]`); `/chess/online/[gameId]` play screen with server-authoritative clocks, draw offer/accept/decline, resign, opponent-disconnect countdown, reconnect banner, and the shared board/move-list/promotion components.
+- `src/features/chess/online/socket.ts` keeps one socket per tab (auth by first message with the current access token, refresh when near expiry, exponential reconnect, close code 4001 = replaced by another window). New `ChessClock` renders clocks from the last server snapshot; `lib.ts` gained time-control metadata, extra termination labels, and a color-relative outcome helper.
+- Validation: `npm run check`, `npm run build`, and `git diff --check` passed. End-to-end against a local backend (Postgres 17 + Redis in Docker, real signup/login, the Python bridge for move validation) with a scripted opponent over the same WebSocket: invite create→join, random-queue match, live moves with clock increments, opponent disconnect countdown on their turn only, reconnect clearing it, 90초 forfeit recorded as ABANDONED, resign, and the second-window replacement notice. The only console error is the pre-existing Sidebar profile-image hydration warning.
+- Follow-up in the same day: the Online lobby now checks `GET /api/chess/online/games/active` first and `router.replace`s into an in-progress game (finished games fall through to the normal lobby); History gained an "Online" list (`GET /api/chess/online/games`, records are written at game start so in-progress games appear and can be resumed) that shares the outcome filter; aborted games read as 무효. The backend also refuses queueing or inviting while a game is active. Re-verified in the browser: redirect into the live game, the History row while in progress, and the lobby showing normally after the game ended.
+- Recommended next task: add a spectator/read-only view for finished online games shared by link, and surface the active-game shortcut on the chess hub tile.
+
+## 2026-09-05 (chess hub)
+
+- Restructured the chess section into a hub: `/chess` is now a public landing page with four tiles (Online — 준비중 placeholder, BOT, Puzzle, History). `/chess/bot` lists engines (Maia3 only for now, one-line table to extend) and `/chess/bot/maia3` holds the former lobby form and recent games. `/chess/play/[gameId]`, `/chess/history`, and `/play/chess` keep their URLs.
+- Renamed user-facing copy from "Maia 체스"/"Maia" to "체스" and the exact "Maia3", changed the menu-bar app name to "Chess", moved the win/loss stat cards from the lobby to History, and removed explanatory copy about internals (model hints, FEN sync note, keyboard hint line, login-gate descriptions). Added a shared `ChessPageFrame` (title + back link) used by every chess screen.
+- Validation: `npm run check`, `npm run build`, and `git diff --check` passed. Browser check on a local `next dev` against the throwaway mock API covered `/chess`, `/chess/bot`, `/chess/bot/maia3`, `/chess/history`, `/chess/play/{id}`, and `/play/chess` at 1440px with no console errors.
+- Recommended next task: decide what "Online" should become (or hide the tile) and add the second engine entry when one exists.
+
 ## 2026-09-05
 
 - Extended the Maia play screen: SAN move list with click/keyboard (←/→/Home/End) navigation through past positions, a promotion piece picker instead of auto-queen, king-in-check highlighting on the shared board, player bars with captured pieces/material balance, a board flip control (F key), a game-over banner with the termination reason and same-settings / swapped-color rematch, and PGN moved into a collapsible section.

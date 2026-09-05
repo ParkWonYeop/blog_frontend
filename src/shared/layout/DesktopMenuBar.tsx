@@ -31,7 +31,7 @@ const getAppTitle = (pathname: string) => {
   if (pathname.startsWith('/archive')) return 'Archive';
   if (pathname.startsWith('/category')) return getCategoryTitle(pathname);
   if (pathname.startsWith('/posts')) return 'Reader';
-  if (pathname.startsWith('/chess')) return 'Maia Chess';
+  if (pathname.startsWith('/chess')) return 'Chess';
   if (pathname.startsWith('/play/chess')) return 'Chess';
   if (pathname.startsWith('/login')) return 'Login';
   if (pathname.startsWith('/signup')) return 'Signup';

@@ -1,5 +1,5 @@
 import { Chess as ChessGame, type Color, type Move, type PieceSymbol, type Square } from 'chess.js';
-import type { ChessOutcome } from '@/shared/types';
+import type { ChessColor, ChessOutcome, TimeControlKey } from '@/shared/types';
 
 export const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -111,6 +111,10 @@ const TERMINATION_LABELS: Record<string, string> = {
   FIFTY_MOVES: '50수 규칙',
   THREEFOLD_REPETITION: '3회 동형 반복',
   RESIGNED: '기권',
+  TIMEOUT: '시간 초과',
+  ABANDONED: '접속 끊김',
+  DRAW_AGREED: '합의 무승부',
+  ABORTED: '무효',
 };
 
 export const getTerminationLabel = (status: string) => TERMINATION_LABELS[status] ?? status;
@@ -125,5 +129,28 @@ export const getGameOverTitle = (outcome: ChessOutcome, status: string) => {
       return '무승부입니다.';
     default:
       return '대국이 끝났습니다.';
+  }
+};
+
+export const TIME_CONTROLS: readonly { key: TimeControlKey; label: string; description: string }[] = [
+  { key: 'BLITZ_1', label: '1분', description: '블리츠 1분' },
+  { key: 'BLITZ_3', label: '3분', description: '블리츠 3분' },
+  { key: 'RAPID_10', label: '10분', description: '래피드 10분' },
+  { key: 'RAPID_15_10', label: '15|10', description: '래피드 15분, 한 수마다 10초 추가' },
+  { key: 'RAPID_30_15', label: '30|15', description: '래피드 30분, 한 수마다 15초 추가' },
+];
+
+export const getOutcomeFor = (result: string | null, color: ChessColor, status: string): ChessOutcome => {
+  if (status === 'IN_PROGRESS') return 'IN_PROGRESS';
+
+  switch (result) {
+    case '1-0':
+      return color === 'white' ? 'WIN' : 'LOSS';
+    case '0-1':
+      return color === 'black' ? 'WIN' : 'LOSS';
+    case '1/2-1/2':
+      return 'DRAW';
+    default:
+      return 'UNKNOWN';
   }
 };

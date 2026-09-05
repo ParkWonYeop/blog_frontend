@@ -50,5 +50,10 @@ export const queryKeys = {
     },
     stats: ['chess-game-stats'] as const,
     game: (gameId: string) => ['chess-game', gameId] as const,
+    online: {
+      active: ['chess-online-active'] as const,
+      list: (filters: { page: number; size: number }) => ['chess-online-games', filters] as const,
+      game: (gameId: string) => ['chess-online-game', gameId] as const,
+    },
   },
 } as const;

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import ChessHomeClient from '@/features/chess/components/ChessHomeClient';
+import ChessHub from '@/features/chess/components/ChessHub';
 
 export const metadata: Metadata = {
-  title: 'Maia 체스 | WYPark Blog',
-  description: 'Maia3 봇과 체스를 두고 대국 기록과 PGN을 확인합니다.',
+  title: '체스 | WYPark Blog',
+  description: '봇 대국, 퍼즐, 대국 기록',
 };
 
 export default function ChessPage() {
-  return <ChessHomeClient />;
+  return <ChessHub />;
 }

@@ -8,6 +8,8 @@ import type {
   ChessGameStatsResponse,
   ChessMoveRequest,
   ChessPuzzle,
+  OnlineGamePageResponse,
+  OnlineGameResponse,
 } from '@/shared/types';
 
 const requireApiData = <T>(response: ApiResponse<T>, fallbackMessage: string) => {
@@ -82,4 +84,25 @@ export const undoChessMove = async (gameId: string) => {
   const response = await http.post<ApiResponse<ChessGameResponse>>(`/api/chess/games/${gameId}/undo`);
 
   return requireApiData(response.data, '무르기를 처리하지 못했습니다.');
+};
+
+export const getOnlineGame = async (gameId: string) => {
+  const response = await http.get<ApiResponse<OnlineGameResponse>>(`/api/chess/online/games/${gameId}`);
+
+  return requireApiData(response.data, '대국을 불러오지 못했습니다.');
+};
+
+/** 진행 중인 온라인 대국. 없으면 null. */
+export const getActiveOnlineGame = async () => {
+  const response = await http.get<ApiResponse<OnlineGameResponse | null>>('/api/chess/online/games/active');
+
+  return response.data.data ?? null;
+};
+
+export const getOnlineGames = async ({ page = 0, size = 20 }: { page?: number; size?: number } = {}) => {
+  const response = await http.get<ApiResponse<OnlineGamePageResponse>>('/api/chess/online/games', {
+    params: { page, size },
+  });
+
+  return requireApiData(response.data, '온라인 대국 기록을 불러오지 못했습니다.');
 };

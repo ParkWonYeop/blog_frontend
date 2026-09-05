@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,22 +9,20 @@ import { clsx } from 'clsx';
 import {
   AlertCircle,
   ArrowUpDown,
-  ChevronLeft,
   Clipboard,
   Flag,
   History,
-  Home,
   Loader2,
   PlusCircle,
   RefreshCw,
   RotateCcw,
-  Swords,
   Undo2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createChessGame, getChessGame, postChessMove, resignChessGame, undoChessMove } from '@/features/chess/api';
 import ChessBoard, { PIECE_SYMBOLS, getMoveSquares, getTurnLabel, toChessJsColor, type MoveSquares } from '@/features/chess/components/ChessBoard';
 import ChessMoveList from '@/features/chess/components/ChessMoveList';
+import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
 import ChessPromotionPicker from '@/features/chess/components/ChessPromotionPicker';
 import { BOARD_SIZE_STYLE, getChessErrorMessage, getChessOutcomeLabel, isAuthError, outcomeBadgeTones } from '@/features/chess/components/chessUi';
 import {
@@ -75,18 +73,10 @@ const oppositeColor = (color: ChessColor): ChessColor => (color === 'white' ? 'b
 const isTypingTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
 
-function ChessPageFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1180px] flex-col gap-5 px-0 py-3 md:py-6">
-      {children}
-    </div>
-  );
-}
-
 function LoadingState({ message = '대국을 불러오는 중입니다.' }: { message?: string }) {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Maia Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={30} />
         <p className="text-sm font-semibold text-[var(--color-text)]">{message}</p>
       </WindowSurface>
@@ -97,14 +87,11 @@ function LoadingState({ message = '대국을 불러오는 중입니다.' }: { me
 function LoginRequired() {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Maia Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-amber-500" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h1>
-        <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">
-          Maia 대국은 로그인한 계정의 기록으로 저장됩니다.
-        </p>
         <Link
-          href="/login?redirect=/chess"
+          href="/login?redirect=/chess/bot/maia3"
           className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
@@ -117,7 +104,7 @@ function LoginRequired() {
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Maia Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="mb-3 text-red-500" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">대국을 불러오지 못했습니다.</h1>
         <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">{message}</p>
@@ -256,7 +243,7 @@ function GameInfoPanel({
         >
           {pending && '요청을 처리하는 중입니다.'}
           {!pending && isPlayerTurn && '내 차례입니다. 말을 움직이세요.'}
-          {!pending && !isPlayerTurn && 'Maia 차례입니다.'}
+          {!pending && !isPlayerTurn && 'Maia3 차례입니다.'}
         </div>
       )}
 
@@ -288,7 +275,7 @@ function GameInfoPanel({
           </>
         )}
         <Link
-          href="/chess"
+          href="/chess/bot/maia3"
           className="inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-3 text-sm font-semibold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)]"
         >
           <PlusCircle size={16} />
@@ -303,7 +290,7 @@ function GameInfoPanel({
         </div>
         <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
           <dt className="text-xs text-[var(--color-text-subtle)]">모델</dt>
-          <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">Maia {game.model}</dd>
+          <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">Maia3 {game.model}</dd>
         </div>
         <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
           <dt className="text-xs text-[var(--color-text-subtle)]">내 색상</dt>
@@ -622,7 +609,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
     : undoMutation.isPending
       ? '무르기 처리 중'
       : moveMutation.isPending
-        ? 'Maia 생각 중'
+        ? 'Maia3 생각 중'
         : '';
 
   const handleUndo = () => {
@@ -667,7 +654,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
   }
 
   const isPlayerTurn = game.status === 'IN_PROGRESS' && game.turn === game.playerColor;
-  const maiaName = `Maia ${game.model} · ${game.rating}`;
+  const maiaName = `Maia3 ${game.model} · ${game.rating}`;
   const topColor: Color = orientation === 'white' ? 'b' : 'w';
   const bottomColor: Color = orientation === 'white' ? 'w' : 'b';
   const displayTurn = displayGame?.turn() ?? toChessJsColor(game.turn);
@@ -698,40 +685,20 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
         : 'Synced';
 
   return (
-    <ChessPageFrame>
-      <section className="flex min-w-0 flex-col gap-3 border-b border-[var(--color-line)] pb-5">
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2 text-[var(--color-accent)]">
-            <Swords size={24} className="shrink-0" />
-            <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)] md:text-3xl">
-              Maia 대국
-            </h1>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Link
-              href="/chess"
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
-            >
-              <Home size={16} />
-              로비
-            </Link>
-            <Link
-              href="/chess/history"
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
-            >
-              <History size={16} />
-              기록
-            </Link>
-          </div>
-        </div>
+    <ChessPageFrame
+      title="대국"
+      backHref="/chess/bot/maia3"
+      backLabel="Maia3"
+      actions={(
         <Link
-          href="/chess"
-          className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
+          href="/chess/history"
+          className="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
         >
-          <ChevronLeft size={15} />
-          새 대국 설정으로 돌아가기
+          <History size={16} />
+          기록
         </Link>
-      </section>
+      )}
+    >
 
       <section className="grid min-w-0 items-start justify-center gap-5 xl:grid-cols-[minmax(0,40rem)_22rem]">
         <WindowSurface
