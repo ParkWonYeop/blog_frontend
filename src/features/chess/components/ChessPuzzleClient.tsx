@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Chess as ChessGame, type Color, type Move, type Square } from 'chess.js';
@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { getTodayChessPuzzle } from '@/features/chess/api';
 import ChessBoard, { BOARD_SQUARES, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessPromotionPicker from '@/features/chess/components/ChessPromotionPicker';
+import { getKingInCheckSquare, pickMoveToSquare, type PromotionPiece } from '@/features/chess/lib';
+import { BOARD_SIZE_STYLE } from '@/features/chess/components/chessUi';
 import { formatKoreanDate } from '@/shared/lib/dates';
 import { queryKeys } from '@/shared/lib/queryKeys';
 import WindowSurface from '@/shared/ui/WindowSurface';
@@ -24,9 +27,6 @@ import { type ChessPuzzle } from '@/shared/types';
 type FeedbackTone = 'neutral' | 'success' | 'error';
 
 const TIMEZONE = 'Asia/Seoul';
-const BOARD_SIZE_STYLE: CSSProperties = {
-  width: 'min(100%, clamp(19rem, min(52vw, calc(100svh - 22.5rem)), 30rem))',
-};
 
 const turnLabel = (color: Color) => (color === 'w' ? '백' : '흑');
 
@@ -37,12 +37,6 @@ const getReadyFeedback = (puzzle: ChessPuzzle): { tone: FeedbackTone; message: s
     tone: 'neutral',
     message: `${turnLabel(game.turn())} 차례. 체크메이트를 찾으세요.`,
   };
-};
-
-const getPreferredMove = (moves: Move[], to: Square) => {
-  const candidates = moves.filter((move) => move.to === to);
-
-  return candidates.find((move) => move.promotion === 'q') ?? candidates[0] ?? null;
 };
 
 const formatDate = (value: string) => {
@@ -83,7 +77,7 @@ function ChessPageFrame({ children }: { children: ReactNode }) {
 function BoardWindow({ children }: { children: ReactNode }) {
   return (
     <WindowSurface title="Board" showTrafficLights={false} bodyClassName="p-2 md:p-3">
-      <div className="mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
+      <div className="relative mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
         {children}
       </div>
     </WindowSurface>
@@ -94,7 +88,7 @@ function LoadingState() {
   return (
     <ChessPageFrame>
       <PageHeader />
-      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,30rem)_20rem]">
+      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
           <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
             {BOARD_SQUARES.map((square, index) => (
@@ -147,9 +141,11 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [solved, setSolved] = useState(false);
   const [lastMoveSquares, setLastMoveSquares] = useState<MoveSquares | null>(null);
+  const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
   const [feedback, setFeedback] = useState(getReadyFeedback(puzzle));
 
   const game = useMemo(() => new ChessGame(currentFen), [currentFen]);
+  const checkSquare = useMemo(() => getKingInCheckSquare(game), [game]);
   const legalMoves = useMemo<Move[]>(() => {
     if (!selectedSquare || solved) return [];
 
@@ -162,6 +158,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
     setSelectedSquare(null);
     setSolved(false);
     setLastMoveSquares(null);
+    setPendingPromotion(null);
     setFeedback(getReadyFeedback(puzzle));
   };
 
@@ -184,11 +181,23 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
     return piece?.color === game.turn();
   };
 
-  const tryMove = (from: Square, to: Square) => {
+  const tryMove = (from: Square, to: Square, promotion?: PromotionPiece) => {
     if (solved || !isDraggablePuzzleSquare(from)) return;
 
     const movesFromSquare = game.moves({ square: from, verbose: true });
-    const candidate = getPreferredMove(movesFromSquare, to);
+    let candidate: Move | null;
+    if (promotion) {
+      candidate = movesFromSquare.find((move) => move.to === to && move.promotion === promotion) ?? null;
+    } else {
+      const picked = pickMoveToSquare(movesFromSquare, to);
+      if (picked.needsPromotion) {
+        setSelectedSquare(null);
+        setPendingPromotion({ from, to });
+        return;
+      }
+      candidate = picked.move;
+    }
+    setPendingPromotion(null);
 
     if (!candidate) {
       setFeedback({
@@ -269,18 +278,26 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
     <ChessPageFrame>
       <PageHeader />
 
-      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,30rem)_20rem]">
+      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
           <ChessBoard
             fen={currentFen}
             selectedSquare={selectedSquare}
             legalTargets={legalTargets}
             lastMoveSquares={lastMoveSquares}
-            disabled={solved}
+            checkSquare={checkSquare}
+            disabled={solved || Boolean(pendingPromotion)}
             isDraggableSquare={isDraggablePuzzleSquare}
             onSquareClick={handleSquareClick}
             onSquareDrop={tryMove}
           />
+          {pendingPromotion && (
+            <ChessPromotionPicker
+              color={game.turn()}
+              onSelect={(piece) => tryMove(pendingPromotion.from, pendingPromotion.to, piece)}
+              onCancel={() => setPendingPromotion(null)}
+            />
+          )}
         </BoardWindow>
 
         <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">

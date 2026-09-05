@@ -30,6 +30,8 @@ export interface ChessGameResponse {
   rating: number;
   playerColor: ChessColor;
   model: MaiaModel;
+  temperature?: number;
+  topP?: number;
   fen: string;
   turn: ChessColor;
   moves: string[];

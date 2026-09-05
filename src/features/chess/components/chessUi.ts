@@ -1,7 +1,13 @@
 import axios from 'axios';
+import type { CSSProperties } from 'react';
 import { formatKoreanReadableDate } from '@/shared/lib/dates';
 import { getErrorMessage } from '@/shared/lib/errors';
 import type { ChessOutcome } from '@/shared/types';
+
+/** 보드 폭: 화면 폭을 넘지 않는 선에서 최대 40rem, 세로가 짧은 화면에서만 높이에 맞춰 줄인다. */
+export const BOARD_SIZE_STYLE: CSSProperties = {
+  width: 'min(100%, clamp(19rem, calc(100svh - 12rem), 40rem))',
+};
 
 export type OutcomeFilter = 'ALL' | 'IN_PROGRESS' | 'WIN' | 'LOSS' | 'DRAW';
 

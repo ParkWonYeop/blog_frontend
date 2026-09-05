@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-09-05
+
+- Extended the Maia play screen: SAN move list with click/keyboard (←/→/Home/End) navigation through past positions, a promotion piece picker instead of auto-queen, king-in-check highlighting on the shared board, player bars with captured pieces/material balance, a board flip control (F key), a game-over banner with the termination reason and same-settings / swapped-color rematch, and PGN moved into a collapsible section.
+- Added `src/features/chess/lib.ts` for the pure helpers (UCI replay to SAN/FEN, material count, promotion detection, termination labels) plus `ChessMoveList` and `ChessPromotionPicker` components. The puzzle board reuses the check highlight and promotion picker so underpromotion mates are solvable.
+- Lobby now shows rating presets, a one-line hint per Maia model, and a "진행 중인 대국 이어서 두기" shortcut. `ChessGameResponse` gained optional `temperature`/`topP` (backend now returns them) so rematches keep advanced settings.
+- Validation: `npm run check`, `npm run build`, and `git diff --check` passed. A scratch esbuild+node self-check covered the pure lib helpers. Browser verification ran on a local `next dev` against a throwaway FastAPI mock of the chess API with a fake persisted session at 1440px: promotion picker → `bxa8=N`, move-list review mode and return, flip, checkmate banner with rematch buttons, lobby presets/resume CTA, and puzzle board rendered with no new console errors. The 390px mobile pass could not be captured because the automated window resize did not apply; the layout only adds flex-wrap/min-w-0 elements inside the existing responsive grid.
+- Enlarged the board after feedback: the shared `BOARD_SIZE_STYLE` in `chessUi.ts` now allows up to 40rem (was 30rem) and only shrinks for short viewports (`100svh - 12rem`), the play/puzzle grid columns widened to match, and piece glyphs scale up at `xl`. The board no longer always fits above the Dock without scrolling; a large board was preferred over that constraint.
+- Recommended next task: play one real authenticated game against the deployed Maia backend to confirm promotion and rematch round-trips, then check the play screen at a 390px viewport in devtools.
+
 ## 2026-07-13
 
 - Prepared the completed repository-wide structural refactor and contributor documentation for publication on `main`, including all new domain modules, extracted feature components, removed starter assets, and deployment-safe `public/.gitkeep`.

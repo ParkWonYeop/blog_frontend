@@ -2,6 +2,7 @@
 
 import { type FormEvent, type ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { clsx } from 'clsx';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -11,6 +12,7 @@ import {
   History,
   Loader2,
   LockKeyhole,
+  Play,
   Puzzle,
   Swords,
   Trophy,
@@ -39,6 +41,21 @@ const MODEL_OPTIONS: readonly SegmentedControlOption<MaiaModel>[] = [
   { label: '5m', value: '5m' },
   { label: '23m', value: '23m' },
   { label: '79m', value: '79m' },
+];
+
+const MODEL_HINTS: Record<MaiaModel, string> = {
+  '3m': '가장 가볍고 빠른 실험용 모델',
+  '5m': '가볍고 빠른 기본 모델',
+  '23m': '더 사람다운 수, 응답이 조금 느림',
+  '79m': '가장 정확하지만 가장 느리고 메모리를 많이 씀',
+};
+
+const RATING_PRESETS: readonly { label: string; value: number }[] = [
+  { label: '입문 800', value: 800 },
+  { label: '초급 1100', value: 1100 },
+  { label: '중급 1500', value: 1500 },
+  { label: '상급 1900', value: 1900 },
+  { label: '고수 2300', value: 2300 },
 ];
 
 const DEFAULT_FORM: ChessFormState = {
@@ -175,6 +192,7 @@ export default function ChessHomeClient() {
   });
 
   const recentGames = gamesQuery.data?.content ?? [];
+  const inProgressGame = recentGames.find((game) => game.outcome === 'IN_PROGRESS');
   const stats = statsQuery.data;
   const isLoadingData = statsQuery.isLoading || gamesQuery.isLoading;
   const hasDataError = statsQuery.isError || gamesQuery.isError;
@@ -269,6 +287,24 @@ export default function ChessHomeClient() {
                 onChange={(event) => setForm((previous) => ({ ...previous, rating: clampRating(Number(event.target.value) || DEFAULT_FORM.rating) }))}
                 className="mt-3 h-10 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
               />
+              <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="레이팅 프리셋">
+                {RATING_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    aria-pressed={form.rating === preset.value}
+                    onClick={() => setForm((previous) => ({ ...previous, rating: preset.value }))}
+                    className={clsx(
+                      'rounded-full border px-3 py-1 text-xs font-semibold transition',
+                      form.rating === preset.value
+                        ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]'
+                        : 'border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
+                    )}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -291,6 +327,7 @@ export default function ChessHomeClient() {
                   onChange={(model) => setForm((previous) => ({ ...previous, model }))}
                   className="w-full justify-center"
                 />
+                <p className="mt-2 text-xs text-[var(--color-text-subtle)]">{MODEL_HINTS[form.model]}</p>
               </div>
             </div>
 
@@ -345,6 +382,18 @@ export default function ChessHomeClient() {
             </div>
           ) : recentGames.length > 0 ? (
             <div className="divide-y divide-[var(--color-line)]">
+              {inProgressGame && (
+                <Link
+                  href={`/chess/play/${inProgressGame.gameId}`}
+                  className="mb-1 flex items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 dark:text-emerald-300"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Play size={15} className="shrink-0" />
+                    <span className="truncate">진행 중인 대국 이어서 두기</span>
+                  </span>
+                  <span className="shrink-0 text-xs font-medium">{inProgressGame.movesCount}수 · Maia {inProgressGame.model}</span>
+                </Link>
+              )}
               {recentGames.map((game) => (
                 <GameSummaryRow key={game.gameId} game={game} />
               ))}

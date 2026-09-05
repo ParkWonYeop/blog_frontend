@@ -26,6 +26,8 @@ interface ChessBoardProps {
   selectedSquare?: Square | null;
   legalTargets?: Set<Square>;
   lastMoveSquares?: MoveSquares | null;
+  /** 체크 상태인 킹의 칸 */
+  checkSquare?: Square | null;
   disabled?: boolean;
   isDraggableSquare?: (square: Square) => boolean;
   onSquareClick?: (square: Square) => void;
@@ -40,7 +42,7 @@ export const BOARD_SQUARES = WHITE_RANKS.flatMap((rank) =>
   FILES.map((file) => `${file}${rank}` as Square),
 );
 
-const PIECE_SYMBOLS: Record<Color, Record<PieceSymbol, string>> = {
+export const PIECE_SYMBOLS: Record<Color, Record<PieceSymbol, string>> = {
   w: {
     k: '♔',
     q: '♕',
@@ -193,6 +195,7 @@ export default function ChessBoard({
   selectedSquare,
   legalTargets,
   lastMoveSquares,
+  checkSquare,
   disabled = false,
   isDraggableSquare,
   onSquareClick,
@@ -226,6 +229,7 @@ export default function ChessBoard({
             const isSelected = selectedSquare === square;
             const isTarget = legalTargets?.has(square) ?? false;
             const isLastMoveSquare = lastMoveSquares?.from === square || lastMoveSquares?.to === square;
+            const isCheckSquare = checkSquare === square;
             const canDrag = !disabled && Boolean(piece) && (isDraggableSquare?.(square) ?? true);
             const file = square[0];
             const rank = square[1];
@@ -267,7 +271,7 @@ export default function ChessBoard({
                   !disabled && 'hover:brightness-[1.04] focus-visible:z-20',
                   disabled && 'cursor-not-allowed',
                 )}
-                aria-label={getSquareLabel(square, piece)}
+                aria-label={isCheckSquare ? `${getSquareLabel(square, piece)} 체크` : getSquareLabel(square, piece)}
                 aria-pressed={isSelected}
               >
                 {isLastMoveSquare && (
@@ -275,6 +279,9 @@ export default function ChessBoard({
                 )}
                 {isSelected && (
                   <span className="absolute inset-1 rounded border-2 border-[var(--color-accent)] bg-[var(--color-accent-soft)] shadow-[0_0_0_2px_rgb(255_255_255_/_0.28)_inset]" />
+                )}
+                {isCheckSquare && (
+                  <span className="absolute inset-0 rounded-sm bg-[radial-gradient(circle,rgb(239_68_68_/_0.75)_0%,rgb(239_68_68_/_0.35)_55%,transparent_75%)]" />
                 )}
                 {file === firstFile && (
                   <span
@@ -326,7 +333,7 @@ export default function ChessBoard({
               >
                 <span
                   className={clsx(
-                    'flex h-full w-full select-none items-center justify-center font-serif text-[2.5rem] font-bold leading-none transition-[transform,filter] duration-200 sm:text-[3rem] md:text-[3.6rem]',
+                    'flex h-full w-full select-none items-center justify-center font-serif text-[2.5rem] font-bold leading-none transition-[transform,filter] duration-200 sm:text-[3rem] md:text-[3.6rem] xl:text-[4.2rem]',
                     canDrag && 'cursor-grab active:cursor-grabbing',
                     isSelected && 'scale-110 -translate-y-0.5 brightness-110',
                     isLastMovePiece && 'scale-[1.04]',
