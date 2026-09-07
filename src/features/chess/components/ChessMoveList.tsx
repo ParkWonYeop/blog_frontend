@@ -13,10 +13,11 @@ interface ChessMoveListProps {
 }
 
 const navButtonClass =
-  'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8';
 
 export default function ChessMoveList({ history, currentPly, onSelectPly }: ChessMoveListProps) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const lastPly = history.length;
   const rows = Array.from({ length: Math.ceil(lastPly / 2) }, (_, index) => ({
     number: index + 1,
@@ -25,7 +26,15 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
   }));
 
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: 'nearest' });
+    const list = listRef.current;
+    const active = activeRef.current;
+    if (!list || !active) return;
+
+    // 기보 내부만 스크롤한다. 페이지가 기보로 이동하면 모바일에서 보드를 놓치게 된다.
+    const listRect = list.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    if (activeRect.top < listRect.top) list.scrollTop -= listRect.top - activeRect.top;
+    else if (activeRect.bottom > listRect.bottom) list.scrollTop += activeRect.bottom - listRect.bottom;
   }, [currentPly]);
 
   const renderPly = (entry?: HistoryEntry) => {
@@ -40,7 +49,7 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
         onClick={() => onSelectPly(entry.ply)}
         aria-current={isActive ? 'step' : undefined}
         className={clsx(
-          'w-full rounded px-2 py-0.5 text-left font-mono text-sm transition',
+          'min-h-11 w-full rounded px-2 py-0.5 text-left font-mono text-sm transition sm:min-h-0',
           isActive
             ? 'bg-[var(--color-accent)] font-semibold text-white'
             : 'text-[var(--color-text)] hover:bg-[var(--color-accent-soft)]',
@@ -53,7 +62,7 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-bold text-[var(--color-text)]">
           기보
           <span className="ml-1.5 text-xs font-semibold text-[var(--color-text-subtle)]">
@@ -76,7 +85,7 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
         </div>
       </div>
 
-      <div className="max-h-52 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-black/[0.025] p-1 dark:bg-white/[0.06]">
+      <div ref={listRef} className="max-h-40 overflow-y-auto overscroll-contain rounded-lg border border-[var(--color-line)] bg-black/[0.025] p-1 sm:max-h-52 dark:bg-white/[0.06]">
         {rows.length === 0 ? (
           <p className="px-2 py-3 text-center text-xs text-[var(--color-text-subtle)]">아직 둔 수가 없습니다.</p>
         ) : (

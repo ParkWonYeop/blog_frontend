@@ -52,7 +52,7 @@ const formatDate = (value: string) => {
 
 function BoardWindow({ children }: { children: ReactNode }) {
   return (
-    <WindowSurface title="Board" showTrafficLights={false} bodyClassName="p-2 md:p-3">
+    <WindowSurface title="체스 보드" showTrafficLights={false} bodyClassName="p-1 sm:p-2 md:p-3">
       <div className="relative mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
         {children}
       </div>
@@ -63,7 +63,7 @@ function BoardWindow({ children }: { children: ReactNode }) {
 function LoadingState() {
   return (
     <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
-      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
+      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
           <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
             {BOARD_SQUARES.map((square, index) => (
@@ -97,7 +97,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
         >
           <RotateCcw size={16} />
           다시 시도
@@ -248,26 +248,65 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   return (
     <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
 
-      <section className="grid min-w-0 items-start justify-center gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
+      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
-          <ChessBoard
-            fen={currentFen}
-            selectedSquare={selectedSquare}
-            legalTargets={legalTargets}
-            lastMoveSquares={lastMoveSquares}
-            checkSquare={checkSquare}
-            disabled={solved || Boolean(pendingPromotion)}
-            isDraggableSquare={isDraggablePuzzleSquare}
-            onSquareClick={handleSquareClick}
-            onSquareDrop={tryMove}
-          />
-          {pendingPromotion && (
-            <ChessPromotionPicker
-              color={game.turn()}
-              onSelect={(piece) => tryMove(pendingPromotion.from, pendingPromotion.to, piece)}
-              onCancel={() => setPendingPromotion(null)}
+          <div role="status" aria-live="polite"
+            className={clsx(
+              'mb-2 break-words rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
+              feedback.tone === 'success' && 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+              feedback.tone === 'error' && 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300',
+              feedback.tone === 'neutral' && 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+            )}
+          >
+            {feedback.message}
+          </div>
+          <div className="relative">
+            <ChessBoard
+              fen={currentFen}
+              selectedSquare={selectedSquare}
+              legalTargets={legalTargets}
+              lastMoveSquares={lastMoveSquares}
+              checkSquare={checkSquare}
+              disabled={solved || Boolean(pendingPromotion)}
+              isDraggableSquare={isDraggablePuzzleSquare}
+              onSquareClick={handleSquareClick}
+              onSquareDrop={tryMove}
             />
+            {pendingPromotion && (
+              <ChessPromotionPicker
+                color={game.turn()}
+                onSelect={(piece) => tryMove(pendingPromotion.from, pendingPromotion.to, piece)}
+                onCancel={() => setPendingPromotion(null)}
+              />
+            )}
+          </div>
+          {!solved && (
+            <p className="px-1 py-2 text-center text-xs leading-5 text-[var(--color-text-muted)]">
+              {selectedSquare ? `${selectedSquare} 선택 · 표시된 칸을 누르세요` : '말과 이동할 칸을 차례로 누르거나, 말을 끌어 놓으세요.'}
+            </p>
           )}
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={resetPuzzle}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
+              aria-label="다시 시작"
+              title="다시 시작"
+            >
+              <RotateCcw size={18} />
+              다시 시작
+            </button>
+            <button
+              type="button"
+              onClick={showHint}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
+              aria-label="힌트"
+              title="힌트"
+            >
+              <Lightbulb size={18} />
+              힌트
+            </button>
+          </div>
         </BoardWindow>
 
         <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
@@ -284,17 +323,6 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
             {solved && <CheckCircle2 size={24} className="shrink-0 text-emerald-500" />}
           </div>
 
-          <div
-            className={clsx(
-              'mb-4 break-words rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
-              feedback.tone === 'success' && 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-              feedback.tone === 'error' && 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300',
-              feedback.tone === 'neutral' && 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
-            )}
-          >
-            {feedback.message}
-          </div>
-
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
               <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
@@ -307,27 +335,6 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
               </dd>
             </div>
           </dl>
-
-          <div className="mt-5 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={resetPuzzle}
-              className="inline-flex h-10 items-center justify-center rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
-              aria-label="다시 시작"
-              title="다시 시작"
-            >
-              <RotateCcw size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={showHint}
-              className="inline-flex h-10 items-center justify-center rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
-              aria-label="힌트"
-              title="힌트"
-            >
-              <Lightbulb size={18} />
-            </button>
-          </div>
 
           <a
             href={puzzle.sourceUrl}

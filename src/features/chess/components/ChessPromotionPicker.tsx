@@ -26,11 +26,11 @@ export default function ChessPromotionPicker({ color, onSelect, onCancel }: Ches
       onClick={onCancel}
     >
       <div
-        className="flex flex-col items-center gap-3 rounded-xl border border-white/20 bg-[var(--window-bg)] px-4 py-4 shadow-[var(--shadow-window)]"
+        className="flex w-full max-w-80 flex-col items-center gap-3 rounded-xl border border-white/20 bg-[var(--window-bg)] p-3 shadow-[var(--shadow-window)]"
         onClick={(event) => event.stopPropagation()}
       >
         <p className="text-sm font-bold text-[var(--color-text)]">승격할 기물을 고르세요</p>
-        <div className="flex items-center gap-2">
+        <div className="grid w-full grid-cols-4 gap-2">
           {OPTIONS.map(({ piece, label }) => (
             <button
               key={piece}
@@ -39,13 +39,14 @@ export default function ChessPromotionPicker({ color, onSelect, onCancel }: Ches
               onClick={() => onSelect(piece)}
               aria-label={label}
               title={label}
-              className="flex h-14 w-14 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] font-serif text-[2.4rem] leading-none text-[var(--color-text)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
-              {PIECE_SYMBOLS[color][piece]}
+              <span aria-hidden="true" className="font-serif text-[2rem] leading-none">{PIECE_SYMBOLS[color][piece]}</span>
+              <span className="text-xs font-semibold">{label}</span>
             </button>
           ))}
         </div>
-        <button type="button" onClick={onCancel} className="text-xs font-semibold text-[var(--color-text-subtle)] hover:text-[var(--color-text)]">
+        <button type="button" onClick={onCancel} className="min-h-11 w-full rounded-lg text-sm font-semibold text-[var(--color-text-subtle)] hover:text-[var(--color-text)]">
           취소
         </button>
       </div>

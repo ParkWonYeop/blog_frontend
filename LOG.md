@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-09-07 (mobile chess usability)
+
+- Replaced the shared board's HTML drag-and-drop with Pointer Events for mouse, touch, and pen. Kept tap-to-select/tap-to-move, added an 8px drag threshold, legal destination highlighting and a moving piece preview, and guarded cancelled, disabled, stale-position, and out-of-board drops. Only draggable pieces suppress touch scrolling; the rest of the page remains scrollable.
+- Reduced chess-only mobile shell/frame/board padding, made single-column board grids explicit, and sized piece glyphs from the actual board width. Enlarged play, history-navigation, and promotion controls; promotion choices now show Korean names. Moved puzzle feedback/hint/reset next to the board and game actions before the move list; added selection guidance and Korean turn/review labels.
+- Limited automatic history scrolling to the move-list container so incoming moves cannot pull the page away from the board. Fixed visual-piece reconciliation mutating a ref inside a state updater, which could leave glyphs on their old squares under React Strict Mode; FEN and visual-piece state now update together.
+- Validation: `npm run check`, `npm run build`, and `git diff --check` passed. Build retained existing workspace-root/Node warnings and a public-post fetch warning because the local API was unavailable. In-app browser checks used temporary isolated component fixtures (removed before build), not API/session mocks: 320px, 390px, and 1440px had no horizontal overflow; checked sequential selection moves, pointer drags in both orientations, invalid-drop recovery, disabled input, promotion selection/cancellation (62×64px choices even at 320px), and 80-ply history updates with page scroll staying at 0. Rechecked consecutive glyph positions and dragging after the final reconciliation fix; no browser warnings/errors in the fixture. Real `/play/chess` error and `/chess/online` login states were also checked on mobile.
+- Limitations: the backend and authenticated session were unavailable, so real puzzle fetching and bot/online round-trips were not exercised. Responsive browser tests used mouse-generated pointer input; physical touch/pen gestures still need device validation.
+- Recommended next task: play a real game in iOS Safari and Android Chrome, checking tap/drag, scroll gestures, promotion, and incoming online moves after deployment.
+
 ## 2026-09-05 (online play)
 
 - Added WebSocket online play under the Online tile: `/chess/online` lobby with a time-control picker (블리츠 1·3분, 래피드 10분·15|10·30|15), random-queue matching, and invite codes/links (`/chess/online/join/[code]`); `/chess/online/[gameId]` play screen with server-authoritative clocks, draw offer/accept/decline, resign, opponent-disconnect countdown, reconnect banner, and the shared board/move-list/promotion components.

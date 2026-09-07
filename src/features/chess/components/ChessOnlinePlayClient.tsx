@@ -62,7 +62,7 @@ const isTypingTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
 
 const secondaryButtonClass =
-  'inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
 
 function Gate({ icon, title, children }: { icon: ReactNode; title: string; children?: ReactNode }) {
   return (
@@ -155,7 +155,7 @@ export default function ChessOnlinePlayClient({ gameId }: ChessOnlinePlayClientP
       <Gate icon={<LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />} title="로그인이 필요합니다.">
         <Link
           href={`/login?redirect=/chess/online/${gameId}`}
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -401,7 +401,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
     if (isAuthError(gameQuery.error)) {
       return (
         <Gate icon={<LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />} title="로그인이 필요합니다.">
-          <Link href={`/login?redirect=/chess/online/${gameId}`} className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white">
+          <Link href={`/login?redirect=/chess/online/${gameId}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white">
             로그인
           </Link>
         </Gate>
@@ -443,14 +443,14 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
   );
   const connectionNotice = connectionLabel[socketStatus];
   const boardSubtitle = isReviewing
-    ? `Reviewing ${currentPly} / ${livePly}`
+    ? `복기 ${currentPly} / ${livePly}수`
     : !inProgress
-      ? 'Finished'
+      ? '대국 종료'
       : game.turn === myColor
         ? checkSquare
-          ? 'Check!'
-          : 'Your move'
-        : 'Waiting';
+          ? '체크! 킹을 보호하세요'
+          : '내 차례'
+        : '상대 차례';
 
   return (
     <ChessPageFrame title="온라인 대국" backHref="/chess/online" backLabel="Online">
@@ -468,9 +468,9 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
         </div>
       )}
 
-      <section className="grid min-w-0 items-start justify-center gap-5 xl:grid-cols-[minmax(0,40rem)_22rem]">
+      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 xl:grid-cols-[minmax(0,40rem)_22rem]">
         <WindowSurface
-          title="Board"
+          title="체스 보드"
           subtitle={boardSubtitle}
           showTrafficLights={false}
           controls={(
@@ -480,12 +480,12 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               aria-pressed={flipped}
               aria-label="보드 뒤집기"
               title="보드 뒤집기 (F)"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+              className="inline-flex h-11 w-11 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
             >
               <ArrowUpDown size={15} />
             </button>
           )}
-          bodyClassName="p-2 md:p-3"
+          bodyClassName="p-1 sm:p-2 md:p-3"
         >
           <div className="mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
             {barFor(topColor)}
@@ -509,13 +509,18 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 <button
                   type="button"
                   onClick={() => setViewPly(null)}
-                  className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/25 bg-black/62 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_rgb(0_0_0_/_0.28)] backdrop-blur-md transition hover:bg-black/75"
+                  className="absolute bottom-3 left-1/2 z-30 w-max max-w-[95%] -translate-x-1/2 rounded-full border border-white/25 bg-black/62 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_rgb(0_0_0_/_0.28)] backdrop-blur-md transition hover:bg-black/75"
                 >
                   {currentPly}수 국면 보는 중 · 현재로 돌아가기
                 </button>
               )}
             </div>
             {barFor(bottomColor)}
+            {canInteract && (
+              <p role="status" className="px-1 py-2 text-center text-xs leading-5 text-[var(--color-text-muted)]">
+                {selectedSquare ? `${selectedSquare} 선택 · 표시된 칸을 누르세요` : '말과 이동할 칸을 차례로 누르거나, 말을 끌어 놓으세요.'}
+              </p>
+            )}
           </div>
         </WindowSurface>
 
@@ -545,10 +550,10 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 <div className="mt-3 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)] px-3 py-3">
                   <p className="text-sm font-semibold text-[var(--color-text)]">{opponent.nickname}님이 무승부를 제안했습니다.</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-white">
+                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-white">
                       수락
                     </button>
-                    <button type="button" onClick={() => send({ type: 'DRAW_DECLINE', gameId })} className={`${secondaryButtonClass} h-9 text-xs`}>
+                    <button type="button" onClick={() => send({ type: 'DRAW_DECLINE', gameId })} className={`${secondaryButtonClass} min-h-11 text-xs`}>
                       거절
                     </button>
                   </div>
@@ -575,17 +580,13 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               </p>
               <Link
                 href="/chess/online"
-                className="mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
               >
                 <Shuffle size={14} />
                 새 대국 찾기
               </Link>
             </div>
           )}
-
-          <div className="mt-4">
-            <ChessMoveList history={history} currentPly={currentPly} onSelectPly={(ply) => { setSelectedSquare(null); setViewPly(ply >= livePly ? null : Math.max(ply, 0)); }} />
-          </div>
 
           {inProgress && (
             <div className="mt-4 grid grid-cols-2 gap-2">
@@ -602,13 +603,17 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 type="button"
                 onClick={handleResign}
                 disabled={socketStatus !== 'ready'}
-                className="inline-flex h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
               >
                 <Flag size={16} />
                 기권
               </button>
             </div>
           )}
+
+          <div className="mt-4">
+            <ChessMoveList history={history} currentPly={currentPly} onSelectPly={(ply) => { setSelectedSquare(null); setViewPly(ply >= livePly ? null : Math.max(ply, 0)); }} />
+          </div>
 
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
@@ -630,7 +635,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                   event.preventDefault();
                   copyPgn();
                 }}
-                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
               >
                 <Clipboard size={14} />
                 복사

@@ -63,7 +63,8 @@ export default function DesktopShell({ children }: { children: ReactNode }) {
       >
         <div
           className={clsx(
-            'mx-auto min-w-0 max-w-full px-3 pt-14 md:px-6 md:pt-16 lg:px-8',
+            'mx-auto min-w-0 max-w-full md:px-6 md:pt-16 lg:px-8',
+            isChessRoute ? 'px-1.5 pt-3' : 'px-3 pt-14',
             isChessRoute ? 'pb-44 md:pb-40' : isReaderRoute ? 'pb-44 md:pb-36' : 'pb-36 md:pb-32',
           )}
         >

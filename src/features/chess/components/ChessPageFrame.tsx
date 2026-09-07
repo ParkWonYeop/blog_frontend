@@ -13,11 +13,11 @@ interface ChessPageFrameProps {
 /** 체스 화면 공통 틀: 제목 줄(선택) + 본문. 제목이 없으면 본문만 감싼다. */
 export default function ChessPageFrame({ title, backHref, backLabel, actions, children }: ChessPageFrameProps) {
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1180px] flex-col gap-5 px-0 py-3 md:py-6">
+    <div className="mx-auto flex w-full min-w-0 max-w-[1180px] flex-col gap-3 px-0 py-1 sm:gap-5 md:py-6">
       {title && (
-        <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-5">
+        <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-2 sm:pb-5">
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-            <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)] md:text-3xl">
+            <h1 className="min-w-0 break-words text-xl font-bold sm:text-2xl tracking-normal text-[var(--color-text)] md:text-3xl">
               {title}
             </h1>
             {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
@@ -25,7 +25,7 @@ export default function ChessPageFrame({ title, backHref, backLabel, actions, ch
           {backHref && (
             <Link
               href={backHref}
-              className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
+              className="inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
             >
               <ChevronLeft size={15} />
               {backLabel ?? '뒤로'}
