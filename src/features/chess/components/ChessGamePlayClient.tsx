@@ -20,7 +20,12 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createChessGame, getChessGame, postChessMove, resignChessGame, undoChessMove } from '@/features/chess/api';
-import ChessBoard, { PIECE_SYMBOLS, getMoveSquares, getTurnLabel, toChessJsColor, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessBoard, { getMoveSquares, getTurnLabel, toChessJsColor, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessPiece from '@/features/chess/components/ChessPiece';
+import ChessPlayToolbar from '@/features/chess/components/ChessPlayToolbar';
+import ChessGameDetails from '@/features/chess/components/ChessGameDetails';
+import { usePageFocus } from '@/shared/layout/PageFocusContext';
+import { useChessMoveFeedback } from '@/features/chess/hooks/useChessFeedback';
 import ChessMoveList from '@/features/chess/components/ChessMoveList';
 import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
 import ChessPromotionPicker from '@/features/chess/components/ChessPromotionPicker';
@@ -153,7 +158,7 @@ function PlayerBar({
         {thinking && <Loader2 size={14} className="shrink-0 animate-spin text-[var(--color-text-subtle)]" aria-label="생각 중" />}
       </div>
       <div className="flex min-w-0 items-center gap-1 text-base leading-none text-[var(--color-text-muted)]" aria-label={captured.length ? `잡은 기물 ${captured.length}개` : undefined}>
-        <span className="truncate font-serif">{captured.map((piece) => PIECE_SYMBOLS[capturedColor][piece]).join('')}</span>
+        <span className="flex min-w-0 overflow-hidden">{captured.map((piece, index) => <ChessPiece key={`${piece}-${index}`} color={capturedColor} type={piece} className="h-5 w-4 shrink-0" />)}</span>
         {advantage > 0 && <span className="text-xs font-bold tabular-nums text-[var(--color-text-subtle)]">+{advantage}</span>}
       </div>
     </div>
@@ -328,6 +333,7 @@ function GameInfoPanel({
 export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { isFocused } = usePageFocus();
   const { isLoggedIn, _hasHydrated } = useAuthStore();
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [optimisticFen, setOptimisticFen] = useState<string | null>(null);
@@ -432,6 +438,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
   const isReviewing = viewPly !== null && viewPly < livePly;
   const currentPly = isReviewing ? viewPly : livePly;
   const liveFen = optimisticFen ?? game?.fen ?? START_FEN;
+  useChessMoveFeedback(game ? liveFen : undefined, livePly + (optimisticFen ? 1 : 0), gameId);
   const displayFen = isReviewing ? getFenAtPly(history, viewPly) : liveFen;
   const displayGame = useMemo(() => createGame(displayFen), [displayFen]);
   const playerColor = game ? toChessJsColor(game.playerColor) : null;
@@ -463,12 +470,13 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
+      if ((event.target instanceof Element && event.target.closest('[role="dialog"]')) || isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
 
       const goTo = (ply: number) => {
         event.preventDefault();
         setSelectedSquare(null);
-        setViewPly(Math.min(Math.max(ply, 0), livePly));
+        const targetPly = Math.min(Math.max(ply, 0), livePly);
+        setViewPly(targetPly >= livePly ? null : targetPly);
       };
 
       switch (event.key) {
@@ -700,7 +708,8 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
       )}
     >
 
-      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 xl:grid-cols-[minmax(0,40rem)_22rem]">
+      <ChessPlayToolbar />
+      <section className={clsx('grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5', !isFocused && 'xl:grid-cols-[minmax(0,40rem)_22rem]')}>
         <WindowSurface
           title="체스 보드"
           subtitle={boardSubtitle}
@@ -756,6 +765,12 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
               )}
             </div>
             {barFor(bottomColor, 'bottom')}
+            {isFocused && game.status === 'IN_PROGRESS' && (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <button type="button" onClick={handleUndo} disabled={!canUndo} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-sm font-semibold text-[var(--color-text-muted)] disabled:opacity-50"><Undo2 size={16} />무르기</button>
+                <button type="button" onClick={handleResign} disabled={!canResign} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 text-sm font-semibold text-red-700 disabled:opacity-50 dark:text-red-300"><Flag size={16} />기권</button>
+              </div>
+            )}
             {canInteract && (
               <p role="status" className="px-1 py-2 text-center text-xs leading-5 text-[var(--color-text-muted)]">
                 {selectedSquare ? `${selectedSquare} 선택 · 표시된 칸을 누르세요` : '말과 이동할 칸을 차례로 누르거나, 말을 끌어 놓으세요.'}
@@ -764,21 +779,23 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
           </div>
         </WindowSurface>
 
-        <GameInfoPanel
-          game={game}
-          isPlayerTurn={isPlayerTurn}
-          pending={isPending}
-          canUndo={canUndo}
-          canResign={canResign}
-          rematchPending={rematchMutation.isPending}
-          currentPly={currentPly}
-          history={history}
-          onSelectPly={handleSelectPly}
-          onCopyPgn={copyPgn}
-          onUndo={handleUndo}
-          onResign={handleResign}
-          onRematch={(swapColor) => rematchMutation.mutate(swapColor)}
-        />
+        <ChessGameDetails ended={game.status !== 'IN_PROGRESS'}>
+          <GameInfoPanel
+            game={game}
+            isPlayerTurn={isPlayerTurn}
+            pending={isPending}
+            canUndo={canUndo}
+            canResign={canResign}
+            rematchPending={rematchMutation.isPending}
+            currentPly={currentPly}
+            history={history}
+            onSelectPly={handleSelectPly}
+            onCopyPgn={copyPgn}
+            onUndo={handleUndo}
+            onResign={handleResign}
+            onRematch={(swapColor) => rematchMutation.mutate(swapColor)}
+          />
+        </ChessGameDetails>
       </section>
     </ChessPageFrame>
   );

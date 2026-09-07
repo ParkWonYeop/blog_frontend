@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { Chess as ChessGame, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { clsx } from 'clsx';
+import ChessPiece from '@/features/chess/components/ChessPiece';
 import type { ChessColor } from '@/shared/types';
 
 export type MoveSquares = {
@@ -54,25 +55,6 @@ const BLACK_RANKS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 export const BOARD_SQUARES = WHITE_RANKS.flatMap((rank) =>
   FILES.map((file) => `${file}${rank}` as Square),
 );
-
-export const PIECE_SYMBOLS: Record<Color, Record<PieceSymbol, string>> = {
-  w: {
-    k: '♔',
-    q: '♕',
-    r: '♖',
-    b: '♗',
-    n: '♘',
-    p: '♙',
-  },
-  b: {
-    k: '♚',
-    q: '♛',
-    r: '♜',
-    b: '♝',
-    n: '♞',
-    p: '♟',
-  },
-};
 
 const PIECE_NAMES: Record<PieceSymbol, string> = {
   k: '킹',
@@ -402,16 +384,13 @@ export default function ChessBoard({
               >
                 <span
                   className={clsx(
-                    'flex h-full w-full select-none items-center justify-center font-serif text-[10cqw] font-bold leading-none transition-[transform,filter] duration-200',
+                    'flex h-full w-full select-none items-center justify-center drop-shadow-[0_2px_2px_rgb(15_23_42_/_0.22)] transition-[transform,filter] duration-200 motion-reduce:transition-none',
                     canDrag && 'cursor-grab active:cursor-grabbing',
                     isSelected && 'scale-110 -translate-y-0.5 brightness-110',
                     isLastMovePiece && 'scale-[1.04]',
-                    piece.color === 'w'
-                      ? 'text-[#fffdf7] [text-shadow:0_1px_2px_rgb(0_0_0_/_0.48),0_0_1px_rgb(0_0_0_/_0.72),0_5px_9px_rgb(15_23_42_/_0.2)]'
-                      : 'text-[#151922] [text-shadow:0_1px_0_rgb(255_255_255_/_0.72),0_0_1px_rgb(255_255_255_/_0.82),0_5px_9px_rgb(15_23_42_/_0.2)]',
                   )}
                 >
-                  {PIECE_SYMBOLS[piece.color][piece.type]}
+                  <ChessPiece color={piece.color} type={piece.type} className="h-full w-full" />
                 </span>
               </span>
             );

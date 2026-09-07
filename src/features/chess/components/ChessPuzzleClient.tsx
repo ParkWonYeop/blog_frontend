@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 import { getTodayChessPuzzle } from '@/features/chess/api';
 import ChessBoard, { BOARD_SQUARES, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessPlayToolbar from '@/features/chess/components/ChessPlayToolbar';
+import ChessGameDetails from '@/features/chess/components/ChessGameDetails';
+import { usePageFocus } from '@/shared/layout/PageFocusContext';
+import { useChessMoveFeedback } from '@/features/chess/hooks/useChessFeedback';
 import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
 import ChessPromotionPicker from '@/features/chess/components/ChessPromotionPicker';
 import { getKingInCheckSquare, pickMoveToSquare, type PromotionPiece } from '@/features/chess/lib';
@@ -108,6 +112,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
+  const { isFocused } = usePageFocus();
   const [currentFen, setCurrentFen] = useState(puzzle.fen);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [solved, setSolved] = useState(false);
@@ -115,6 +120,7 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
   const [feedback, setFeedback] = useState(getReadyFeedback(puzzle));
 
+  useChessMoveFeedback(currentFen, solved ? 1 : 0, `puzzle:${puzzle.id}`);
   const game = useMemo(() => new ChessGame(currentFen), [currentFen]);
   const checkSquare = useMemo(() => getKingInCheckSquare(game), [game]);
   const legalMoves = useMemo<Move[]>(() => {
@@ -248,7 +254,8 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
   return (
     <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
 
-      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
+      <ChessPlayToolbar />
+      <section className={clsx('grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5', !isFocused && 'lg:grid-cols-[minmax(0,40rem)_20rem]')}>
         <BoardWindow>
           <div role="status" aria-live="polite"
             className={clsx(
@@ -309,43 +316,45 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
           </div>
         </BoardWindow>
 
-        <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
-          <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">
-                {formatDate(puzzle.date)}
-              </p>
-              <h2 className="mt-1 break-words text-xl font-bold tracking-normal text-[var(--color-text)]">
-                {puzzle.title}
-              </h2>
-              <p className="mt-1 break-words text-sm text-[var(--color-text-muted)]">{puzzle.theme}</p>
+        <ChessGameDetails ended={solved} label="퍼즐 정보">
+          <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+            <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">
+                  {formatDate(puzzle.date)}
+                </p>
+                <h2 className="mt-1 break-words text-xl font-bold tracking-normal text-[var(--color-text)]">
+                  {puzzle.title}
+                </h2>
+                <p className="mt-1 break-words text-sm text-[var(--color-text-muted)]">{puzzle.theme}</p>
+              </div>
+              {solved && <CheckCircle2 size={24} className="shrink-0 text-emerald-500" />}
             </div>
-            {solved && <CheckCircle2 size={24} className="shrink-0 text-emerald-500" />}
-          </div>
 
-          <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-              <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
-              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{puzzle.rating}</dd>
-            </div>
-            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-              <dt className="text-xs text-[var(--color-text-subtle)]">정답</dt>
-              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">
-                {solved ? puzzle.answer : '숨김'}
-              </dd>
-            </div>
-          </dl>
+            <dl className="grid grid-cols-2 gap-3 text-sm">
+              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+                <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
+                <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{puzzle.rating}</dd>
+              </div>
+              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+                <dt className="text-xs text-[var(--color-text-subtle)]">정답</dt>
+                <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">
+                  {solved ? puzzle.answer : '숨김'}
+                </dd>
+              </div>
+            </dl>
 
-          <a
-            href={puzzle.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex max-w-full items-center gap-1.5 break-words text-xs font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
-          >
-            <span className="truncate">Lichess 원문</span>
-            <ExternalLink size={13} className="shrink-0" />
-          </a>
-        </WindowSurface>
+            <a
+              href={puzzle.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex max-w-full items-center gap-1.5 break-words text-xs font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
+            >
+              <span className="truncate">Lichess 원문</span>
+              <ExternalLink size={13} className="shrink-0" />
+            </a>
+          </WindowSurface>
+        </ChessGameDetails>
       </section>
     </ChessPageFrame>
   );

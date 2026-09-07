@@ -40,7 +40,7 @@ export const formatClock = (millis: number) => {
 
 export default function ChessClock({ millis, receivedAt, running, active }: ChessClockProps) {
   const now = useNow(100, running);
-  const remaining = running ? millis - (now - receivedAt) : millis;
+  const remaining = running ? millis - Math.max(0, now - receivedAt) : millis;
   const isLow = active && remaining < 10_000;
 
   return (
@@ -53,9 +53,9 @@ export default function ChessClock({ millis, receivedAt, running, active }: Ches
             : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
           : 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
       )}
-      aria-live={isLow ? 'polite' : undefined}
     >
-      {formatClock(remaining)}
+      <span>{formatClock(remaining)}</span>
+      <span role="status" className="sr-only">{isLow ? '남은 시간이 10초 미만입니다.' : ''}</span>
     </span>
   );
 }

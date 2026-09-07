@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Minimize2 } from 'lucide-react';
+import { clsx } from 'clsx';
+import { usePageFocus } from '@/shared/layout/PageFocusContext';
 
 interface ChessPageFrameProps {
   title?: string;
@@ -12,9 +16,18 @@ interface ChessPageFrameProps {
 
 /** 체스 화면 공통 틀: 제목 줄(선택) + 본문. 제목이 없으면 본문만 감싼다. */
 export default function ChessPageFrame({ title, backHref, backLabel, actions, children }: ChessPageFrameProps) {
+  const { isFocused, setFocused } = usePageFocus();
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1180px] flex-col gap-3 px-0 py-1 sm:gap-5 md:py-6">
-      {title && (
+    <div className={clsx('mx-auto flex w-full min-w-0 flex-col gap-3 px-0 py-1', isFocused ? 'max-w-[44rem]' : 'max-w-[1180px] sm:gap-5 md:py-6')}>
+      {isFocused && (
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-sm font-semibold text-[var(--color-text)]">{title ?? '체스'}</h1>
+          <button type="button" onClick={() => setFocused(false)} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-control)]">
+            <Minimize2 size={16} /> 집중 모드 해제
+          </button>
+        </div>
+      )}
+      {title && !isFocused && (
         <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-2 sm:pb-5">
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
             <h1 className="min-w-0 break-words text-xl font-bold sm:text-2xl tracking-normal text-[var(--color-text)] md:text-3xl">

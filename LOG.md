@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-09-07 (chess focus, feedback, and resume)
+
+- Added focus mode to bot, online, and puzzle play: hide the blog sidebar/menu/Dock, center the board, and collapse secondary information. Keep undo/resign/draw responses and puzzle actions near the board, reveal results when play ends, and restore the shell on exit or route changes.
+- Replaced blanket online state resets with a reducer that preserves selection, promotion, and review during clock/connection/draw updates. Actual moves clear stale move input while valid review positions remain selected. Ignore older snapshots, retain optimistic moves through metadata updates, and request authoritative state after reconnect or an 8-second acknowledgement delay without resending a move.
+- Replaced system-font chess glyphs with original SVG pieces on the board, promotion picker, and captured-piece displays. Added optional move/check/low-time sound and vibration, gesture-based audio activation, unsupported-browser handling, and mute/leave audio suspension. Preferences default off and use the new `wyp-chess-preferences` storage key; existing storage keys and API contracts remain unchanged.
+- Changed the mobile chess hub to two columns and added authenticated online/bot resume links, including paginated lookup of older unfinished bot games, loading states, and retry controls. No dependency changes.
+- Validation: `npm run check`, `npm run build`, `node --test tests/chess-state.test.mjs` (14 tests), and `git diff --check` passed. Build retained existing workspace-root/Node warnings and a public-post fetch warning because the API was unavailable. Browser checks covered the real public hub and temporary isolated component fixtures (removed before build), with no API/auth mocks: focus entry/exit and route restoration, metadata preserving selection/promotion, incoming moves preserving review, automatic result visibility, persisted sound toggles, vector contrast in light/dark themes, and no horizontal overflow at 320px, 390px, and 1440px. Checked a single main landmark, duplicate IDs, and console warnings/errors in the fixture.
+- Limitations: authenticated bot/online round-trips and populated resume links could not be exercised without a backend/session. Responsive checks used mouse pointer input; physical-device audio, vibration, and touch behavior remain unverified.
+- Recommended next task: play authenticated bot and online games on iOS Safari and Android Chrome, checking focus mode, resume links, reconnect during promotion/review, and opt-in low-time alerts.
+
 ## 2026-09-07 (mobile chess usability)
 
 - Replaced the shared board's HTML drag-and-drop with Pointer Events for mouse, touch, and pen. Kept tap-to-select/tap-to-move, added an 8px drag threshold, legal destination highlighting and a moving piece preview, and guarded cancelled, disabled, stale-position, and out-of-board drops. Only draggable pieces suppress touch scrolling; the rest of the page remains scrollable.

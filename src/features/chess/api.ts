@@ -1,4 +1,5 @@
 import { http } from '@/shared/api/http';
+import { getPageMeta } from '@/shared/lib/pagination';
 import type {
   ApiResponse,
   ChessGameCreateRequest,
@@ -38,16 +39,30 @@ export const getChessGames = async ({
   page = 0,
   size = 20,
   sort = 'updatedAt,desc',
+  signal,
 }: {
   page?: number;
   size?: number;
   sort?: string;
+  signal?: AbortSignal;
 } = {}) => {
   const response = await http.get<ApiResponse<ChessGamePageResponse>>('/api/chess/games', {
     params: { page, size, sort },
+    signal,
   });
 
   return requireApiData(response.data, '대국 기록을 불러오지 못했습니다.');
+};
+
+/** Find the most recently updated unfinished bot game, including older history pages. */
+export const getActiveChessGame = async (signal?: AbortSignal) => {
+  for (let page = 0; ; page += 1) {
+    const games = await getChessGames({ page, size: 50, signal });
+    const active = games.content.find((game) => game.status === 'IN_PROGRESS');
+    if (active) return active;
+    const meta = getPageMeta(games);
+    if (games.content.length === 0 || meta.last || page + 1 >= meta.totalPages) return null;
+  }
 };
 
 export const getChessGameStats = async () => {

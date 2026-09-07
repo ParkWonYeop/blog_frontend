@@ -1,7 +1,7 @@
 'use client';
 
 import type { Color } from 'chess.js';
-import { PIECE_SYMBOLS } from '@/features/chess/components/ChessBoard';
+import ChessPiece from '@/features/chess/components/ChessPiece';
 import type { PromotionPiece } from '@/features/chess/lib';
 
 interface ChessPromotionPickerProps {
@@ -41,7 +41,7 @@ export default function ChessPromotionPicker({ color, onSelect, onCancel }: Ches
               title={label}
               className="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
-              <span aria-hidden="true" className="font-serif text-[2rem] leading-none">{PIECE_SYMBOLS[color][piece]}</span>
+              <ChessPiece color={color} type={piece} className="h-10 w-10" />
               <span className="text-xs font-semibold">{label}</span>
             </button>
           ))}

@@ -1,14 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Chess as ChessGame, type Color, type Move, type PieceSymbol, type Square } from 'chess.js';
 import { clsx } from 'clsx';
 import { AlertCircle, ArrowUpDown, Clipboard, Flag, Handshake, Loader2, LockKeyhole, RotateCcw, Shuffle, WifiOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getOnlineGame } from '@/features/chess/api';
-import ChessBoard, { PIECE_SYMBOLS, getTurnLabel, toChessJsColor, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessBoard, { getTurnLabel, toChessJsColor, type MoveSquares } from '@/features/chess/components/ChessBoard';
+import ChessPiece from '@/features/chess/components/ChessPiece';
+import ChessPlayToolbar from '@/features/chess/components/ChessPlayToolbar';
+import ChessGameDetails from '@/features/chess/components/ChessGameDetails';
+import { usePageFocus } from '@/shared/layout/PageFocusContext';
+import { useChessMoveFeedback, useChessLowTimeFeedback } from '@/features/chess/hooks/useChessFeedback';
+import { initialOnlineUiState, onlineGameReducer, type OnlineSnapshot } from '@/features/chess/online/gameState';
 import ChessClock, { useNow } from '@/features/chess/components/ChessClock';
 import ChessMoveList from '@/features/chess/components/ChessMoveList';
 import ChessPageFrame from '@/features/chess/components/ChessPageFrame';
@@ -37,16 +43,6 @@ import type { ChessColor, OnlineGameResponse, OnlinePlayerResponse, OnlineServer
 interface ChessOnlinePlayClientProps {
   gameId: string;
 }
-
-type Snapshot = {
-  game: OnlineGameResponse;
-  receivedAt: number;
-};
-
-type PendingPromotion = {
-  from: Square;
-  to: Square;
-};
 
 const createGame = (fen: string) => {
   try {
@@ -122,8 +118,8 @@ function PlayerBar({
             연결 끊김{forfeitSeconds !== null && ` · ${forfeitSeconds}초`}
           </span>
         )}
-        <span className="truncate font-serif text-base leading-none text-[var(--color-text-muted)]">
-          {captured.map((piece) => PIECE_SYMBOLS[capturedColor][piece]).join('')}
+        <span className="flex min-w-0 overflow-hidden" aria-label={`잡은 기물 ${captured.length}개`}>
+          {captured.map((piece, index) => <ChessPiece key={`${piece}-${index}`} color={capturedColor} type={piece} className="h-5 w-4 shrink-0" />)}
         </span>
         {advantage > 0 && <span className="text-xs font-bold tabular-nums text-[var(--color-text-subtle)]">+{advantage}</span>}
       </div>
@@ -163,18 +159,22 @@ export default function ChessOnlinePlayClient({ gameId }: ChessOnlinePlayClientP
     );
   }
 
-  return <OnlineGame gameId={gameId} initialMemberId={user?.memberId ?? null} />;
+  return <OnlineGame key={gameId} gameId={gameId} initialMemberId={user?.memberId ?? null} />;
 }
 
 function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMemberId: number | null }) {
   const { status: socketStatus, send, reconnect } = useChessSocket();
   const [memberId, setMemberId] = useState<number | null>(initialMemberId);
-  const [socketSnapshot, setSnapshot] = useState<Snapshot | null>(null);
-  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
-  const [optimisticFen, setOptimisticFen] = useState<string | null>(null);
-  const [optimisticMoveSquares, setOptimisticMoveSquares] = useState<MoveSquares | null>(null);
-  const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
-  const [viewPly, setViewPly] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+  const { isFocused } = usePageFocus();
+  const [ui, dispatch] = useReducer(onlineGameReducer, initialOnlineUiState);
+  const { snapshot: socketSnapshot, selectedSquare, pendingPromotion, viewPly, optimistic } = ui;
+  const optimisticFen = optimistic?.fen ?? null;
+  const optimisticMoveSquares = optimistic ? { from: optimistic.from, to: optimistic.to } : null;
+  const setSelectedSquare = (square: Square | null) => dispatch({ type: 'select', square });
+  const setPendingPromotion = (promotion: { from: Square; to: Square } | null) => dispatch({ type: 'promotion', promotion });
+  const setViewPly = (ply: number | null) => dispatch({ type: 'review', ply });
+  const awaitingResync = useRef(false);
   const [flipped, setFlipped] = useState(false);
 
   const gameQuery = useQuery({
@@ -184,32 +184,29 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
   });
 
   useEffect(() => {
-    if (socketStatus === 'ready') send({ type: 'SUBSCRIBE', gameId });
+    if (socketStatus === 'ready') {
+      awaitingResync.current = true;
+      send({ type: 'SUBSCRIBE', gameId });
+    }
   }, [gameId, send, socketStatus]);
 
   useChessSocketMessage(
     useCallback((message: OnlineServerMessage) => {
       if (message.type === 'AUTH_OK') setMemberId(message.memberId);
       if (message.type === 'GAME_STATE' && message.game.gameId === gameId) {
-        setSnapshot({ game: message.game, receivedAt: Date.now() });
-        setOptimisticFen(null);
-        setOptimisticMoveSquares(null);
-        setSelectedSquare(null);
-        setPendingPromotion(null);
-        setViewPly(null);
+        dispatch({ type: 'receive', snapshot: { game: message.game, receivedAt: Date.now() }, initialGame: gameQuery.data, resync: awaitingResync.current });
+        awaitingResync.current = false;
+        queryClient.setQueryData(queryKeys.chess.online.active, message.game.status === 'IN_PROGRESS' ? message.game : null);
       }
       if (message.type === 'ERROR') {
-        setOptimisticFen(null);
-        setOptimisticMoveSquares(null);
-        setSelectedSquare(null);
-        setPendingPromotion(null);
+        dispatch({ type: 'reject' });
         toast.error(message.message);
       }
-    }, [gameId]),
+    }, [gameId, gameQuery.data, queryClient]),
   );
 
   // 소켓으로 받은 최신 상태가 없으면 REST로 읽은 초기 상태를 쓴다.
-  const snapshot: Snapshot | null = socketSnapshot ?? (gameQuery.data ? { game: gameQuery.data, receivedAt: gameQuery.dataUpdatedAt } : null);
+  const snapshot: OnlineSnapshot | null = socketSnapshot ?? (gameQuery.data ? { game: gameQuery.data, receivedAt: gameQuery.dataUpdatedAt } : null);
   const game = snapshot?.game ?? null;
   const receivedAt = snapshot?.receivedAt ?? 0;
   const myColor: ChessColor | null = game && memberId !== null
@@ -223,6 +220,18 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
   const displayFen = isReviewing ? getFenAtPly(history, viewPly) : liveFen;
   const displayGame = useMemo(() => createGame(displayFen), [displayFen]);
   const playerColor = myColor ? toChessJsColor(myColor) : null;
+  useChessMoveFeedback(game ? liveFen : undefined, livePly + (optimisticFen ? 1 : 0), gameId);
+  useChessLowTimeFeedback({ gameId, turnKey: `${livePly}:${game?.turn}`, millis: myColor === 'white' ? game?.whiteMillis ?? 0 : game?.blackMillis ?? 0, receivedAt, running: Boolean(game?.status === 'IN_PROGRESS' && game.clockRunning && game.turn === myColor && !optimisticFen && socketStatus === 'ready') });
+
+  useEffect(() => {
+    if (!optimistic || socketStatus !== 'ready') return;
+    const timer = window.setTimeout(() => {
+      awaitingResync.current = true;
+      send({ type: 'SUBSCRIBE', gameId });
+    }, 8000);
+    return () => window.clearTimeout(timer);
+  }, [optimistic, socketStatus, send, gameId]);
+
   const inProgress = game?.status === 'IN_PROGRESS';
   const canInteract =
     Boolean(game && displayGame && playerColor) &&
@@ -253,12 +262,13 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
+      if ((event.target instanceof Element && event.target.closest('[role="dialog"]')) || isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
 
       const goTo = (ply: number) => {
         event.preventDefault();
         setSelectedSquare(null);
-        setViewPly(Math.min(Math.max(ply, 0), livePly));
+        const targetPly = Math.min(Math.max(ply, 0), livePly);
+        setViewPly(targetPly >= livePly ? null : targetPly);
       };
 
       switch (event.key) {
@@ -300,17 +310,13 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
       const nextGame = new ChessGame(liveFen);
       nextGame.move({ from: move.from, to: move.to, promotion: move.promotion });
 
-      setOptimisticFen(nextGame.fen());
-      setOptimisticMoveSquares({ from: move.from, to: move.to });
-      setSelectedSquare(null);
-      setPendingPromotion(null);
+      dispatch({ type: 'move', move: { fen: nextGame.fen(), from: move.from, to: move.to, basePly: livePly } });
       if (!send({ type: 'MOVE', gameId, move: toUciMove(move) })) {
-        setOptimisticFen(null);
-        setOptimisticMoveSquares(null);
+        dispatch({ type: 'reject' });
         toast.error('서버와 연결되어 있지 않습니다.');
       }
     } catch {
-      setOptimisticMoveSquares(null);
+      dispatch({ type: 'reject' });
       setPendingPromotion(null);
       toast.error('합법적인 수가 아닙니다.');
     }
@@ -397,7 +403,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
       .catch(() => toast.error('PGN 복사에 실패했습니다.'));
   };
 
-  if (gameQuery.isError) {
+  if (gameQuery.isError && !game) {
     if (isAuthError(gameQuery.error)) {
       return (
         <Gate icon={<LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />} title="로그인이 필요합니다.">
@@ -444,7 +450,9 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
   const connectionNotice = connectionLabel[socketStatus];
   const boardSubtitle = isReviewing
     ? `복기 ${currentPly} / ${livePly}수`
-    : !inProgress
+    : optimisticFen
+      ? '착수 확인 중'
+      : !inProgress
       ? '대국 종료'
       : game.turn === myColor
         ? checkSquare
@@ -468,7 +476,8 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
         </div>
       )}
 
-      <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 xl:grid-cols-[minmax(0,40rem)_22rem]">
+      <ChessPlayToolbar />
+      <section className={clsx('grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5', !isFocused && 'xl:grid-cols-[minmax(0,40rem)_22rem]')}>
         <WindowSurface
           title="체스 보드"
           subtitle={boardSubtitle}
@@ -516,44 +525,16 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               )}
             </div>
             {barFor(bottomColor)}
-            {canInteract && (
-              <p role="status" className="px-1 py-2 text-center text-xs leading-5 text-[var(--color-text-muted)]">
-                {selectedSquare ? `${selectedSquare} 선택 · 표시된 칸을 누르세요` : '말과 이동할 칸을 차례로 누르거나, 말을 끌어 놓으세요.'}
-              </p>
-            )}
-          </div>
-        </WindowSurface>
-
-        <WindowSurface title="Game Info" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
-          <div className="mb-4 flex min-w-0 flex-wrap items-center gap-2">
-            <StatusBadge tone={outcomeBadgeTones[outcome]}>{getChessOutcomeLabel(outcome)}</StatusBadge>
-            <StatusBadge tone="neutral">{game.timeControl.label}</StatusBadge>
-            {!inProgress && <StatusBadge tone="neutral">{getTerminationLabel(game.status)}</StatusBadge>}
-            {game.result && <StatusBadge tone="neutral">{game.result}</StatusBadge>}
-          </div>
-
-          {inProgress ? (
-            <>
-              <div
-                className={clsx(
-                  'rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
-                  game.turn === myColor
-                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                    : 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
-                )}
-              >
-                {game.turn === myColor ? '내 차례입니다.' : `${opponent.nickname} 차례입니다.`}
-                {!game.clockRunning && ' 백의 첫 수 전까지 시계는 멈춰 있습니다.'}
-              </div>
-
+            {inProgress && (
+              <div className="empty:hidden">
               {game.drawOfferedBy === opponentColor && (
                 <div className="mt-3 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)] px-3 py-3">
                   <p className="text-sm font-semibold text-[var(--color-text)]">{opponent.nickname}님이 무승부를 제안했습니다.</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-white">
+                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-white">
                       수락
                     </button>
-                    <button type="button" onClick={() => send({ type: 'DRAW_DECLINE', gameId })} className={`${secondaryButtonClass} min-h-11 text-xs`}>
+                    <button type="button" onClick={() => send({ type: 'DRAW_DECLINE', gameId })} disabled={socketStatus !== 'ready'} className={`${secondaryButtonClass} min-h-11 text-xs`}>
                       거절
                     </button>
                   </div>
@@ -562,90 +543,131 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               {game.drawOfferedBy === myColor && (
                 <p className="mt-3 text-xs font-semibold text-[var(--color-text-subtle)]">무승부를 제안했습니다. 상대 응답을 기다리는 중입니다.</p>
               )}
-            </>
-          ) : (
-            <div
-              className={clsx(
-                'rounded-lg border px-3 py-3',
-                outcome === 'WIN' && 'border-emerald-500/25 bg-emerald-500/10',
-                outcome === 'LOSS' && 'border-red-500/20 bg-red-500/10',
-                outcome !== 'WIN' && outcome !== 'LOSS' && 'border-[var(--color-line)] bg-black/[0.025] dark:bg-white/[0.06]',
-              )}
-            >
-              <p className="text-base font-bold text-[var(--color-text)]">
-                {outcome === 'UNKNOWN' ? '대국이 무효 처리되었습니다.' : getGameOverTitle(outcome, game.status).replace('Maia가', `${opponent.nickname}님이`)}
-              </p>
-              <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                {getTerminationLabel(game.status)} · {history.length}수
-              </p>
-              <Link
-                href="/chess/online"
-                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
-              >
-                <Shuffle size={14} />
-                새 대국 찾기
-              </Link>
-            </div>
-          )}
+              </div>
+            )}
 
-          {inProgress && (
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => send({ type: 'DRAW_OFFER', gameId })}
-                disabled={socketStatus !== 'ready' || game.drawOfferedBy === myColor}
-                className={secondaryButtonClass}
-              >
-                <Handshake size={16} />
-                무승부 제안
-              </button>
-              <button
-                type="button"
-                onClick={handleResign}
-                disabled={socketStatus !== 'ready'}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
-              >
-                <Flag size={16} />
-                기권
-              </button>
-            </div>
-          )}
-
-          <div className="mt-4">
-            <ChessMoveList history={history} currentPly={currentPly} onSelectPly={(ply) => { setSelectedSquare(null); setViewPly(ply >= livePly ? null : Math.max(ply, 0)); }} />
+            {isFocused && inProgress && (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => send({ type: 'DRAW_OFFER', gameId })} disabled={socketStatus !== 'ready' || game.drawOfferedBy !== null} className={secondaryButtonClass}><Handshake size={16} />무승부 제안</button>
+                <button type="button" onClick={handleResign} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 text-sm font-semibold text-red-700 disabled:opacity-50 dark:text-red-300"><Flag size={16} />기권</button>
+              </div>
+            )}
+            {canInteract && (
+              <p role="status" className="px-1 py-2 text-center text-xs leading-5 text-[var(--color-text-muted)]">
+                {selectedSquare ? `${selectedSquare} 선택 · 표시된 칸을 누르세요` : '말과 이동할 칸을 차례로 누르거나, 말을 끌어 놓으세요.'}
+              </p>
+            )}
           </div>
-
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-              <dt className="text-xs text-[var(--color-text-subtle)]">내 색상</dt>
-              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{getTurnLabel(myColor)}</dd>
-            </div>
-            <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-              <dt className="text-xs text-[var(--color-text-subtle)]">상대</dt>
-              <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{opponent.nickname}</dd>
-            </div>
-          </dl>
-
-          <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
-            <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-[var(--color-text)]">
-              PGN
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault();
-                  copyPgn();
-                }}
-                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
-              >
-                <Clipboard size={14} />
-                복사
-              </button>
-            </summary>
-            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3 text-xs leading-5 text-[var(--color-text-muted)]">
-              {game.pgn || 'PGN이 아직 없습니다.'}
-            </pre>
-          </details>
         </WindowSurface>
+
+        <ChessGameDetails ended={!inProgress}>
+          <WindowSurface title="Game Info" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+            <div className="mb-4 flex min-w-0 flex-wrap items-center gap-2">
+              <StatusBadge tone={outcomeBadgeTones[outcome]}>{getChessOutcomeLabel(outcome)}</StatusBadge>
+              <StatusBadge tone="neutral">{game.timeControl.label}</StatusBadge>
+              {!inProgress && <StatusBadge tone="neutral">{getTerminationLabel(game.status)}</StatusBadge>}
+              {game.result && <StatusBadge tone="neutral">{game.result}</StatusBadge>}
+            </div>
+
+            {inProgress ? (
+              <>
+                <div
+                  className={clsx(
+                    'rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
+                    game.turn === myColor
+                      ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                      : 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+                  )}
+                >
+                  {game.turn === myColor ? '내 차례입니다.' : `${opponent.nickname} 차례입니다.`}
+                  {!game.clockRunning && ' 백의 첫 수 전까지 시계는 멈춰 있습니다.'}
+                </div>
+
+              </>
+            ) : (
+              <div
+                className={clsx(
+                  'rounded-lg border px-3 py-3',
+                  outcome === 'WIN' && 'border-emerald-500/25 bg-emerald-500/10',
+                  outcome === 'LOSS' && 'border-red-500/20 bg-red-500/10',
+                  outcome !== 'WIN' && outcome !== 'LOSS' && 'border-[var(--color-line)] bg-black/[0.025] dark:bg-white/[0.06]',
+                )}
+              >
+                <p className="text-base font-bold text-[var(--color-text)]">
+                  {outcome === 'UNKNOWN' ? '대국이 무효 처리되었습니다.' : getGameOverTitle(outcome, game.status).replace('Maia가', `${opponent.nickname}님이`)}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                  {getTerminationLabel(game.status)} · {history.length}수
+                </p>
+                <Link
+                  href="/chess/online"
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+                >
+                  <Shuffle size={14} />
+                  새 대국 찾기
+                </Link>
+              </div>
+            )}
+
+            {inProgress && (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => send({ type: 'DRAW_OFFER', gameId })}
+                  disabled={socketStatus !== 'ready' || game.drawOfferedBy !== null}
+                  className={secondaryButtonClass}
+                >
+                  <Handshake size={16} />
+                  무승부 제안
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResign}
+                  disabled={socketStatus !== 'ready'}
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+                >
+                  <Flag size={16} />
+                  기권
+                </button>
+              </div>
+            )}
+
+            <div className="mt-4">
+              <ChessMoveList history={history} currentPly={currentPly} onSelectPly={(ply) => { setSelectedSquare(null); setViewPly(ply >= livePly ? null : Math.max(ply, 0)); }} />
+            </div>
+
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+                <dt className="text-xs text-[var(--color-text-subtle)]">내 색상</dt>
+                <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{getTurnLabel(myColor)}</dd>
+              </div>
+              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+                <dt className="text-xs text-[var(--color-text-subtle)]">상대</dt>
+                <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{opponent.nickname}</dd>
+              </div>
+            </dl>
+
+            <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-[var(--color-text)]">
+                PGN
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    copyPgn();
+                  }}
+                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+                >
+                  <Clipboard size={14} />
+                  복사
+                </button>
+              </summary>
+              <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3 text-xs leading-5 text-[var(--color-text-muted)]">
+                {game.pgn || 'PGN이 아직 없습니다.'}
+              </pre>
+            </details>
+          </WindowSurface>
+        </ChessGameDetails>
       </section>
     </ChessPageFrame>
   );

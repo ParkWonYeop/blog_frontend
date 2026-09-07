@@ -46,6 +46,7 @@ export const queryKeys = {
     today: (timezone: string) => ['chess-puzzle', 'today', timezone] as const,
     games: {
       all: ['chess-games'] as const,
+      active: ['chess-games', 'active'] as const,
       list: (filters: ChessGameListFilters) => ['chess-games', filters] as const,
     },
     stats: ['chess-game-stats'] as const,
