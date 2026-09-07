@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, ArrowLeft, Calendar, ChevronLeft, ChevronRight, Loader2, User } from 'lucide-react';
 import Image from 'next/image';
@@ -12,6 +12,7 @@ import { queryKeys } from '@/shared/lib/queryKeys';
 import CommentList from '@/features/comment/components/CommentList';
 import MarkdownRenderer from '@/features/post/components/MarkdownRenderer';
 import TOC from '@/features/post/components/TOC';
+import useReadingProgress from '@/features/post/hooks/useReadingProgress';
 import StatusBadge from '@/shared/ui/StatusBadge';
 import WindowSurface from '@/shared/ui/WindowSurface';
 import type { Post } from '@/shared/types';
@@ -20,34 +21,6 @@ interface PostDetailClientProps {
   slug: string;
   initialPost: Post;
 }
-
-/** 페이지 스크롤 기준 읽기 진행률(0-100). rAF로 스크롤 이벤트를 스로틀한다. */
-const useReadingProgress = () => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(100, Math.round((window.scrollY / max) * 100)) : 0);
-    };
-    const onScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
-
-  return progress;
-};
 
 const getPostErrorInfo = (error: unknown) => {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -67,7 +40,7 @@ const getPostErrorInfo = (error: unknown) => {
 
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const router = useRouter();
-  const readingProgress = useReadingProgress();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: post, isLoading: isPostLoading, error } = useQuery({
     queryKey: queryKeys.posts.detail(slug),
@@ -75,6 +48,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
     enabled: !!slug,
     initialData: initialPost,
   });
+  const readingProgress = useReadingProgress(contentRef, `${slug}:${post?.content ?? ''}`);
 
   const { data: profile } = useQuery({
     queryKey: queryKeys.profile.all,
@@ -126,8 +100,9 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
         <span>Finder로</span>
       </Link>
 
-      <div className="relative grid min-w-0 gap-6 xl:grid-cols-[minmax(0,820px)_220px] xl:justify-center xl:gap-8">
-        <div className="min-w-0 space-y-6">
+      <div className="relative flex min-w-0 flex-col items-start gap-6 xl:flex-row xl:justify-center xl:gap-8">
+        <TOC key={slug} content={post.content || ''} contentRef={contentRef} />
+        <div className="w-full min-w-0 space-y-6 xl:flex-1">
           <WindowSurface
             as="article"
             title="Reader"
@@ -135,7 +110,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             className="mx-auto w-full max-w-[820px]"
             bodyClassName="relative px-5 py-7 md:px-10 md:py-10"
             controls={(
-              <span className="text-xs font-bold tabular-nums text-[var(--color-accent)]" aria-label="읽기 진행률">
+              <span role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readingProgress} className="text-xs font-bold tabular-nums text-[var(--color-accent)]" aria-label="읽기 진행률">
                 {readingProgress}%
               </span>
             )}
@@ -179,7 +154,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               </div>
             </header>
 
-            <div className="prose prose-base min-w-0 max-w-none break-words prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 md:prose-lg [overflow-wrap:anywhere]">
+            <div ref={contentRef} className="prose prose-base min-w-0 max-w-none break-words prose-headings:scroll-mt-36 prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 md:prose-lg [overflow-wrap:anywhere]">
               <MarkdownRenderer content={post.content || ''} />
             </div>
             </div>
@@ -224,12 +199,6 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             <CommentList postSlug={post.slug} />
           </WindowSurface>
         </div>
-
-        <aside className="hidden w-[220px] shrink-0 xl:block">
-          <WindowSurface title="목차" showTrafficLights={false} bodyClassName="p-4" className="sticky top-16 shadow-[var(--shadow-card)]">
-            <TOC content={post.content || ''} />
-          </WindowSurface>
-        </aside>
       </div>
     </div>
   );

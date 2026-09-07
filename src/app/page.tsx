@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Archive, ChevronRight, FileText, Search } from 'lucide-react';
 import { fetchPublicPosts } from '@/features/post/publicApi';
+import SearchPagination from '@/features/post/components/SearchPagination';
+import { getSearchPageHref, parseSearchPage, SEARCH_PAGE_SIZE } from '@/features/post/search';
+import { getPageMeta } from '@/shared/lib/pagination';
 import EmptyState from '@/shared/ui/EmptyState';
 import StatusBadge from '@/shared/ui/StatusBadge';
 import Surface from '@/shared/ui/Surface';
@@ -36,26 +40,17 @@ type HomePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const getTotalElements = (data?: PostListResponse | null) => {
-  return data?.page?.totalElements ?? data?.totalElements ?? 0;
-};
-
-const getSearchKeyword = async (searchParams?: HomePageProps['searchParams']) => {
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const keyword = resolvedSearchParams.keyword;
-
-  return Array.isArray(keyword) ? keyword[0] || '' : keyword || '';
-};
-
 function SearchResults({
   keyword,
   data,
+  page,
 }: {
   keyword: string;
   data?: PostListResponse | null;
+  page: number;
 }) {
   const searchResults = data?.content || [];
-  const searchTotalElements = getTotalElements(data);
+  const { totalElements: searchTotalElements, totalPages } = getPageMeta(data);
 
   return (
     <WindowSurface
@@ -73,15 +68,20 @@ function SearchResults({
             <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">
               검색 결과
             </h1>
-            <p className="break-words text-sm text-[var(--color-text-muted)]">
+            {data && <p className="break-words text-sm text-[var(--color-text-muted)]">
               검색어 <span className="font-semibold text-[var(--color-text)]">{keyword}</span>에 대한 글 {searchTotalElements.toLocaleString()}건
-            </p>
+            </p>}
           </div>
         </div>
       </div>
 
       <div className="p-4 md:p-6">
-        {searchResults.length > 0 ? (
+        {!data ? (
+          <div className="text-center">
+            <EmptyState title="검색 결과를 불러오지 못했습니다." description="잠시 후 다시 시도해 주세요." />
+            <a href={getSearchPageHref(keyword, page)} className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-[var(--color-accent)]">다시 시도</a>
+          </div>
+        ) : searchResults.length > 0 ? (
           <div className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-2">
             {searchResults.map((post) => (
               <CompactPostRow key={post.id} post={post} />
@@ -90,6 +90,7 @@ function SearchResults({
         ) : (
           <EmptyState title="검색 결과가 없습니다." description="다른 키워드로 다시 찾아보세요." />
         )}
+        {data && <SearchPagination keyword={keyword} page={page} totalPages={totalPages} />}
       </div>
     </WindowSurface>
   );
@@ -282,14 +283,20 @@ function PostListSection({
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
-  const keyword = await getSearchKeyword(searchParams);
+  const params = await searchParams ?? {};
+  const keyword = (Array.isArray(params.keyword) ? params.keyword[0] : params.keyword) || '';
+  const page = parseSearchPage(params.page);
 
   if (keyword) {
-    const searchData = await fetchPublicPosts({ keyword, size: 20 });
+    const searchData = await fetchPublicPosts({ keyword, page: page - 1, size: SEARCH_PAGE_SIZE });
+    const totalPages = getPageMeta(searchData).totalPages;
+    if (searchData && page > Math.max(1, totalPages)) {
+      redirect(getSearchPageHref(keyword, Math.max(1, totalPages)));
+    }
 
     return (
       <div className="mx-auto min-w-0 max-w-[1180px] px-0 py-3 md:py-6">
-        <SearchResults keyword={keyword} data={searchData} />
+        <SearchResults keyword={keyword} data={searchData} page={page} />
       </div>
     );
   }

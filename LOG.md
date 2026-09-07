@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-09-07 (blog search and reading)
+
+- Added a collapsible, sticky mobile/tablet TOC with 44px touch targets, current-section labels, automatic collapse on selection, keyboard focus transfer, Escape dismissal, and reduced-motion support. Desktop retains the expanded sidebar. TOC entries now use the rendered Markdown heading IDs, covering repeated titles, inline links/code, and all heading levels without a second parser. Kept Markdown sanitization unchanged.
+- Added server-rendered search pagination using the existing `/?keyword=...` route plus a one-based `page` query parameter. Requests use the backend's zero-based page and existing 20-item size; previous/next links preserve the search keyword. Invalid page input defaults to page one, out-of-range pages redirect to the final available page, and request failures show a retry link instead of a false zero-result count.
+- Reading progress now measures the article body and reaches 100% when its end enters the viewport, independently of comments and adjacent-post navigation. Resize observers account for lazy images, font/layout changes, and TOC expansion; empty and short bodies are handled explicitly. Added accessible progressbar values. No new dependencies or storage changes.
+- Validation: `npm run check`, `npm run build`, `node --test tests/*.test.mjs` (23 passing tests, including 9 new search/reading/TOC tests), and `git diff --check` passed. Tests cover actual search-route parameter mapping and SSR navigation, page bounds and failure handling, body resizing versus comment growth, rendered Markdown IDs, and menu/focus cleanup. Build retained existing workspace-root/Node warnings and an unavailable public-post API warning.
+- Limitations: browser verification was attempted but the Mac was locked; requested unlocking and continued isolated tests. Real mobile/desktop layout, browser back/forward behavior, and live backend search results could not be exercised in this session. No temporary product mocks or verification routes were added.
+- Recommended next task: verify a long real article and a search with more than 20 matches at 320px/390px/1440px, including sticky TOC navigation, lazy-image loading, comments, and browser history restoration.
+
 ## 2026-09-07 (chess focus, feedback, and resume)
 
 - Added focus mode to bot, online, and puzzle play: hide the blog sidebar/menu/Dock, center the board, and collapse secondary information. Keep undo/resign/draw responses and puzzle actions near the board, reveal results when play ends, and restore the shell on exit or route changes.

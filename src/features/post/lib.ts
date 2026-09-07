@@ -1,5 +1,12 @@
 import type { Post } from '@/shared/types';
 
+/** Complete when the bottom of the article body reaches the viewport, regardless of comments. */
+export function getReadingProgress({ top, height }: { top: number; height: number }, viewportHeight: number): number {
+  if (height <= 0 || viewportHeight <= 0) return 0;
+  if (height <= viewportHeight) return top + height <= viewportHeight ? 100 : 0;
+  return Math.min(100, Math.max(0, Math.round((-top / (height - viewportHeight)) * 100)));
+}
+
 const NOTICE_CATEGORY_NAMES = new Set(['공지', 'notice']);
 
 type NoticeMatchOptions = {
