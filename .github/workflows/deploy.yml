@@ -6,41 +6,120 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: blog-frontend-production
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
-    # 서버에 설치된 self-hosted 러너에서 실행 (docker, git은 호스트에 이미 있음)
-    runs-on: self-hosted
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.name }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: Build Docker image
+      - name: Set up Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install and verify
         run: |
-          if [ -f Dockerfile ]; then
-            DOCKERFILE_NAME="Dockerfile"
-          elif [ -f DockerFile ]; then
-            DOCKERFILE_NAME="DockerFile"
-          else
-            echo "Dockerfile not found!"
-            exit 1
-          fi
+          npm ci
+          npm run check
+          npm audit --audit-level=high
 
+      - name: Resolve immutable image name
+        id: image
+        shell: bash
+        run: |
+          repository="${GITHUB_REPOSITORY,,}"
+          echo "name=ghcr.io/${repository}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and publish image
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
           docker build \
-            -f $DOCKERFILE_NAME \
+            -f DockerFile \
             --build-arg NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
-            -t blog-frontend:latest .
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "$IMAGE" .
+          docker push "$IMAGE"
 
-      - name: Deploy container
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Pull verified image
+        env:
+          IMAGE: ${{ needs.build.outputs.image }}
+          GHCR_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          docker pull "$IMAGE"
+
+      - name: Deploy hardened container
+        env:
+          IMAGE: ${{ needs.build.outputs.image }}
+        run: |
+          set -euo pipefail
           docker stop blog-frontend || true
           docker rm blog-frontend || true
 
           docker run -d \
             --name blog-frontend \
             --restart unless-stopped \
-            -p 3005:3000 \
+            --read-only \
+            --cap-drop ALL \
+            --security-opt no-new-privileges \
+            --pids-limit 256 \
+            --memory 1g \
+            --cpus 2 \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            --tmpfs /app/.next/cache:rw,noexec,nosuid,size=128m \
+            --health-cmd='wget -q --spider http://127.0.0.1:3000/ || exit 1' \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=6 \
+            --health-start-period=20s \
+            -p 127.0.0.1:3005:3000 \
             -e NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
-            blog-frontend:latest
+            "$IMAGE"
 
-      - name: Cleanup old images
-        run: docker image prune -f
+          for _ in $(seq 1 12); do
+            status="$(docker inspect --format='{{.State.Health.Status}}' blog-frontend)"
+            if [ "$status" = healthy ]; then
+              exit 0
+            fi
+            if [ "$status" = unhealthy ]; then
+              break
+            fi
+            sleep 5
+          done
+
+          docker logs --tail 100 blog-frontend
+          exit 1
+
+      - name: Cleanup old dangling images
+        run: docker image prune -f --filter until=168h

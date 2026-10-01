@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-01 (security hardening)
+
+- Upgraded Next.js to 16.3.8 and Axios to 1.20.0, refreshed vulnerable transitive tooling packages in the npm lockfile only, and removed access-token persistence from `localStorage`. Browser sessions now restore through the HttpOnly refresh cookie, synchronize logout across tabs, and revoke the server refresh session on logout.
+- Added nonce-based CSP and standard browser security headers, canonical-host HTTPS redirects, disabled the framework signature header, and changed the runtime image to a non-root user.
+- Moved image builds off the production runner: GitHub-hosted CI now checks and publishes an immutable commit-tagged GHCR image, while the protected production job only pulls and runs it with a read-only filesystem, dropped capabilities, resource limits, loopback-only binding, and a health check. Third-party actions are pinned to commit SHAs.
+- Validation: a clean `npm ci` and `npm audit` report 0 vulnerabilities; `npm run check`, `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me npm run build`, `node --test tests/*.test.mjs` (23 passing), workflow YAML parsing, and `git diff --check` passed. A local standalone response confirmed nonce CSP, HSTS, anti-framing/MIME/referrer/permissions headers, ignored a spoofed `X-Forwarded-Host`, and redirected an invalid `Host` only to `https://blog.wypark.me`. The build's public-post fetch warning was caused by sandbox DNS and remained non-fatal.
+- Recommended next task: configure required reviewers and a `main`-only deployment rule on the GitHub `production` environment before the next release.
+
 ## 2026-09-07 (blog search and reading)
 
 - Added a collapsible, sticky mobile/tablet TOC with 44px touch targets, current-section labels, automatic collapse on selection, keyboard focus transfer, Escape dismissal, and reduced-motion support. Desktop retains the expanded sidebar. TOC entries now use the rendered Markdown heading IDs, covering repeated titles, inline links/code, and all heading levels without a second parser. Kept Markdown sanitization unchanged.

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/store';
+import { logoutSession } from '@/features/auth/authSession';
 import { LogOut, Menu, PenLine, Settings, User, UserPlus, X } from 'lucide-react';
 import ThemeToggle from '@/shared/theme/ThemeToggle';
 
@@ -39,12 +40,18 @@ export default function TopHeader() {
 
   const closeMenu = () => setIsMenuOpen(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm('로그아웃 하시겠습니까?')) {
       closeMenu();
-      logout();
-      alert('로그아웃 되었습니다.');
-      router.push('/');
+      try {
+        await logoutSession();
+        alert('로그아웃 되었습니다.');
+      } catch {
+        alert('서버 세션 폐기 중 오류가 발생했지만 이 브라우저에서는 로그아웃했습니다.');
+      } finally {
+        logout();
+        router.push('/');
+      }
     }
   };
 

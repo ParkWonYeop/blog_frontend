@@ -22,9 +22,9 @@ Treat the following as coordinated deployment files:
 
 - `next.config.ts`
 - `DockerFile` — preserve this filename casing unless the workflow is changed too.
-- `.gitea/workflows/deploy.yml`
+- `.github/workflows/deploy.yml`
 
-The Gitea workflow builds on pushes to `main`, runs the `blog-frontend` container, and maps host port `3005` to container port `3000`.
+The GitHub Actions workflow verifies and publishes an immutable GHCR image on pushes to `main`; the production runner launches it on loopback host port `3005`.
 
 ## Required Workflow
 
@@ -77,7 +77,7 @@ Rules:
 ### API Boundary
 
 - `src/shared/api/http.ts`: shared authenticated Axios client and retry interceptor.
-- `src/features/auth/authSession.ts`: in-tab refresh deduplication, Web Locks coordination, and persisted-token synchronization.
+- `src/features/auth/authSession.ts`: in-tab refresh deduplication, Web Locks coordination, logout revocation, and cross-tab logout synchronization.
 - `src/features/auth/authRefresh.ts`: direct refresh request that intentionally bypasses the shared interceptor.
 - `src/features/post/publicApi.ts`: server-side public post fetches with Next.js revalidation.
 - Other `src/features/*/api.ts` files: domain-specific backend calls.
@@ -102,8 +102,8 @@ Keep query keys serializable and deterministic.
 
 ### Authentication
 
-- Zustand auth state is defined in `src/features/auth/store.ts`.
-- Persisted storage key: `auth-storage`.
+- Zustand auth state is defined in `src/features/auth/store.ts`; access tokens stay in memory only.
+- The legacy `auth-storage` key is removed during startup and must not store credentials again.
 - Admin checks require hydration and an `ADMIN` role.
 - Browser-only state must not be read during server rendering.
 - Never log or render access tokens, refresh tokens, authorization headers, or decoded private claims.
@@ -118,7 +118,6 @@ The refresh coordinator is a fragile concurrency boundary. Do not replace the sh
 
 Preserve these storage keys unless a migration is part of the task:
 
-- `auth-storage`
 - `wyp-theme-mode`
 - `sidebar-collapsed`
 - `dock-pinned-v2`

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import { jwtDecode } from 'jwt-decode';
 
 interface UserInfo {
@@ -44,29 +43,20 @@ const parseToken = (token: string): { role: string; user: UserInfo | null } => {
 };
 
 export const useAuthStore = create<AuthState>()(
-  persist<AuthState>(
-    (set) => ({
-      accessToken: null,
-      isLoggedIn: false,
-      role: null,
-      user: null,
-      _hasHydrated: false,
-      
-      login: (accessToken: string) => {
-        const { role, user } = parseToken(accessToken);
-        set({ accessToken, isLoggedIn: true, role, user });
-      },
-      
-      logout: () => set({ accessToken: null, isLoggedIn: false, role: null, user: null }),
-      
-      setHydrated: () => set({ _hasHydrated: true }),
-    }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated();
-      },
-    }
-  )
+  (set) => ({
+    accessToken: null,
+    isLoggedIn: false,
+    role: null,
+    user: null,
+    _hasHydrated: false,
+
+    login: (accessToken: string) => {
+      const { role, user } = parseToken(accessToken);
+      set({ accessToken, isLoggedIn: true, role, user });
+    },
+
+    logout: () => set({ accessToken: null, isLoggedIn: false, role: null, user: null }),
+
+    setHydrated: () => set({ _hasHydrated: true }),
+  })
 );

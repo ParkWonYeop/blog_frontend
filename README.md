@@ -129,13 +129,13 @@ src/
 
 그 밖의 주요 파일은 다음과 같습니다.
 
-- `src/proxy.ts`: HTTP→HTTPS redirect와 HSTS 처리
+- `src/proxy.ts`: canonical HTTPS redirect, nonce CSP, 브라우저 보안 헤더 처리
 - `src/app/globals.css`: 테마와 레이어 디자인 토큰
 - `DESIGN.md`: UI 시스템과 반응형 원칙
 - `AGENTS.md`: 자동화 도구와 기여자를 위한 저장소 작업 규칙
 - `LOG.md`: 작업 내역, 검증 결과, 권장 후속 작업
 - `DockerFile`: Node 20 기반 standalone 이미지
-- `.gitea/workflows/deploy.yml`: Gitea 배포 파이프라인
+- `.github/workflows/deploy.yml`: GitHub Actions 배포 파이프라인
 
 ## 아키텍처 원칙
 
@@ -147,12 +147,12 @@ src/
 
 ### 인증
 
-인증 상태는 `auth-storage` 키로 유지되는 Zustand store가 관리합니다. 만료된 토큰은 다음 순서로 갱신합니다.
+액세스 토큰은 브라우저 메모리의 Zustand store에만 보관하고, 새 탭이나 새로고침에서는 HttpOnly refresh 쿠키로 세션을 복원합니다. 기존 `auth-storage` 값은 시작 시 제거합니다.
 
 1. 같은 탭의 동시 요청은 하나의 refresh promise를 공유합니다.
 2. Web Locks 지원 브라우저에서는 여러 탭의 refresh를 직렬화합니다.
-3. lock을 얻은 뒤 저장소를 다시 읽어 다른 탭이 이미 갱신했는지 확인합니다.
-4. 재발급 실패 시 인증 상태를 제거합니다.
+3. 재발급 실패 시 메모리의 인증 상태를 제거합니다.
+4. 로그아웃은 서버 refresh 세션을 폐기하고 다른 탭에도 알립니다.
 
 재발급 요청은 응답 인터셉터의 재귀 호출을 막기 위해 공통 Axios 인스턴스를 사용하지 않습니다.
 
@@ -166,19 +166,19 @@ src/
 
 ## 배포
 
-`main` 브랜치 push 시 Gitea workflow가 다음 작업을 수행합니다.
+`main` 브랜치 push 시 GitHub Actions workflow가 다음 작업을 수행합니다.
 
-1. `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me`로 Docker 이미지 빌드
-2. 기존 `blog-frontend` 컨테이너 교체
-3. 호스트 `3005` 포트를 컨테이너 `3000` 포트에 연결
-4. `unless-stopped` restart policy 적용
+1. GitHub-hosted runner에서 `npm ci`, 정적 검사, 의존성 감사를 실행
+2. `NEXT_PUBLIC_API_URL=https://blogserver.wypark.me`로 이미지를 빌드해 commit SHA 태그로 GHCR에 게시
+3. `production` 환경의 self-hosted runner가 해당 불변 이미지만 내려받아 기존 컨테이너를 교체
+4. 컨테이너를 non-root/read-only/무권한으로 실행하고 호스트 `127.0.0.1:3005`만 연결한 뒤 health check
 
-Next.js는 `output: 'standalone'`으로 빌드됩니다. Docker, Gitea workflow, `next.config.ts`의 배포 전제는 함께 변경해야 합니다.
+Next.js는 `output: 'standalone'`으로 빌드됩니다. Docker, GitHub Actions workflow, `next.config.ts`의 배포 전제는 함께 변경해야 합니다.
 
 ## 작업 시 주의사항
 
 - npm이 기준 패키지 매니저입니다. 의존성 변경 시 `package-lock.json`만 갱신합니다.
-- API 주소, 공개 도메인, analytics ID, auth storage key, endpoint path를 별도 논의 없이 변경하지 않습니다.
+- API 주소, 공개 도메인, analytics ID, endpoint path를 별도 논의 없이 변경하지 않습니다.
 - 백엔드가 없을 때 임의 mock 동작을 제품 코드에 추가하지 않습니다.
 - 모든 작업은 [LOG.md](./LOG.md)에 검증 결과와 권장 후속 작업을 기록합니다.
 

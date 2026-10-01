@@ -29,6 +29,7 @@ import {
 import type { DockAction } from '@/shared/layout/desktop-dock/config';
 import { getDockToneStyle } from '@/shared/layout/desktop-dock/styles';
 import { useAuthStore } from '@/features/auth/store';
+import { logoutSession } from '@/features/auth/authSession';
 
 interface DesktopDockProps {
   onOpenMobileMenu: () => void;
@@ -221,11 +222,15 @@ export default function DesktopDock({ onOpenMobileMenu }: DesktopDockProps) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm('로그아웃 하시겠습니까?')) {
-      logout();
-      setIsMoreOpen(false);
-      router.push('/');
+      try {
+        await logoutSession();
+      } finally {
+        logout();
+        setIsMoreOpen(false);
+        router.push('/');
+      }
     }
   };
 

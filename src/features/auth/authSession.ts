@@ -1,4 +1,5 @@
-import { reissueAuth } from '@/features/auth/authRefresh';
+import { reissueAuth, revokeAuth } from '@/features/auth/authRefresh';
+import { isTokenExpired } from '@/features/auth/authToken';
 import { useAuthStore } from '@/features/auth/store';
 
 const AUTH_REFRESH_LOCK = 'auth-refresh-lock';
@@ -45,3 +46,35 @@ export const refreshAccessToken = () => {
 
   return activeRefresh;
 };
+
+const broadcastLogout = () => {
+  if (typeof BroadcastChannel === 'undefined') return;
+  const channel = new BroadcastChannel(AUTH_SESSION_CHANNEL);
+  channel.postMessage('LOGOUT');
+  channel.close();
+};
+
+export const logoutSession = async () => {
+  let accessToken = useAuthStore.getState().accessToken;
+
+  try {
+    if (!accessToken || isTokenExpired(accessToken, 10)) {
+      accessToken = await refreshAccessToken();
+    }
+    await revokeAuth(accessToken);
+  } finally {
+    useAuthStore.getState().logout();
+    broadcastLogout();
+  }
+};
+
+export const subscribeToSessionLogout = (onLogout: () => void) => {
+  if (typeof BroadcastChannel === 'undefined') return () => undefined;
+  const channel = new BroadcastChannel(AUTH_SESSION_CHANNEL);
+  channel.addEventListener('message', (event) => {
+    if (event.data === 'LOGOUT') onLogout();
+  });
+  return () => channel.close();
+};
+
+const AUTH_SESSION_CHANNEL = 'wyp-auth-session';

@@ -16,3 +16,17 @@ export const reissueAuth = async () => {
 
   return response.data;
 };
+
+/** Logout bypasses the shared interceptor so session teardown cannot recurse into refresh. */
+export const revokeAuth = async (accessToken: string) => {
+  const response = await axios.post<ApiResponse<null>>(
+    `${API_BASE_URL}/api/auth/logout`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      withCredentials: true,
+    },
+  );
+
+  return response.data;
+};

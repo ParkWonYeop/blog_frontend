@@ -1,7 +1,6 @@
 export interface AuthResponse {
   grantType: string;
   accessToken: string;
-  refreshToken?: string;
   accessTokenExpiresIn: number;
 }
 
@@ -21,7 +20,4 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken?: string;
-}
+export type LoginResponse = AuthResponse;

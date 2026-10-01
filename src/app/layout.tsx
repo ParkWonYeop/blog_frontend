@@ -14,6 +14,9 @@ const pretendard = localFont({
   display: 'swap',
 });
 
+// Per-request CSP nonces require dynamic rendering so Next can nonce its scripts.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -70,4 +73,3 @@ export default function RootLayout({
     </html>
   );
 }
-

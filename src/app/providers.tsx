@@ -4,29 +4,34 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { refreshAccessToken } from '@/features/auth/authSession';
-import { isTokenExpired } from '@/features/auth/authToken';
+import { refreshAccessToken, subscribeToSessionLogout } from '@/features/auth/authSession';
 import { useAuthStore } from '@/features/auth/store';
 import { ThemeProvider } from '@/shared/theme/ThemeProvider';
 
 function AuthInitializer() {
-  const { accessToken, logout } = useAuthStore();
+  const { logout, setHydrated } = useAuthStore();
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (!accessToken) return;
+    let active = true;
+    window.localStorage.removeItem('auth-storage');
+    const unsubscribe = subscribeToSessionLogout(logout);
 
-      if (isTokenExpired(accessToken, 60)) {
-        try {
-          await refreshAccessToken();
-        } catch {
-          logout();
-        }
+    const initializeAuth = async () => {
+      try {
+        await refreshAccessToken();
+      } catch {
+        logout();
+      } finally {
+        if (active) setHydrated();
       }
     };
 
-    initializeAuth();
-  }, [accessToken, logout]);
+    void initializeAuth();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [logout, setHydrated]);
 
   return null;
 }
