@@ -1,5 +1,10 @@
 # Work Log
 
+## 2026-10-01 (production availability hotfix)
+
+- Restored the frontend container's host-wide `3005:3000` port publication because the production reverse proxy reaches the frontend host over the private network rather than through host loopback. The prior loopback-only mapping left the container healthy while making `https://blog.wypark.me` time out.
+- Validation: workflow YAML parsing and `git diff --check` passed. Follow-up hardening should place the reverse proxy and frontend on an explicit private Docker network or restrict port 3005 at the host firewall without breaking the existing proxy route.
+
 ## 2026-10-01 (security hardening)
 
 - Upgraded Next.js to 16.3.8 and Axios to 1.20.0, refreshed vulnerable transitive tooling packages in the npm lockfile only, and removed access-token persistence from `localStorage`. Browser sessions now restore through the HttpOnly refresh cookie, synchronize logout across tabs, and revoke the server refresh session on logout.
