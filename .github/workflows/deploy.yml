@@ -84,6 +84,31 @@ jobs:
           IMAGE: ${{ needs.build.outputs.image }}
         run: |
           set -euo pipefail
+
+          if [ -n "${FRONTEND_BIND_ADDRESS:-}" ]; then
+            bind_address="$FRONTEND_BIND_ADDRESS"
+          else
+            default_interface="$(ip -4 route show default | awk 'NR == 1 { print $5 }' || true)"
+            if [ -z "$default_interface" ]; then
+              echo "Failed to resolve the frontend host's default network interface"
+              exit 1
+            fi
+            bind_address="$(ip -o -4 addr show dev "$default_interface" scope global | awk 'NR == 1 { split($4, address, "/"); print address[1] }' || true)"
+          fi
+
+          if [[ ! "$bind_address" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            echo "Failed to resolve the frontend host's private IPv4 address"
+            exit 1
+          fi
+
+          IFS=. read -r bind_octet_1 bind_octet_2 _ _ <<< "$bind_address"
+          if ! { [ "$bind_octet_1" -eq 10 ] \
+            || { [ "$bind_octet_1" -eq 192 ] && [ "$bind_octet_2" -eq 168 ]; } \
+            || { [ "$bind_octet_1" -eq 172 ] && [ "$bind_octet_2" -ge 16 ] && [ "$bind_octet_2" -le 31 ]; }; }; then
+            echo "Refusing to publish the frontend on non-private address: $bind_address"
+            exit 1
+          fi
+
           docker stop blog-frontend || true
           docker rm blog-frontend || true
 
@@ -103,7 +128,7 @@ jobs:
             --health-timeout=5s \
             --health-retries=6 \
             --health-start-period=20s \
-            -p 3005:3000 \
+            -p "${bind_address}:3005:3000" \
             -e NEXT_PUBLIC_API_URL=https://blogserver.wypark.me \
             "$IMAGE"
 

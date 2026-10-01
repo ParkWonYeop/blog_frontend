@@ -3,7 +3,8 @@
 ## 2026-10-01 (production availability hotfix)
 
 - Restored the frontend container's host-wide `3005:3000` port publication because the production reverse proxy reaches the frontend host over the private network rather than through host loopback. The prior loopback-only mapping left the container healthy while making `https://blog.wypark.me` time out.
-- Validation: workflow YAML parsing and `git diff --check` passed. Follow-up hardening should place the reverse proxy and frontend on an explicit private Docker network or restrict port 3005 at the host firewall without breaking the existing proxy route.
+- Follow-up hardening now resolves the host's default-route RFC1918 address before stopping the running container and publishes port 3005 only on that private address. A non-private or missing address aborts deployment without touching the live container; `FRONTEND_BIND_ADDRESS` remains available for an explicit private override.
+- Validation: workflow YAML parsing, `git diff --check`, production deployment, and external HTTP checks passed for the homepage, login page, public post API, and backend health endpoint.
 
 ## 2026-10-01 (security hardening)
 
