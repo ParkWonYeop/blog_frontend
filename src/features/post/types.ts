@@ -9,7 +9,7 @@ export interface Post {
   id: number;
   title: string;
   slug: string;
-  categoryName: string;
+  categoryName: string | null;
   viewCount: number;
   createdAt: string;
   updatedAt?: string | null;

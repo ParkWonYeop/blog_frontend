@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-26 (uncategorized post rendering hotfix)
+
+- Reproduced the homepage failure triggered by an MCP-created post with no category: the API returns `categoryName: null`, while notice detection called `toLowerCase()` directly. Both homepage filtering and search-result rendering threw a TypeError. The 300-second public-list fetch cache can retain the triggering post after deletion; production returned HTTP 500 before recovering after the post was removed.
+- Treat absent categories as non-notices, represent the nullable API field in the post type, and retain the administrator dashboard's string category contract with the existing 미분류 fallback. Added regression coverage for uncategorized home/search rendering and notice aliases.
+- Validation: the new regression tests failed on the deployed source before the fix. In a clean snapshot isolated from concurrent UI work, clean npm ci, npm run check, all 25 Node tests, and the production build passed. Existing low/moderate dependency advisories remain unchanged. No memory limit, dependency, API, or cache policy changes were made.
+- Operational evidence: the API health endpoint was UP and both deployment runners were online. Host memory/OOM/runtime logs were unavailable because no blog-server SSH or remote Docker connection was configured; memory exhaustion was not independently measured.
+- Recommended next task: provide read-only runtime log and memory monitoring access for future incident diagnosis.
+
 ## 2026-10-26 (MCP deployment dependency fixes)
 
 - The first MCP deployment passed lint/type checking but was blocked by the existing high/critical dependency audit findings. Updated Next.js to 16.4.3 and only the affected follow-redirects, source-map-js, and zod lock entries. Preserved the existing ESLint configuration and React Hooks plugin versions; no application behavior or audit thresholds were changed.

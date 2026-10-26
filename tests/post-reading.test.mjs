@@ -87,6 +87,31 @@ function homeWithResponse(response, calls) {
   }).default;
 }
 
+test('uncategorized posts render on the homepage and in search results', async () => {
+  const post = {
+    id: 142, title: '카테고리 없는 글', slug: 'uncategorized-regression',
+    categoryName: null, viewCount: 0, createdAt: '2026-10-26T14:00:00',
+    content: '미분류 글도 정상적으로 표시되어야 합니다.', tags: [],
+  };
+  for (const params of [{}, { keyword: '카테고리' }]) {
+    const Home = homeWithResponse({ content: [post], totalPages: 1, totalElements: 1 }, []);
+    const html = renderToStaticMarkup(await Home({ searchParams: Promise.resolve(params) }));
+    assert.match(html, /카테고리 없는 글/);
+    assert.match(html, /미분류/);
+    assert.match(html, /href="\/posts\/uncategorized-regression"/);
+  }
+});
+
+test('notice matching handles absent categories and preserves notice aliases', () => {
+  for (const categoryName of [null, undefined, '', 'Infra']) {
+    assert.equal(postLib.isNoticePost({ categoryName }), false);
+  }
+  for (const categoryName of ['공지', 'Notice', 'ANNOUNCEMENT']) {
+    assert.equal(postLib.isNoticePost({ categoryName }), true);
+  }
+  assert.equal(postLib.isNoticePost({ categoryName: 'announcement' }, { includeAnnouncement: false }), false);
+});
+
 test('the server search route requests the selected zero-based backend page', async () => {
   const calls = [];
   const Home = homeWithResponse({ content: [], page: { totalPages: 3, totalElements: 45, number: 1 } }, calls);

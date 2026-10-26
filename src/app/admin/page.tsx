@@ -46,7 +46,7 @@ const toPostStat = (post: Post): DashboardPostStat => ({
   id: post.id,
   title: post.title,
   slug: post.slug,
-  categoryName: post.categoryName,
+  categoryName: post.categoryName || '미분류',
   viewCount: post.viewCount,
   rangeViewCount: post.viewCount,
   createdAt: post.createdAt,

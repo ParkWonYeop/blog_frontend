@@ -21,10 +21,10 @@ export const isNoticePost = (
 };
 
 export const isNoticeCategoryName = (
-  categoryName = '',
+  categoryName: string | null | undefined = '',
   { includeAnnouncement = true }: NoticeMatchOptions = {},
 ) => {
-  const normalizedName = categoryName.toLowerCase();
+  const normalizedName = (categoryName ?? '').toLowerCase();
   return NOTICE_CATEGORY_NAMES.has(normalizedName)
     || (includeAnnouncement && normalizedName === 'announcement');
 };
