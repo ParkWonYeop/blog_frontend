@@ -61,8 +61,8 @@ npm run start
 
 - `src/app/`: App Router pages, layouts, providers, metadata, sitemap, and robots.
 - `src/app/admin/`: administrator routes protected by `AdminRouteShell`.
-- `src/shared/layout/DesktopShell.tsx`: persistent shell and the application’s only `main` landmark.
-- `src/shared/layout/`: Sidebar, desktop menu bar, Dock, and shell behavior.
+- `src/shared/layout/AppShell.tsx`: persistent shell and the application’s only `main` landmark.
+- `src/shared/layout/`: `AppBar` (top bar, desktop navigation and auth), `Sidebar` (profile, search, category tree; mobile drawer), `TabBar` (mobile bottom tabs and the 더보기 bottom sheet), and `navigation.ts`.
 
 Use Server Components by default. Add `'use client'` only for hooks, events, browser APIs, React Query, Zustand, or client-only libraries.
 
@@ -70,7 +70,7 @@ Rules:
 
 - Keep `useSearchParams` beneath a `Suspense` boundary.
 - Follow the repository’s Next.js 16 dynamic route pattern where `params` may be a `Promise`.
-- Do not add a nested `main` element inside `DesktopShell`.
+- Do not add a nested `main` element inside `AppShell`.
 - Keep metadata, canonical URLs, sitemap, and robots aligned with `https://blog.wypark.me`.
 - Preserve server rendering for public post discovery and SEO-sensitive pages.
 
@@ -120,7 +120,6 @@ Preserve these storage keys unless a migration is part of the task:
 
 - `wyp-theme-mode`
 - `sidebar-collapsed`
-- `dock-pinned-v2`
 - `postViewMode`
 - `categoryPageSize`
 - `temp_drafts`

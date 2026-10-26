@@ -35,7 +35,7 @@ const FILTER_OPTIONS: readonly SegmentedControlOption<OutcomeFilter>[] = [
 function LoadingState({ message = '대국 기록을 불러오는 중입니다.' }: { message?: string }) {
   return (
     <ChessPageFrame title="대국 기록" backHref="/chess" backLabel="체스">
-      <WindowSurface title="History" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="History" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={30} />
         <p className="text-sm font-semibold text-[var(--color-text)]">{message}</p>
       </WindowSurface>
@@ -46,12 +46,12 @@ function LoadingState({ message = '대국 기록을 불러오는 중입니다.' 
 function LoginRequired() {
   return (
     <ChessPageFrame title="대국 기록" backHref="/chess" backLabel="체스">
-      <WindowSurface title="History" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
-        <AlertCircle className="mb-3 text-amber-500" size={30} />
+      <WindowSurface title="History" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="mb-3 text-[var(--color-text-subtle)]" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h1>
         <Link
           href="/login?redirect=/chess/history"
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -63,14 +63,14 @@ function LoginRequired() {
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <ChessPageFrame title="대국 기록" backHref="/chess" backLabel="체스">
-      <WindowSurface title="History" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
-        <AlertCircle className="mb-3 text-red-500" size={30} />
+      <WindowSurface title="History" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="mb-3 text-[var(--color-danger)]" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">기록을 불러오지 못했습니다.</h1>
         <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">{message}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
         >
           <RotateCcw size={16} />
           다시 시도
@@ -221,11 +221,10 @@ export default function ChessHistoryClient() {
       <WindowSurface
         title="Online"
         subtitle={`${filteredOnlineGames.length.toLocaleString()} / ${onlineGames.length.toLocaleString()} games`}
-        showTrafficLights={false}
         bodyClassName="p-3 md:p-4"
       >
         {onlineQuery.isError ? (
-          <p className="px-3 py-6 text-center text-sm font-semibold text-red-700 dark:text-red-300">
+          <p className="px-3 py-6 text-center text-sm font-semibold text-[var(--color-danger)]">
             {getChessErrorMessage(onlineQuery.error, '온라인 대국 기록을 불러오지 못했습니다.')}
           </p>
         ) : filteredOnlineGames.length > 0 ? (
@@ -244,7 +243,6 @@ export default function ChessHistoryClient() {
       <WindowSurface
         title="Maia3"
         subtitle={`${filteredGames.length.toLocaleString()} / ${games.length.toLocaleString()} games`}
-        showTrafficLights={false}
         controls={(
           <SegmentedControl
             ariaLabel="대국 결과 필터"

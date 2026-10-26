@@ -38,7 +38,7 @@ export default function McpCreatedKeyNotice({ issuedKey, onDismiss }: {
         className="mt-2 w-full min-w-0 resize-none break-all rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] p-3 font-mono text-sm text-[var(--color-text)]"
       />
       <div className="mt-3 flex flex-wrap gap-2">
-        <button type="button" onClick={() => void copyToken()} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)]">
+        <button type="button" onClick={() => void copyToken()} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] hover:bg-[var(--color-accent-hover)]">
           {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
           {copied ? '복사됨 · 다시 복사' : '키 복사'}
         </button>

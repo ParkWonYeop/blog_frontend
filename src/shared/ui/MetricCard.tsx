@@ -32,20 +32,20 @@ export default function MetricCard({
 
   return (
     <Surface className={clsx('p-5', disabled && 'opacity-70', className)}>
-      <div className="flex items-center justify-between gap-3 text-[var(--color-text-muted)]">
-        <span className="text-sm font-semibold">{label}</span>
+      <div className="flex items-center justify-between gap-3 text-[var(--color-text-subtle)]">
+        <span className="text-body2 font-medium text-[var(--color-text-muted)]">{label}</span>
         {icon}
       </div>
       <p
         className={clsx(
-          'mt-4 break-keep text-3xl font-bold tracking-normal text-[var(--color-text)]',
-          disabled && 'text-base leading-7 text-[var(--color-text-muted)]',
+          'mt-3 break-keep text-title1 font-bold tabular-nums text-[var(--color-text)]',
+          disabled && 'text-body1 font-medium text-[var(--color-text-muted)]',
         )}
       >
         {formatValue(value)}
       </p>
       {(helper || hasChange) && (
-        <p className="mt-3 text-xs font-medium text-[var(--color-text-subtle)]">
+        <p className="mt-1 text-caption1 font-medium tabular-nums text-[var(--color-text-subtle)]">
           {hasChange ? `${isPositive ? '+' : ''}${changeRate.toFixed(1)}%` : helper}
         </p>
       )}

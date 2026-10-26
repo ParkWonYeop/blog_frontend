@@ -4,18 +4,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { BarChart3, FileText, FolderTree, KeyRound, Loader2, MessageSquareText, UserRound } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
-import WindowSurface from '@/shared/ui/WindowSurface';
 import { useAuthStore } from '@/features/auth/store';
 
 const navItems = [
-  { href: '/admin', label: '대시보드', icon: BarChart3, exact: true },
-  { href: '/admin/posts', label: '게시글', icon: FileText },
-  { href: '/admin/comments', label: '댓글', icon: MessageSquareText },
-  { href: '/admin/categories', label: '카테고리', icon: FolderTree },
-  { href: '/admin/profile', label: '프로필', icon: UserRound },
-  { href: '/admin/mcp', label: 'MCP 연결', icon: KeyRound },
+  { href: '/admin', label: '대시보드', exact: true },
+  { href: '/admin/posts', label: '게시글' },
+  { href: '/admin/comments', label: '댓글' },
+  { href: '/admin/categories', label: '카테고리' },
+  { href: '/admin/profile', label: '프로필' },
+  { href: '/admin/mcp', label: 'MCP 연결' },
 ];
 
 const getCurrentPath = (pathname: string) => {
@@ -52,20 +51,20 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
   if (!_hasHydrated || !isAdmin) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={36} />
+        <Loader2 className="animate-spin text-[var(--color-text-subtle)]" size={28} aria-label="불러오는 중" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-6 px-0 py-4 md:py-6">
-      <WindowSurface title="System Settings" subtitle="Admin Console" bodyClassName="p-2">
+    <div className="mx-auto w-full max-w-[1280px] space-y-6">
+      <div>
+        <h1 className="text-title2 font-bold text-[var(--color-text)] md:text-title1">관리자</h1>
         <nav
-          className="flex gap-2 overflow-x-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-1 shadow-[var(--shadow-card)] backdrop-blur-[18px]"
+          className="-mx-4 mt-4 flex overflow-x-auto border-b border-[var(--stroke-muted)] px-4 scrollbar-hide md:mx-0 md:px-0"
           aria-label="관리자 메뉴"
         >
           {navItems.map((item) => {
-            const Icon = item.icon;
             const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
@@ -74,19 +73,18 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
                 href={item.href}
                 aria-current={isActive ? 'page' : undefined}
                 className={clsx(
-                  'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition',
+                  'relative inline-flex h-12 shrink-0 items-center px-3 text-body2 font-semibold transition-colors',
                   isActive
-                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-text)] shadow-sm'
-                    : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
+                    ? 'text-[var(--color-text)] after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-[var(--color-text)]'
+                    : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
                 )}
               >
-                <Icon size={16} />
                 {item.label}
               </Link>
             );
           })}
         </nav>
-      </WindowSurface>
+      </div>
 
       {children}
     </div>

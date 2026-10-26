@@ -22,10 +22,7 @@ export default function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   return (
     <div
-      className={clsx(
-        'inline-flex h-9 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-[18px]',
-        className,
-      )}
+      className={clsx('inline-flex h-10 rounded-xl bg-[var(--color-control)] p-1', className)}
       role="group"
       aria-label={ariaLabel}
     >
@@ -39,10 +36,10 @@ export default function SegmentedControl<T extends string>({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={clsx(
-              'min-w-14 rounded-full px-3 text-sm font-semibold transition duration-150',
+              'min-w-14 flex-1 rounded-lg px-3 text-body2 font-semibold transition-colors',
               isSelected
-                ? 'bg-[var(--card-bg-strong)] text-[var(--color-text)] shadow-sm'
-                : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
+                ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
             )}
           >
             {option.label}

@@ -58,12 +58,12 @@ const isTypingTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
 
 const secondaryButtonClass =
-  'inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
 
 function Gate({ icon, title, children }: { icon: ReactNode; title: string; children?: ReactNode }) {
   return (
     <ChessPageFrame title="온라인 대국" backHref="/chess/online" backLabel="Online">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         {icon}
         <h2 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">{title}</h2>
         {children}
@@ -103,8 +103,8 @@ function PlayerBar({
         <span
           className={clsx(
             'h-2.5 w-2.5 shrink-0 rounded-full border',
-            color === 'white' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#151922]',
-            onTurn && 'ring-2 ring-emerald-500/60',
+            color === 'white' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#1b1b1b]',
+            onTurn && 'ring-2 ring-[var(--color-text)]',
           )}
           aria-hidden="true"
         />
@@ -113,7 +113,7 @@ function PlayerBar({
           {isMe && <span className="ml-1 text-xs font-medium text-[var(--color-text-subtle)]">(나)</span>}
         </span>
         {!player.connected && game.status === 'IN_PROGRESS' && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:text-red-300">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-transparent bg-[var(--color-danger-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-danger)]">
             <WifiOff size={12} />
             연결 끊김{forfeitSeconds !== null && ` · ${forfeitSeconds}초`}
           </span>
@@ -151,7 +151,7 @@ export default function ChessOnlinePlayClient({ gameId }: ChessOnlinePlayClientP
       <Gate icon={<LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />} title="로그인이 필요합니다.">
         <Link
           href={`/login?redirect=/chess/online/${gameId}`}
-          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -407,14 +407,14 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
     if (isAuthError(gameQuery.error)) {
       return (
         <Gate icon={<LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />} title="로그인이 필요합니다.">
-          <Link href={`/login?redirect=/chess/online/${gameId}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white">
+          <Link href={`/login?redirect=/chess/online/${gameId}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)]">
             로그인
           </Link>
         </Gate>
       );
     }
     return (
-      <Gate icon={<AlertCircle className="mb-3 text-red-500" size={30} />} title="대국을 불러오지 못했습니다.">
+      <Gate icon={<AlertCircle className="mb-3 text-[var(--color-danger)]" size={30} />} title="대국을 불러오지 못했습니다.">
         <p className="mt-2 text-sm text-[var(--color-text-muted)]">{getChessErrorMessage(gameQuery.error, '')}</p>
         <button type="button" onClick={() => void gameQuery.refetch()} className={`${secondaryButtonClass} mt-6`}>
           <RotateCcw size={16} />
@@ -463,7 +463,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
   return (
     <ChessPageFrame title="온라인 대국" backHref="/chess/online" backLabel="Online">
       {connectionNotice && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-800 dark:text-amber-200">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--stroke-weak)] bg-[var(--color-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--color-text)]">
           <span className="inline-flex items-center gap-2">
             {socketStatus === 'replaced' ? <WifiOff size={16} /> : <Loader2 className="animate-spin" size={16} />}
             {connectionNotice}
@@ -481,7 +481,6 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
         <WindowSurface
           title="체스 보드"
           subtitle={boardSubtitle}
-          showTrafficLights={false}
           controls={(
             <button
               type="button"
@@ -489,7 +488,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               aria-pressed={flipped}
               aria-label="보드 뒤집기"
               title="보드 뒤집기 (F)"
-              className="inline-flex h-11 w-11 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+              className="inline-flex h-11 w-11 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
             >
               <ArrowUpDown size={15} />
             </button>
@@ -518,9 +517,9 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 <button
                   type="button"
                   onClick={() => setViewPly(null)}
-                  className="absolute bottom-3 left-1/2 z-30 w-max max-w-[95%] -translate-x-1/2 rounded-full border border-white/25 bg-black/62 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_rgb(0_0_0_/_0.28)] backdrop-blur-md transition hover:bg-black/75"
+                  className="absolute bottom-3 left-1/2 z-30 w-max max-w-[95%] -translate-x-1/2 rounded-xl bg-[var(--color-inverse)] px-4 py-2.5 text-body2 font-semibold text-[var(--color-on-inverse)] shadow-[var(--shadow-floating)] transition hover:bg-[var(--color-accent-hover)]"
                 >
-                  {currentPly}수 국면 보는 중 · 현재로 돌아가기
+                  현재 국면으로 돌아가기
                 </button>
               )}
             </div>
@@ -531,7 +530,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 <div className="mt-3 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)] px-3 py-3">
                   <p className="text-sm font-semibold text-[var(--color-text)]">{opponent.nickname}님이 무승부를 제안했습니다.</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-white">
+                    <button type="button" onClick={() => send({ type: 'DRAW_ACCEPT', gameId })} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] text-xs font-semibold text-[var(--color-on-accent)]">
                       수락
                     </button>
                     <button type="button" onClick={() => send({ type: 'DRAW_DECLINE', gameId })} disabled={socketStatus !== 'ready'} className={`${secondaryButtonClass} min-h-11 text-xs`}>
@@ -549,7 +548,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
             {isFocused && inProgress && (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => send({ type: 'DRAW_OFFER', gameId })} disabled={socketStatus !== 'ready' || game.drawOfferedBy !== null} className={secondaryButtonClass}><Handshake size={16} />무승부 제안</button>
-                <button type="button" onClick={handleResign} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 text-sm font-semibold text-red-700 disabled:opacity-50 dark:text-red-300"><Flag size={16} />기권</button>
+                <button type="button" onClick={handleResign} disabled={socketStatus !== 'ready'} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-transparent bg-[var(--color-danger-soft)] text-sm font-semibold text-[var(--color-danger)] disabled:opacity-50"><Flag size={16} />기권</button>
               </div>
             )}
             {canInteract && (
@@ -561,7 +560,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
         </WindowSurface>
 
         <ChessGameDetails ended={!inProgress}>
-          <WindowSurface title="Game Info" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+          <WindowSurface title="Game Info" as="aside" bodyClassName="p-4 md:p-5">
             <div className="mb-4 flex min-w-0 flex-wrap items-center gap-2">
               <StatusBadge tone={outcomeBadgeTones[outcome]}>{getChessOutcomeLabel(outcome)}</StatusBadge>
               <StatusBadge tone="neutral">{game.timeControl.label}</StatusBadge>
@@ -575,8 +574,8 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                   className={clsx(
                     'rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
                     game.turn === myColor
-                      ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                      : 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+                      ? 'border-[var(--stroke-weak)] bg-[var(--color-surface)] text-[var(--color-text)]'
+                      : 'border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-text-muted)]',
                   )}
                 >
                   {game.turn === myColor ? '내 차례입니다.' : `${opponent.nickname} 차례입니다.`}
@@ -588,9 +587,9 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
               <div
                 className={clsx(
                   'rounded-lg border px-3 py-3',
-                  outcome === 'WIN' && 'border-emerald-500/25 bg-emerald-500/10',
-                  outcome === 'LOSS' && 'border-red-500/20 bg-red-500/10',
-                  outcome !== 'WIN' && outcome !== 'LOSS' && 'border-[var(--color-line)] bg-black/[0.025] dark:bg-white/[0.06]',
+                  outcome === 'WIN' && 'border-[var(--stroke-weak)] bg-[var(--color-surface)]',
+                  outcome === 'LOSS' && 'border-transparent bg-[var(--color-danger-soft)]',
+                  outcome !== 'WIN' && outcome !== 'LOSS' && 'border-[var(--color-line)] bg-[var(--color-surface)]',
                 )}
               >
                 <p className="text-base font-bold text-[var(--color-text)]">
@@ -601,7 +600,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                 </p>
                 <Link
                   href="/chess/online"
-                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
                 >
                   <Shuffle size={14} />
                   새 대국 찾기
@@ -624,7 +623,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                   type="button"
                   onClick={handleResign}
                   disabled={socketStatus !== 'ready'}
-                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-3 text-sm font-semibold text-[var(--color-danger)] transition hover:bg-[var(--color-danger)]/15 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Flag size={16} />
                   기권
@@ -637,17 +636,17 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
             </div>
 
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
                 <dt className="text-xs text-[var(--color-text-subtle)]">내 색상</dt>
                 <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{getTurnLabel(myColor)}</dd>
               </div>
-              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
                 <dt className="text-xs text-[var(--color-text-subtle)]">상대</dt>
                 <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{opponent.nickname}</dd>
               </div>
             </dl>
 
-            <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+            <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
               <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-[var(--color-text)]">
                 PGN
                 <button
@@ -656,7 +655,7 @@ function OnlineGame({ gameId, initialMemberId }: { gameId: string; initialMember
                     event.preventDefault();
                     copyPgn();
                   }}
-                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
                 >
                   <Clipboard size={14} />
                   복사

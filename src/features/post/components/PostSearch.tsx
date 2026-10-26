@@ -13,7 +13,7 @@ interface PostSearchProps {
 
 export default function PostSearch({
   onSearch,
-  placeholder = '검색어를 입력하세요...',
+  placeholder = '검색어를 입력해 주세요',
   className,
   initialKeyword = '',
 }: PostSearchProps) {
@@ -46,36 +46,34 @@ export default function PostSearch({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={clsx('relative w-full max-w-md', className)}>
-      <div className="relative">
-        <label htmlFor={inputId} className="sr-only">게시글 검색</label>
-        <input
-          id={inputId}
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          className="w-full rounded-full border border-[var(--control-border)] bg-[var(--color-control)] py-2.5 pl-10 pr-10 text-sm text-[var(--color-text)] shadow-[var(--shadow-control)] outline-none transition-all placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)] focus:bg-[var(--card-bg-strong)]"
-        />
+    <form onSubmit={handleSubmit} role="search" className={clsx('relative w-full', className)}>
+      <label htmlFor={inputId} className="sr-only">게시글 검색</label>
+      <input
+        id={inputId}
+        type="search"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className="h-11 w-full rounded-xl border pl-10 pr-10 text-body2 text-[var(--color-text)] outline-none [&::-webkit-search-cancel-button]:hidden"
+      />
+      <button
+        type="submit"
+        className="absolute left-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text)]"
+        aria-label="검색"
+      >
+        <Search size={18} />
+      </button>
+      {keyword && (
         <button
-          type="submit"
-          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-accent)]"
-          aria-label="검색"
+          type="button"
+          onClick={handleClear}
+          className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text)]"
+          aria-label="검색어 지우기"
         >
-          <Search size={18} />
+          <X size={16} />
         </button>
-        {keyword && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-subtle)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]"
-            aria-label="검색어 지우기"
-          >
-            <X size={14} />
-          </button>
-        )}
-      </div>
+      )}
     </form>
   );
 }

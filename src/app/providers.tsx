@@ -55,7 +55,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <AuthInitializer />
         {children}
-        <Toaster position="top-right" />
+        <Toaster
+          position="bottom-center"
+          containerStyle={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
+          toastOptions={{ className: 'wy-toast' }}
+        />
         {process.env.NODE_ENV === 'development' && (
           <ReactQueryDevtools initialIsOpen={false} />
         )}

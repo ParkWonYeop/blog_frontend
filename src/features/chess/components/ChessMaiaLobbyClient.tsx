@@ -55,7 +55,7 @@ const clampRating = (value: number) => Math.min(2600, Math.max(600, value));
 function LoadingGate() {
   return (
     <ChessPageFrame title="Maia3" backHref="/chess/bot" backLabel="BOT">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={30} />
         <p className="text-sm font-semibold text-[var(--color-text)]">로그인 상태를 확인하는 중입니다.</p>
       </WindowSurface>
@@ -66,12 +66,12 @@ function LoadingGate() {
 function LoginRequired() {
   return (
     <ChessPageFrame title="Maia3" backHref="/chess/bot" backLabel="BOT">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />
         <h2 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h2>
         <Link
           href={`/login?redirect=${LOBBY_PATH}`}
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -144,13 +144,13 @@ export default function ChessMaiaLobbyClient() {
   return (
     <ChessPageFrame title="Maia3" backHref="/chess/bot" backLabel="BOT">
       {gamesQuery.isError && (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-700 dark:text-red-300">
+        <div className="rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-danger)]">
           {getChessErrorMessage(gamesQuery.error, '대국 기록을 불러오지 못했습니다.')}
         </div>
       )}
 
       <section className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <WindowSurface title="New Game" showTrafficLights={false} bodyClassName="p-4 md:p-5">
+        <WindowSurface title="New Game" bodyClassName="p-4 md:p-5">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
@@ -189,7 +189,7 @@ export default function ChessMaiaLobbyClient() {
                     aria-pressed={form.rating === preset.value}
                     onClick={() => setForm((previous) => ({ ...previous, rating: preset.value }))}
                     className={clsx(
-                      'rounded-full border px-3 py-1 text-xs font-semibold transition',
+                      'rounded-lg border px-3 py-1 text-xs font-semibold transition',
                       form.rating === preset.value
                         ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]'
                         : 'border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
@@ -224,7 +224,7 @@ export default function ChessMaiaLobbyClient() {
               </div>
             </div>
 
-            <details className="rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-4 py-3 dark:bg-white/[0.06]">
+            <details className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
               <summary className="cursor-pointer text-sm font-semibold text-[var(--color-text-muted)]">
                 고급 설정
               </summary>
@@ -259,7 +259,7 @@ export default function ChessMaiaLobbyClient() {
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-bold text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-bold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {createMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Bot size={18} />}
               대국 시작
@@ -267,7 +267,7 @@ export default function ChessMaiaLobbyClient() {
           </form>
         </WindowSurface>
 
-        <WindowSurface title="Recent Games" showTrafficLights={false} as="aside" bodyClassName="p-3 md:p-4">
+        <WindowSurface title="Recent Games" as="aside" bodyClassName="p-3 md:p-4">
           {gamesQuery.isLoading ? (
             <div className="flex min-h-56 flex-col items-center justify-center text-center">
               <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={26} />
@@ -277,7 +277,7 @@ export default function ChessMaiaLobbyClient() {
               {inProgressGame && (
                 <Link
                   href={`/chess/play/${inProgressGame.gameId}`}
-                  className="mb-1 flex items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 dark:text-emerald-300"
+                  className="mb-1 flex items-center justify-between gap-3 rounded-lg border border-[var(--stroke-weak)] bg-[var(--color-surface)] px-3 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-surface-strong)]"
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Play size={15} className="shrink-0" />

@@ -49,9 +49,9 @@ export default function ChessClock({ millis, receivedAt, running, active }: Ches
         'inline-flex min-w-[4.5rem] items-center justify-center rounded-lg border px-2.5 py-1 font-mono text-lg font-bold tabular-nums leading-none',
         active
           ? isLow
-            ? 'border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300'
-            : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-          : 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+            ? 'border-transparent bg-[var(--color-danger-soft)] text-[var(--color-danger)]'
+            : 'border-[var(--stroke-weak)] bg-[var(--color-surface)] text-[var(--color-text)]'
+          : 'border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-text-muted)]',
       )}
     >
       <span>{formatClock(remaining)}</span>

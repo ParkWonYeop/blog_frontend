@@ -283,14 +283,14 @@ export default function AdminPage() {
         <div className="flex flex-wrap gap-2">
           <Link
             href="/admin/posts"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-5 py-3 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]"
           >
             <FileText size={17} />
             게시글 관리
           </Link>
           <Link
             href="/admin/posts/new"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)]"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
           >
             <PenLine size={17} />
             새 글 작성

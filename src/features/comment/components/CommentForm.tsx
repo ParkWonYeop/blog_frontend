@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthStore } from '@/features/auth/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '@/features/auth/store';
 import { createComment } from '@/features/comment/api';
-import { Loader2, Send } from 'lucide-react';
 import { getErrorMessage } from '@/shared/lib/errors';
 import { queryKeys } from '@/shared/lib/queryKeys';
 
@@ -15,7 +16,9 @@ interface CommentFormProps {
   placeholder?: string;
 }
 
-export default function CommentForm({ postSlug, parentId = null, onSuccess, placeholder = '댓글을 남겨보세요.' }: CommentFormProps) {
+const fieldClass = 'w-full rounded-xl border px-3.5 text-body2 text-[var(--color-text)] outline-none';
+
+export default function CommentForm({ postSlug, parentId = null, onSuccess, placeholder = '댓글을 남겨 주세요' }: CommentFormProps) {
   const { isLoggedIn } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -31,7 +34,7 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
       if (onSuccess) onSuccess();
     },
     onError: (error: unknown) => {
-      alert(`댓글 작성 실패: ${getErrorMessage(error, '알 수 없는 오류가 발생했습니다.')}`);
+      toast.error(getErrorMessage(error, '댓글을 등록하지 못했어요'));
     },
   });
 
@@ -39,11 +42,9 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
     e.preventDefault();
     if (!content.trim()) return;
 
-    if (!isLoggedIn) {
-      if (!guestInfo.nickname.trim() || !guestInfo.password.trim()) {
-        alert('닉네임과 비밀번호를 입력해주세요.');
-        return;
-      }
+    if (!isLoggedIn && (!guestInfo.nickname.trim() || !guestInfo.password.trim())) {
+      toast.error('닉네임과 비밀번호를 입력해 주세요');
+      return;
     }
 
     mutation.mutate({
@@ -56,45 +57,47 @@ export default function CommentForm({ postSlug, parentId = null, onSuccess, plac
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
-      {/* 비회원 입력 필드 */}
+    <form onSubmit={handleSubmit} className="space-y-2">
       {!isLoggedIn && (
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-2 gap-2">
           <input
             type="text"
+            aria-label="닉네임"
             placeholder="닉네임"
+            autoComplete="nickname"
             value={guestInfo.nickname}
             onChange={(e) => setGuestInfo({ ...guestInfo, nickname: e.target.value })}
-            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
+            className={`${fieldClass} h-11`}
             required
           />
           <input
             type="password"
+            aria-label="비밀번호"
             placeholder="비밀번호"
+            autoComplete="new-password"
             value={guestInfo.password}
             onChange={(e) => setGuestInfo({ ...guestInfo, password: e.target.value })}
-            className="w-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition focus:border-[var(--color-accent)]"
+            className={`${fieldClass} h-11`}
             required
           />
         </div>
       )}
 
-      {/* 댓글 내용 입력 */}
-      <div className="relative">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={isLoggedIn ? placeholder : '댓글을 남겨보세요.'}
-          className="h-24 w-full resize-none rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-3 pr-12 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-accent)]"
-          required
-        />
+      <textarea
+        aria-label="댓글 내용"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder={placeholder}
+        className={`${fieldClass} block h-28 resize-none py-3 text-body1`}
+        required
+      />
+      <div className="flex justify-end">
         <button
           type="submit"
-          disabled={mutation.isPending}
-          className="absolute bottom-3 right-3 rounded-lg bg-[var(--color-accent)] p-2 text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-          title="등록"
+          disabled={mutation.isPending || !content.trim()}
+          className="inline-flex h-10 min-w-16 items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 text-body2 font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-control)] disabled:text-[var(--color-text-disabled)]"
         >
-          {mutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+          {mutation.isPending ? <Loader2 className="animate-spin" size={16} aria-label="등록하는 중" /> : '등록'}
         </button>
       </div>
     </form>

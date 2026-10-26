@@ -81,7 +81,7 @@ const isTypingTarget = (target: EventTarget | null) =>
 function LoadingState({ message = '대국을 불러오는 중입니다.' }: { message?: string }) {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={30} />
         <p className="text-sm font-semibold text-[var(--color-text)]">{message}</p>
       </WindowSurface>
@@ -92,12 +92,12 @@ function LoadingState({ message = '대국을 불러오는 중입니다.' }: { me
 function LoginRequired() {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
-        <AlertCircle className="mb-3 text-amber-500" size={30} />
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="mb-3 text-[var(--color-text-subtle)]" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h1>
         <Link
           href="/login?redirect=/chess/bot/maia3"
-          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -109,14 +109,14 @@ function LoginRequired() {
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <ChessPageFrame>
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
-        <AlertCircle className="mb-3 text-red-500" size={30} />
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="mb-3 text-[var(--color-danger)]" size={30} />
         <h1 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">대국을 불러오지 못했습니다.</h1>
         <p className="mt-2 max-w-md break-words text-sm leading-6 text-[var(--color-text-muted)]">{message}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
         >
           <RotateCcw size={16} />
           다시 시도
@@ -149,8 +149,8 @@ function PlayerBar({
         <span
           className={clsx(
             'h-2.5 w-2.5 shrink-0 rounded-full border',
-            color === 'w' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#151922]',
-            active && 'ring-2 ring-emerald-500/60',
+            color === 'w' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#1b1b1b]',
+            active && 'ring-2 ring-[var(--color-text)]',
           )}
           aria-hidden="true"
         />
@@ -197,7 +197,7 @@ function GameInfoPanel({
   const gameEnded = game.status !== 'IN_PROGRESS';
 
   return (
-    <WindowSurface title="Game Info" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+    <WindowSurface title="Game Info" as="aside" bodyClassName="p-4 md:p-5">
       <div className="mb-4 flex min-w-0 flex-wrap items-center gap-2">
         <StatusBadge tone={outcomeBadgeTones[game.outcome]}>{getChessOutcomeLabel(game.outcome, game.status)}</StatusBadge>
         {gameEnded && <StatusBadge tone="neutral">{getTerminationLabel(game.status)}</StatusBadge>}
@@ -208,9 +208,9 @@ function GameInfoPanel({
         <div
           className={clsx(
             'rounded-lg border px-3 py-3',
-            game.outcome === 'WIN' && 'border-emerald-500/25 bg-emerald-500/10',
-            game.outcome === 'LOSS' && 'border-red-500/20 bg-red-500/10',
-            game.outcome !== 'WIN' && game.outcome !== 'LOSS' && 'border-[var(--color-line)] bg-black/[0.025] dark:bg-white/[0.06]',
+            game.outcome === 'WIN' && 'border-[var(--stroke-weak)] bg-[var(--color-surface)]',
+            game.outcome === 'LOSS' && 'border-transparent bg-[var(--color-danger-soft)]',
+            game.outcome !== 'WIN' && game.outcome !== 'LOSS' && 'border-[var(--color-line)] bg-[var(--color-surface)]',
           )}
         >
           <p className="text-base font-bold text-[var(--color-text)]">{getGameOverTitle(game.outcome, game.status)}</p>
@@ -222,7 +222,7 @@ function GameInfoPanel({
               type="button"
               onClick={() => onRematch(false)}
               disabled={rematchPending}
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 text-xs font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {rematchPending ? <Loader2 className="animate-spin" size={14} /> : <RefreshCw size={14} />}
               재대국
@@ -231,7 +231,7 @@ function GameInfoPanel({
               type="button"
               onClick={() => onRematch(true)}
               disabled={rematchPending}
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <ArrowUpDown size={14} />
               색 바꿔 재대국
@@ -242,8 +242,8 @@ function GameInfoPanel({
         <div
           className={clsx(
             'rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
-            isPlayerTurn && !pending && 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-            (!isPlayerTurn || pending) && 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+            isPlayerTurn && !pending && 'border-[var(--stroke-weak)] bg-[var(--color-surface)] text-[var(--color-text)]',
+            (!isPlayerTurn || pending) && 'border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-text-muted)]',
           )}
         >
           {pending && '요청을 처리하는 중입니다.'}
@@ -259,7 +259,7 @@ function GameInfoPanel({
               type="button"
               onClick={onUndo}
               disabled={!canUndo}
-              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Undo2 size={16} />
               무르기
@@ -268,7 +268,7 @@ function GameInfoPanel({
               type="button"
               onClick={onResign}
               disabled={!canResign}
-              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 text-sm font-semibold text-red-700 shadow-[var(--shadow-control)] transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-3 text-sm font-semibold text-[var(--color-danger)] transition hover:bg-[var(--color-danger)]/15 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Flag size={16} />
               기권
@@ -277,7 +277,7 @@ function GameInfoPanel({
         )}
         <Link
           href="/chess/bot/maia3"
-          className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-3 text-sm font-semibold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)]"
+          className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-3 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           <PlusCircle size={16} />
           새 게임
@@ -289,25 +289,25 @@ function GameInfoPanel({
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+        <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
           <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
           <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{game.rating}</dd>
         </div>
-        <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+        <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
           <dt className="text-xs text-[var(--color-text-subtle)]">모델</dt>
           <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">Maia3 {game.model}</dd>
         </div>
-        <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+        <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
           <dt className="text-xs text-[var(--color-text-subtle)]">내 색상</dt>
           <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{getTurnLabel(game.playerColor)}</dd>
         </div>
-        <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+        <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
           <dt className="text-xs text-[var(--color-text-subtle)]">현재 차례</dt>
           <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{getTurnLabel(game.turn)}</dd>
         </div>
       </dl>
 
-      <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+      <details className="mt-4 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
         <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-[var(--color-text)]">
           PGN
           <button
@@ -316,7 +316,7 @@ function GameInfoPanel({
               event.preventDefault();
               onCopyPgn();
             }}
-            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
           >
             <Clipboard size={14} />
             복사
@@ -700,7 +700,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
       actions={(
         <Link
           href="/chess/history"
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
         >
           <History size={16} />
           기록
@@ -713,7 +713,6 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
         <WindowSurface
           title="체스 보드"
           subtitle={boardSubtitle}
-          showTrafficLights={false}
           controls={(
             <button
               type="button"
@@ -721,7 +720,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
               aria-pressed={flipped}
               aria-label="보드 뒤집기"
               title="보드 뒤집기 (F)"
-              className="inline-flex h-11 w-11 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+              className="inline-flex h-11 w-11 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
             >
               <ArrowUpDown size={15} />
             </button>
@@ -750,14 +749,14 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
                 <button
                   type="button"
                   onClick={() => setViewPly(null)}
-                  className="absolute bottom-3 left-1/2 z-30 w-max max-w-[95%] -translate-x-1/2 rounded-full border border-white/25 bg-black/62 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_rgb(0_0_0_/_0.28)] backdrop-blur-md transition hover:bg-black/75"
+                  className="absolute bottom-3 left-1/2 z-30 w-max max-w-[95%] -translate-x-1/2 rounded-xl bg-[var(--color-inverse)] px-4 py-2.5 text-body2 font-semibold text-[var(--color-on-inverse)] shadow-[var(--shadow-floating)] transition hover:bg-[var(--color-accent-hover)]"
                 >
-                  {currentPly}수 국면 보는 중 · 현재로 돌아가기
+                  현재 국면으로 돌아가기
                 </button>
               )}
               {isPending && (
                 <div className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2">
-                  <div className="flex items-center gap-2 rounded-full border border-white/25 bg-black/62 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_rgb(0_0_0_/_0.28)] backdrop-blur-md">
+                  <div className="flex items-center gap-2 rounded-xl bg-[var(--color-inverse)] px-4 py-2.5 text-body2 font-semibold text-[var(--color-on-inverse)] shadow-[var(--shadow-floating)]">
                     <Loader2 className="animate-spin" size={16} />
                     {pendingLabel || '처리 중'}
                   </div>
@@ -768,7 +767,7 @@ export default function ChessGamePlayClient({ gameId }: ChessGamePlayClientProps
             {isFocused && game.status === 'IN_PROGRESS' && (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button type="button" onClick={handleUndo} disabled={!canUndo} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-sm font-semibold text-[var(--color-text-muted)] disabled:opacity-50"><Undo2 size={16} />무르기</button>
-                <button type="button" onClick={handleResign} disabled={!canResign} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 text-sm font-semibold text-red-700 disabled:opacity-50 dark:text-red-300"><Flag size={16} />기권</button>
+                <button type="button" onClick={handleResign} disabled={!canResign} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-transparent bg-[var(--color-danger-soft)] text-sm font-semibold text-[var(--color-danger)] disabled:opacity-50"><Flag size={16} />기권</button>
               </div>
             )}
             {canInteract && (

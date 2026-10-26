@@ -14,7 +14,7 @@ export default function DraftLoadDialog({
   onConfirm,
 }: DraftLoadDialogProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 px-4 py-6 backdrop-blur-sm sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 px-4 py-6 sm:items-center">
       <WindowSurface title="임시저장 불러오기" className="w-full max-w-md" bodyClassName="p-5">
         <p className="text-sm leading-6 text-[var(--color-text-muted)]">
           현재 작성 중인 내용이 선택한 임시저장 글로 바뀝니다.
@@ -29,14 +29,14 @@ export default function DraftLoadDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center justify-center rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+            className="inline-flex items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
           >
             취소
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+            className="inline-flex items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
           >
             불러오기
           </button>

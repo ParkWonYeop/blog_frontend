@@ -1,19 +1,12 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import {
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  FileQuestion,
-  Folder,
-  FolderOpen,
-} from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import { getCategories } from '@/features/category/api';
 import { getProfile } from '@/features/profile/api';
 import { getBlogStats } from '@/shared/api/stats';
@@ -26,7 +19,6 @@ import type { Category, Profile } from '@/shared/types';
 interface SidebarProps {
   isDesktopCollapsed: boolean;
   isMobileOpen: boolean;
-  onDesktopCollapsedChange: (nextValue: boolean) => void;
   onMobileOpenChange: (nextValue: boolean) => void;
 }
 
@@ -44,6 +36,8 @@ const defaultProfile: Profile = {
   githubUrl: 'https://github.com',
   email: 'user@example.com',
 };
+
+const rowClass = 'flex min-h-10 min-w-0 flex-1 items-center rounded-lg px-3 text-body2 transition-colors';
 
 function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemProps) {
   const sortedChildren = useMemo(() => sortCategoriesById(category.children), [category.children]);
@@ -67,46 +61,37 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
   const isChildrenVisible = isExpanded || isActive || hasActiveChild;
 
   return (
-    <div className="mb-1">
-      <div
-        className={clsx(
-          'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all',
-          isActive
-            ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)] shadow-sm'
-            : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
-        )}
-        style={{ marginLeft: `${depth * 8}px` }}
-      >
+    <li>
+      <div className="flex items-center gap-0.5" style={{ paddingLeft: `${depth * 12}px` }}>
         <Link
           href={`/category/${category.name}`}
           onClick={onNavigate}
-          className="flex min-w-0 flex-1 items-center gap-2.5"
+          aria-current={isActive ? 'page' : undefined}
+          className={clsx(
+            rowClass,
+            isActive
+              ? 'bg-[var(--color-surface)] font-bold text-[var(--color-text)]'
+              : 'font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]',
+          )}
         >
-          {isActive ? <FolderOpen size={16} /> : <Folder size={16} />}
           <span className="truncate">{category.name}</span>
         </Link>
 
         {hasChildren && (
           <button
             type="button"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setIsExpanded((previous) => !previous);
-            }}
-            className="ml-1 rounded-full p-1 transition-colors hover:bg-[var(--card-bg)]"
+            onClick={() => setIsExpanded((previous) => !previous)}
+            className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--color-text-placeholder)] transition-colors hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]"
             aria-label={isChildrenVisible ? `${category.name} 접기` : `${category.name} 펼치기`}
+            aria-expanded={isChildrenVisible}
           >
-            <ChevronRight
-              size={14}
-              className={clsx('text-[var(--color-text-subtle)] transition-transform duration-200', isChildrenVisible && 'rotate-90')}
-            />
+            <ChevronRight size={16} className={clsx('transition-transform', isChildrenVisible && 'rotate-90')} />
           </button>
         )}
       </div>
 
       {isChildrenVisible && hasChildren && (
-        <div className="ml-4 border-l border-[var(--color-line)]">
+        <ul>
           {sortedChildren.map((child) => (
             <CategoryItem
               key={child.id}
@@ -116,16 +101,15 @@ function CategoryItem({ category, depth, onNavigate, pathname }: CategoryItemPro
               pathname={pathname}
             />
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </li>
   );
 }
 
 function SidebarContent({
   isDesktopCollapsed,
   isMobileOpen,
-  onDesktopCollapsedChange,
   onMobileOpenChange,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -154,215 +138,153 @@ function SidebarContent({
   });
 
   const displayProfile = profile ? { ...defaultProfile, ...profile } : defaultProfile;
-  const decodedPathname = decodePathSegment(pathname);
+  const isUncategorized = pathname === '/category/uncategorized';
 
   const closeSidebar = () => onMobileOpenChange(false);
 
+  useEffect(() => {
+    if (!isMobileOpen) return undefined;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onMobileOpenChange(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileOpen, onMobileOpenChange]);
+
   const handleSearch = (newKeyword: string) => {
     const trimmedKeyword = newKeyword.trim();
-    if (trimmedKeyword) {
-      router.push(`/?keyword=${encodeURIComponent(trimmedKeyword)}`);
-      closeSidebar();
-      return;
-    }
-
-    router.push('/');
+    router.push(trimmedKeyword ? `/?keyword=${encodeURIComponent(trimmedKeyword)}` : '/');
     closeSidebar();
   };
-
-  const compactCategoryItems = sortedCategories?.slice(0, 8) ?? [];
 
   return (
     <>
       <button
         type="button"
-        aria-label="사이드바 닫기"
+        aria-label="탐색 닫기"
+        tabIndex={isMobileOpen ? 0 : -1}
         onClick={closeSidebar}
         className={clsx(
-          'fixed inset-0 z-50 bg-black/35 backdrop-blur-sm transition-opacity md:hidden',
+          'fixed inset-0 z-50 bg-[var(--color-overlay)] transition-opacity duration-200 md:hidden',
           isMobileOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
 
       <aside
+        aria-label="블로그 탐색"
         className={clsx(
-          'fixed left-0 top-0 z-[60] flex h-screen w-72 max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-sidebar)] backdrop-blur-[30px] transition-[transform,width] duration-300 ease-out md:left-4 md:top-14 md:z-40 md:h-[calc(100vh-9rem)] md:max-w-none md:translate-x-0 md:rounded-lg md:border',
-          isDesktopCollapsed ? 'md:w-[4.5rem]' : 'md:w-72',
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 left-0 z-50 flex w-[300px] max-w-[86vw] flex-col bg-[var(--color-page)] transition-transform',
+          'md:top-14 md:z-30 md:w-[264px] md:max-w-none md:border-r md:border-[var(--stroke-subtle)]',
+          isMobileOpen ? 'translate-x-0 duration-250 ease-enter' : '-translate-x-full duration-200 ease-exit',
+          isDesktopCollapsed ? 'md:-translate-x-full' : 'md:translate-x-0',
         )}
       >
-        <div className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-[var(--window-titlebar-border)] bg-[var(--window-titlebar)] px-4">
-          <div className={clsx('min-w-0', isDesktopCollapsed && 'md:hidden')}>
-            <p className="truncate text-sm font-bold text-[var(--color-text)]">라이브러리</p>
-            <p className="truncate text-[11px] font-medium text-[var(--color-text-subtle)]">검색과 카테고리</p>
-          </div>
-
+        <div className="flex h-14 shrink-0 items-center justify-between px-5 md:hidden">
+          <span className="text-title4 font-bold text-[var(--color-text)]">탐색</span>
           <button
             type="button"
-            onClick={() => onDesktopCollapsedChange(!isDesktopCollapsed)}
-            className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] md:flex"
-            aria-label={isDesktopCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+            onClick={closeSidebar}
+            aria-label="탐색 닫기"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-hover)]"
           >
-            {isDesktopCollapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+            <X size={22} />
           </button>
         </div>
 
-        <div className={clsx('relative shrink-0', isDesktopCollapsed ? 'px-5 pb-4 pt-5 md:px-3 md:pb-3 md:pt-4' : 'px-5 pb-4 pt-5')}>
-          <Link
-            href="/"
-            onClick={closeSidebar}
-            className={clsx(
-              'flex min-w-0 items-center gap-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3 transition hover:bg-[var(--card-bg-strong)]',
-              isDesktopCollapsed && 'md:justify-center md:border-transparent md:bg-transparent md:p-0 md:hover:bg-transparent',
-            )}
-          >
-            <div
-              className={clsx(
-                'relative shrink-0 overflow-hidden rounded-lg bg-black/[0.04] shadow-inner ring-1 ring-[var(--color-line)] transition-all dark:bg-white/10',
-                isDesktopCollapsed ? 'h-12 w-12' : 'h-12 w-12',
-              )}
-            >
-              {isProfileLoading ? (
-                <div className="h-full w-full animate-pulse bg-black/[0.06] dark:bg-white/10" />
-              ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 md:pt-6">
+          <Link href="/" onClick={closeSidebar} className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-[var(--color-hover)]">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[var(--color-surface)]">
+              {!isProfileLoading && (
                 <Image
                   src={displayProfile.imageUrl || defaultProfile.imageUrl!}
-                  alt="프로필"
+                  alt=""
                   fill
-                  sizes="96px"
-                  className="object-cover"
+                  sizes="44px"
+                  className="object-cover grayscale"
                   unoptimized
                   priority
                 />
               )}
             </div>
-
-            <div className={clsx('min-w-0 text-left', isDesktopCollapsed && 'md:hidden')}>
+            <div className="min-w-0">
               {isProfileLoading ? (
-                <div className="space-y-2">
-                  <div className="h-6 w-24 animate-pulse rounded bg-black/[0.06] dark:bg-white/10" />
-                  <div className="h-4 w-32 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
-                </div>
+                <div className="h-5 w-20 animate-pulse rounded-md bg-[var(--color-surface)]" />
               ) : (
-                <>
-                  <h2 className="truncate text-sm font-bold tracking-normal text-[var(--color-text)]">{displayProfile.name}</h2>
-                  <p className="mt-0.5 line-clamp-2 whitespace-pre-line text-xs leading-5 text-[var(--color-text-muted)]">{displayProfile.bio}</p>
-                </>
+                <p className="truncate text-body1 font-bold text-[var(--color-text)]">{displayProfile.name}</p>
               )}
             </div>
           </Link>
-        </div>
+          {!isProfileLoading && displayProfile.bio && (
+            <p className="mt-2 line-clamp-3 whitespace-pre-line px-2 text-body2 text-[var(--color-text-muted)]">{displayProfile.bio}</p>
+          )}
 
-        <nav className="flex min-h-0 flex-1 flex-col px-4 py-2">
-          <div className={clsx('flex h-full flex-col', isDesktopCollapsed && 'md:hidden')}>
-            <div className="shrink-0 space-y-1">
-              <div id="blog-search" className="mb-5 mt-2 px-1">
-                <PostSearch
-                  onSearch={handleSearch}
-                  placeholder="검색..."
-                  initialKeyword={keyword}
-                />
-              </div>
-
-              <div className="mb-4 border-t border-[var(--color-line)]" />
-
-              <div className="mb-3 flex h-8 items-center justify-between px-3">
-                <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">카테고리</p>
-              </div>
-            </div>
-
-            <div className="-mx-2 flex-1 overflow-y-auto px-2 scrollbar-hide">
-              {!categories && (
-                <div className="space-y-2 px-4">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="h-8 animate-pulse rounded bg-black/[0.04] dark:bg-white/10" />
-                  ))}
-                </div>
-              )}
-
-              <div className="mb-6 min-h-[50px] rounded-lg">
-                {sortedCategories?.map((category) => (
-                  <CategoryItem
-                    key={category.id}
-                    category={category}
-                    depth={0}
-                    onNavigate={closeSidebar}
-                    pathname={pathname}
-                  />
-                ))}
-
-                <div className="mb-1 mt-2">
-                  <Link
-                    href="/category/uncategorized"
-                    onClick={closeSidebar}
-                    className={clsx(
-                      'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all',
-                      pathname === '/category/uncategorized'
-                        ? 'bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
-                        : 'text-[var(--color-text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
-                    )}
-                  >
-                    <FileQuestion size={16} />
-                    <span>미분류</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
+          <div id="blog-search" className="mt-5">
+            <PostSearch onSearch={handleSearch} placeholder="글 검색" initialKeyword={keyword} />
           </div>
 
-          <div className={clsx('hidden flex-1 flex-col items-center gap-2 overflow-y-auto px-0 pb-4 pt-2 md:flex', !isDesktopCollapsed && 'md:hidden')}>
-            {compactCategoryItems.map((category) => {
-              const isActive = decodedPathname === `/category/${category.name}`;
-
-              return (
-                <Link
+          <nav aria-label="카테고리" className="mt-7">
+            <p className="mb-1.5 px-3 text-caption1 font-semibold text-[var(--color-text-subtle)]">카테고리</p>
+            {!categories && (
+              <div className="space-y-1.5 px-1" aria-hidden="true">
+                {[1, 2, 3, 4].map((item) => (
+                  <div key={item} className="h-9 animate-pulse rounded-lg bg-[var(--color-surface)]" />
+                ))}
+              </div>
+            )}
+            <ul>
+              {sortedCategories?.map((category) => (
+                <CategoryItem
                   key={category.id}
-                  href={`/category/${category.name}`}
-                  title={category.name}
-                  aria-label={category.name}
+                  category={category}
+                  depth={0}
+                  onNavigate={closeSidebar}
+                  pathname={pathname}
+                />
+              ))}
+              <li>
+                <Link
+                  href="/category/uncategorized"
+                  onClick={closeSidebar}
+                  aria-current={isUncategorized ? 'page' : undefined}
                   className={clsx(
-                    'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
-                    isActive && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
+                    rowClass,
+                    'flex',
+                    isUncategorized
+                      ? 'bg-[var(--color-surface)] font-bold text-[var(--color-text)]'
+                      : 'font-medium text-[var(--color-text-subtle)] hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]',
                   )}
                 >
-                  <Folder size={18} />
+                  미분류
                 </Link>
-              );
-            })}
+              </li>
+            </ul>
+          </nav>
+        </div>
 
-            <Link
-              href="/category/uncategorized"
-              title="미분류"
-              aria-label="미분류"
-              className={clsx(
-                'flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]',
-                pathname === '/category/uncategorized' && 'bg-[var(--card-bg-strong)] text-[var(--color-accent)]',
-              )}
-            >
-              <FileQuestion size={18} />
-            </Link>
-          </div>
-        </nav>
-
-        <div
-          className={clsx(
-            'shrink-0 border-t border-[var(--color-line)] bg-[var(--window-titlebar)] p-5',
-            isDesktopCollapsed && 'md:hidden',
-          )}
-        >
+        <div className="shrink-0 border-t border-[var(--stroke-subtle)] px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
           {blogStats && (
-            <div className="mb-4 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
-              <p className="mb-1.5 text-[11px] font-bold tracking-wide text-[var(--color-text-subtle)]">이번 달</p>
-              <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
-                <span>새 글 {blogStats.monthlyPostCount.toLocaleString()}편</span>
-                <span className="tabular-nums">조회 {blogStats.monthlyViewCount.toLocaleString()}</span>
+            <dl className="space-y-1 text-body2">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-[var(--color-text-subtle)]">이번 달 새 글</dt>
+                <dd className="font-semibold tabular-nums text-[var(--color-text)]">{blogStats.monthlyPostCount.toLocaleString()}</dd>
               </div>
-            </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-[var(--color-text-subtle)]">이번 달 조회</dt>
+                <dd className="font-semibold tabular-nums text-[var(--color-text)]">{blogStats.monthlyViewCount.toLocaleString()}</dd>
+              </div>
+            </dl>
           )}
-          <p className="text-center text-[10px] font-light text-[var(--color-text-subtle)]">
-            © {new Date().getFullYear()} {displayProfile.name}
-          </p>
+          <div className="mt-3 flex items-center gap-4 text-caption1 text-[var(--color-text-subtle)]">
+            {displayProfile.githubUrl && (
+              <a href={displayProfile.githubUrl} target="_blank" rel="noreferrer" className="font-semibold hover:text-[var(--color-text)]">GitHub</a>
+            )}
+            {displayProfile.email && (
+              <a href={`mailto:${displayProfile.email}`} className="font-semibold hover:text-[var(--color-text)]">Email</a>
+            )}
+            <span className="ml-auto">© {new Date().getFullYear()} {displayProfile.name}</span>
+          </div>
         </div>
       </aside>
     </>
@@ -371,16 +293,7 @@ function SidebarContent({
 
 export default function Sidebar(props: SidebarProps) {
   return (
-    <Suspense
-      fallback={(
-        <div
-          className={clsx(
-            'h-screen border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]',
-            props.isDesktopCollapsed ? 'w-20' : 'w-72',
-          )}
-        />
-      )}
-    >
+    <Suspense fallback={null}>
       <SidebarContent {...props} />
     </Suspense>
   );

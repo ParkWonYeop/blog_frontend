@@ -14,7 +14,7 @@ export interface Post {
   createdAt: string;
   updatedAt?: string | null;
   content?: string;
-  tags: string[];
+  tags?: string[] | null;
   prevPost?: PostNeighbor | null;
   nextPost?: PostNeighbor | null;
 }

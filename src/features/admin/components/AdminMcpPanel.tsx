@@ -81,7 +81,7 @@ function McpSettings({ memberId }: { memberId: number }) {
   };
 
   return (
-    <WindowSurface title="MCP Settings" subtitle="관리자 연결" bodyClassName="space-y-5 p-4 sm:p-5">
+    <WindowSurface bodyClassName="space-y-5 p-4 sm:p-5">
       <header>
         <h1 className="flex items-center gap-2 text-xl font-bold text-[var(--color-text)]"><KeyRound size={21} aria-hidden="true" /> MCP 연결</h1>
         <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)]">Codex·Claude Code 등의 MCP 클라이언트에서 블로그를 조회하고 관리합니다.</p>

@@ -31,7 +31,7 @@ export default function McpKeyList({ keys, now, isLoading, isFetching, error, co
         </button>
       </div>
 
-      {error && <p role="alert" className="mb-4 text-sm text-red-700 dark:text-red-300">{error}</p>}
+      {error && <p role="alert" className="mb-4 text-sm text-[var(--color-danger)]">{error}</p>}
       {isLoading ? (
         <div role="status" className="flex min-h-36 items-center justify-center gap-2 text-sm text-[var(--color-text-muted)]">
           <Loader2 size={20} className="animate-spin" aria-hidden="true" /> 연결 키를 불러오는 중…
@@ -58,16 +58,16 @@ export default function McpKeyList({ keys, now, isLoading, isFetching, error, co
                     {key.revokedAt && <p className="text-xs leading-5 text-[var(--color-text-subtle)]">폐기 {formatKoreanDateTime(key.revokedAt)}</p>}
                   </div>
                   {!key.revokedAt && !confirming && (
-                    <button type="button" onClick={() => onRequestRevoke(key.id)} disabled={isRevoking} aria-label={`${key.name} 연결 키 폐기`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-red-500/20 bg-[var(--color-danger-soft)] px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-300">
+                    <button type="button" onClick={() => onRequestRevoke(key.id)} disabled={isRevoking} aria-label={`${key.name} 연결 키 폐기`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-3 py-2 text-sm font-semibold text-[var(--color-danger)] hover:bg-[var(--color-danger)]/15 disabled:cursor-not-allowed disabled:opacity-60">
                       <Trash2 size={15} aria-hidden="true" /> 폐기
                     </button>
                   )}
                 </div>
                 {confirming && (
-                  <div className="mt-3 rounded-lg border border-red-500/20 bg-[var(--color-danger-soft)] p-3">
+                  <div className="mt-3 rounded-lg border border-transparent bg-[var(--color-danger-soft)] p-3">
                     <p className="text-sm leading-6 text-[var(--color-text)]">이 키를 폐기할까요? 연결된 앱이 더 이상 이 키를 사용할 수 없으며 되돌릴 수 없습니다.</p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => onConfirmRevoke(key.id)} disabled={isRevoking} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60">
+                      <button type="button" onClick={() => onConfirmRevoke(key.id)} disabled={isRevoking} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--color-danger)] px-3 py-2 text-sm font-semibold text-[var(--color-on-accent)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
                         {isRevoking && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
                         {isRevoking ? '폐기 중…' : '키 폐기 확인'}
                       </button>

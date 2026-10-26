@@ -2,19 +2,17 @@
 
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AlertCircle, ArrowLeft, Calendar, ChevronLeft, ChevronRight, Loader2, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { getPost } from '@/features/post/api';
 import { getProfile } from '@/features/profile/api';
 import { queryKeys } from '@/shared/lib/queryKeys';
+import { formatKoreanDate } from '@/shared/lib/dates';
 import CommentList from '@/features/comment/components/CommentList';
 import MarkdownRenderer from '@/features/post/components/MarkdownRenderer';
 import TOC from '@/features/post/components/TOC';
 import useReadingProgress from '@/features/post/hooks/useReadingProgress';
-import StatusBadge from '@/shared/ui/StatusBadge';
-import WindowSurface from '@/shared/ui/WindowSurface';
 import type { Post } from '@/shared/types';
 
 interface PostDetailClientProps {
@@ -38,8 +36,9 @@ const getPostErrorInfo = (error: unknown) => {
   };
 };
 
+const neighborClass = 'group flex min-h-24 min-w-0 flex-col justify-center gap-1 rounded-2xl bg-[var(--color-surface)] px-5 py-4 transition-colors hover:bg-[var(--color-surface-strong)]';
+
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
-  const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: post, isLoading: isPostLoading, error } = useQuery({
@@ -57,148 +56,110 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
 
   if (isPostLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--color-text-subtle)]" size={28} aria-label="불러오는 중" />
       </div>
     );
   }
 
   if (error || !post) {
     const { status: errorStatus, message } = getPostErrorInfo(error);
-    const errorMessage = message || '게시글을 찾을 수 없습니다.';
     const isAuthError = errorStatus === 401 || errorStatus === 403;
 
     return (
-      <WindowSurface className="mx-auto max-w-[980px]" bodyClassName="px-4 py-20 text-center">
-        <div className="mb-4 flex justify-center">
-          <AlertCircle className="text-[var(--color-text-subtle)]" size={64} />
-        </div>
-        <h2 className="mb-2 text-2xl font-bold text-[var(--color-text)]">
-          {isAuthError ? '접근 권한이 없습니다.' : '게시글을 불러올 수 없습니다.'}
-        </h2>
-        <p className="mb-6 text-[var(--color-text-muted)]">
-          {isAuthError ? '로그인이 필요하거나 비공개 게시글일 수 있습니다.' : errorMessage}
-        </p>
-        <button
-          type="button"
-          onClick={() => router.push('/')}
-          className="rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-5 py-2.5 font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg-strong)]"
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
+        <h1 className="text-title3 font-bold text-[var(--color-text)]">
+          {isAuthError ? '볼 수 없는 글이에요' : '글을 불러오지 못했어요'}
+        </h1>
+        {!isAuthError && message && <p className="mt-2 text-body2 text-[var(--color-text-subtle)]">{message}</p>}
+        <Link
+          href="/"
+          className="mt-8 inline-flex h-12 items-center rounded-xl bg-[var(--color-accent)] px-6 text-body1 font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
         >
-          메인으로
-        </button>
-      </WindowSurface>
+          홈으로
+        </Link>
+      </div>
     );
   }
 
   const prevPost = post.prevPost;
   const nextPost = post.nextPost;
+  const categoryName = post.categoryName || '미분류';
+  const categoryHref = `/category/${post.categoryName ? encodeURIComponent(post.categoryName) : 'uncategorized'}`;
 
   return (
-    <div className="mx-auto min-w-0 max-w-[1120px] px-0 py-3 md:py-6">
-      <Link href="/" className="mb-5 inline-flex items-center gap-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] backdrop-blur-[18px] transition-colors hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-accent)]">
-        <ArrowLeft size={18} />
-        <span>Finder로</span>
-      </Link>
+    <div className="mx-auto min-w-0 max-w-[1040px]">
+      <div
+        role="progressbar"
+        aria-label="읽기 진행률"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={readingProgress}
+        className="fixed inset-x-0 top-14 z-40 h-0.5"
+      >
+        <div className="h-full bg-[var(--color-text)]" style={{ width: `${readingProgress}%` }} />
+      </div>
 
-      <div className="relative flex min-w-0 flex-col items-start gap-6 xl:flex-row xl:justify-center xl:gap-8">
+      <div className="relative flex min-w-0 flex-col gap-6 xl:flex-row xl:items-start xl:gap-14">
         <TOC key={slug} content={post.content || ''} contentRef={contentRef} />
-        <div className="w-full min-w-0 space-y-6 xl:flex-1">
-          <WindowSurface
-            as="article"
-            title="Reader"
-            subtitle={post.categoryName || '미분류'}
-            className="mx-auto w-full max-w-[820px]"
-            bodyClassName="relative px-5 py-7 md:px-10 md:py-10"
-            controls={(
-              <span role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readingProgress} className="text-xs font-bold tabular-nums text-[var(--color-accent)]" aria-label="읽기 진행률">
-                {readingProgress}%
-              </span>
-            )}
-          >
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-[var(--color-line)]" aria-hidden="true">
-              <div
-                className="h-full bg-[var(--color-accent)] transition-[width] duration-150 ease-out"
-                style={{ width: `${readingProgress}%` }}
-              />
-            </div>
-            <div className="mx-auto min-w-0 max-w-[68ch]">
-            <header className="mb-9 border-b border-[var(--color-line)] pb-7">
-              <StatusBadge tone="neutral" className="mb-5">
-                {post.categoryName || '미분류'}
-              </StatusBadge>
-              <h1 className="mb-6 break-words text-3xl font-bold leading-tight tracking-normal text-[var(--color-text)] md:text-4xl lg:text-[2.75rem]">
-                {post.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-text-muted)]">
-                <div className="flex min-w-0 items-center gap-2">
-                  {profile?.imageUrl ? (
-                    <Image
-                      src={profile.imageUrl}
-                      alt="작성자"
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 shrink-0 rounded-full border border-[var(--color-line)] object-cover shadow-sm"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/10">
-                      <User size={16} />
-                    </div>
-                  )}
-                  <span className="min-w-0 truncate font-bold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={16} />
-                  {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                </div>
+
+        <article className="mx-auto w-full min-w-0 max-w-[720px] xl:mx-0 xl:flex-1">
+          <header className="pb-10 md:pt-4">
+            <Link href={categoryHref} className="text-body2 font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]">
+              {categoryName}
+            </Link>
+            <h1 className="mt-3 break-words text-title1 font-bold text-[var(--color-text)] md:text-display">
+              {post.title}
+            </h1>
+            <div className="mt-7 flex min-w-0 items-center gap-3">
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[var(--color-surface)]">
+                {profile?.imageUrl && (
+                  <Image src={profile.imageUrl} alt="" fill sizes="40px" className="object-cover grayscale" unoptimized />
+                )}
               </div>
-            </header>
-
-            <div ref={contentRef} className="prose prose-base min-w-0 max-w-none break-words prose-headings:scroll-mt-36 prose-headings:font-bold prose-headings:tracking-normal prose-headings:text-[var(--color-text)] prose-p:text-[var(--color-text)] prose-p:leading-8 prose-strong:text-[var(--color-text)] prose-li:text-[var(--color-text-muted)] prose-li:leading-8 prose-a:text-[var(--color-accent)] prose-hr:border-[var(--color-line)] prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-[#1e1e1e] prose-pre:text-gray-100 md:prose-lg [overflow-wrap:anywhere]">
-              <MarkdownRenderer content={post.content || ''} />
+              <div className="min-w-0">
+                <p className="truncate text-body2 font-semibold text-[var(--color-text)]">{profile?.name || 'Dev Park'}</p>
+                <p className="text-caption1 text-[var(--color-text-subtle)]">
+                  <time dateTime={post.createdAt}>{formatKoreanDate(post.createdAt)}</time>
+                  <span className="ml-2.5 tabular-nums">조회 {post.viewCount.toLocaleString()}</span>
+                </p>
+              </div>
             </div>
-            </div>
+          </header>
 
-            {(prevPost || nextPost) && (
-              <nav
-                aria-label="이전/다음 글"
-                className="-mx-5 -mb-7 mt-10 grid grid-cols-1 divide-y divide-[var(--window-titlebar-border)] border-t border-[var(--window-titlebar-border)] md:-mx-10 md:-mb-10 md:grid-cols-2 md:divide-x md:divide-y-0"
-              >
-                {prevPost ? (
-                  <Link href={`/posts/${prevPost.slug}`} className="group flex min-w-0 flex-col gap-1 px-5 py-4 transition-colors hover:bg-[var(--card-bg)] md:px-6">
-                    <span className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)]">
-                      <ChevronLeft size={14} />
-                      이전 글
-                    </span>
-                    <span className="line-clamp-1 break-words text-sm font-semibold text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent)]">
-                      {prevPost.title}
-                    </span>
-                  </Link>
-                ) : (
-                  <span className="hidden md:block" aria-hidden="true" />
-                )}
+          <div ref={contentRef} className="min-w-0 border-t border-[var(--stroke-subtle)] pt-10">
+            <MarkdownRenderer content={post.content || ''} />
+          </div>
 
-                {nextPost ? (
-                  <Link href={`/posts/${nextPost.slug}`} className="group flex min-w-0 flex-col items-end gap-1 px-5 py-4 text-right transition-colors hover:bg-[var(--card-bg)] md:px-6">
-                    <span className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)]">
-                      다음 글
-                      <ChevronRight size={14} />
-                    </span>
-                    <span className="line-clamp-1 w-full break-words text-sm font-semibold text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent)]">
-                      {nextPost.title}
-                    </span>
-                  </Link>
-                ) : (
-                  <span className="hidden md:block" aria-hidden="true" />
-                )}
-              </nav>
-            )}
-          </WindowSurface>
+          {(prevPost || nextPost) && (
+            <nav aria-label="이전 글과 다음 글" className="mt-14 grid gap-2 sm:grid-cols-2">
+              {prevPost ? (
+                <Link href={`/posts/${prevPost.slug}`} className={neighborClass}>
+                  <span className="flex items-center gap-0.5 text-caption1 font-semibold text-[var(--color-text-subtle)]">
+                    <ChevronLeft size={14} />
+                    이전 글
+                  </span>
+                  <span className="line-clamp-2 break-words text-body1 font-semibold text-[var(--color-text)]">{prevPost.title}</span>
+                </Link>
+              ) : (
+                <span className="hidden sm:block" aria-hidden="true" />
+              )}
+              {nextPost && (
+                <Link href={`/posts/${nextPost.slug}`} className={`${neighborClass} items-end text-right`}>
+                  <span className="flex items-center gap-0.5 text-caption1 font-semibold text-[var(--color-text-subtle)]">
+                    다음 글
+                    <ChevronRight size={14} />
+                  </span>
+                  <span className="line-clamp-2 w-full break-words text-body1 font-semibold text-[var(--color-text)]">{nextPost.title}</span>
+                </Link>
+              )}
+            </nav>
+          )}
 
-          <WindowSurface title="Comments" showTrafficLights={false} className="mx-auto max-w-[820px]" bodyClassName="p-5 md:p-6">
+          <section aria-labelledby="comments-heading" className="mt-16 border-t border-[var(--stroke-muted)] pt-10">
             <CommentList postSlug={post.slug} />
-          </WindowSurface>
-        </div>
+          </section>
+        </article>
       </div>
     </div>
   );

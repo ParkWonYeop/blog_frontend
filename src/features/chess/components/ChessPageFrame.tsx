@@ -18,19 +18,19 @@ interface ChessPageFrameProps {
 export default function ChessPageFrame({ title, backHref, backLabel, actions, children }: ChessPageFrameProps) {
   const { isFocused, setFocused } = usePageFocus();
   return (
-    <div className={clsx('mx-auto flex w-full min-w-0 flex-col gap-3 px-0 py-1', isFocused ? 'max-w-[44rem]' : 'max-w-[1180px] sm:gap-5 md:py-6')}>
+    <div className={clsx('mx-auto flex w-full min-w-0 flex-col gap-3', isFocused ? 'max-w-[44rem]' : 'max-w-[1040px] sm:gap-5')}>
       {isFocused && (
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-sm font-semibold text-[var(--color-text)]">{title ?? '체스'}</h1>
-          <button type="button" onClick={() => setFocused(false)} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-control)]">
+          <button type="button" onClick={() => setFocused(false)} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-caption1 font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-hover)]">
             <Minimize2 size={16} /> 집중 모드 해제
           </button>
         </div>
       )}
       {title && !isFocused && (
-        <section className="flex min-w-0 flex-col gap-2 border-b border-[var(--color-line)] pb-2 sm:pb-5">
+        <section className="flex min-w-0 flex-col gap-1 px-2 pb-1 sm:px-0 sm:pb-3">
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-            <h1 className="min-w-0 break-words text-xl font-bold sm:text-2xl tracking-normal text-[var(--color-text)] md:text-3xl">
+            <h1 className="min-w-0 break-words text-title2 font-bold text-[var(--color-text)] md:text-title1">
               {title}
             </h1>
             {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
@@ -38,7 +38,7 @@ export default function ChessPageFrame({ title, backHref, backLabel, actions, ch
           {backHref && (
             <Link
               href={backHref}
-              className="inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-semibold text-[var(--color-text-subtle)] transition hover:text-[var(--color-accent)]"
+              className="-ml-1 inline-flex min-h-10 w-fit items-center gap-1 rounded-lg px-1 text-body2 font-semibold text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text)]"
             >
               <ChevronLeft size={15} />
               {backLabel ?? '뒤로'}

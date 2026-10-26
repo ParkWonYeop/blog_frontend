@@ -117,7 +117,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isSaving}
-          className="mt-4 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-blue-200 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-4 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-[var(--stroke-weak)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           이미지 변경
         </button>
@@ -130,7 +130,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
             <input
               value={form.name}
               onChange={(event) => setForm((previous) => ({ ...previous, name: event.target.value }))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)]"
               required
             />
           </label>
@@ -141,7 +141,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
               type="email"
               value={form.email || ''}
               onChange={(event) => setForm((previous) => ({ ...previous, email: event.target.value }))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)]"
             />
           </label>
         </div>
@@ -152,7 +152,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
             type="url"
             value={form.githubUrl || ''}
             onChange={(event) => setForm((previous) => ({ ...previous, githubUrl: event.target.value }))}
-            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)]"
           />
         </label>
 
@@ -161,7 +161,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
           <textarea
             value={form.bio}
             onChange={(event) => setForm((previous) => ({ ...previous, bio: event.target.value }))}
-            className="mt-1 h-28 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm leading-6 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 h-28 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm leading-6 outline-none transition focus:border-[var(--color-text)]"
             required
           />
         </label>
@@ -170,7 +170,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
           <button
             type="submit"
             disabled={isSaving}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
             저장하기
@@ -198,7 +198,7 @@ export default function AdminProfilePanel() {
   ].join('|');
 
   return (
-    <WindowSurface title="Profile" subtitle="Public identity" bodyClassName="p-5">
+    <WindowSurface bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -211,7 +211,7 @@ export default function AdminProfilePanel() {
 
       {isLoading ? (
         <div className="flex min-h-56 items-center justify-center rounded-lg bg-gray-50">
-          <Loader2 className="animate-spin text-blue-500" size={28} />
+          <Loader2 className="animate-spin text-[var(--color-text)]" size={28} />
         </div>
       ) : (
         <ProfileForm key={formKey} profile={displayProfile} />

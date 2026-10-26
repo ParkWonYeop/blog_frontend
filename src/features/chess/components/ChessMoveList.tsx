@@ -13,7 +13,7 @@ interface ChessMoveListProps {
 }
 
 const navButtonClass =
-  'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8';
+  'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8';
 
 export default function ChessMoveList({ history, currentPly, onSelectPly }: ChessMoveListProps) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
@@ -51,7 +51,7 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
         className={clsx(
           'min-h-11 w-full rounded px-2 py-0.5 text-left font-mono text-sm transition sm:min-h-0',
           isActive
-            ? 'bg-[var(--color-accent)] font-semibold text-white'
+            ? 'bg-[var(--color-accent)] font-semibold text-[var(--color-on-accent)]'
             : 'text-[var(--color-text)] hover:bg-[var(--color-accent-soft)]',
         )}
       >
@@ -85,7 +85,7 @@ export default function ChessMoveList({ history, currentPly, onSelectPly }: Ches
         </div>
       </div>
 
-      <div ref={listRef} className="max-h-40 overflow-y-auto overscroll-contain rounded-lg border border-[var(--color-line)] bg-black/[0.025] p-1 sm:max-h-52 dark:bg-white/[0.06]">
+      <div ref={listRef} className="max-h-40 overflow-y-auto overscroll-contain rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-1 sm:max-h-52">
         {rows.length === 0 ? (
           <p className="px-2 py-3 text-center text-xs text-[var(--color-text-subtle)]">아직 둔 수가 없습니다.</p>
         ) : (

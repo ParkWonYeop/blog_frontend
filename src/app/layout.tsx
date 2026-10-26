@@ -3,7 +3,7 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import Providers from './providers';
-import DesktopShell from '@/shared/layout/DesktopShell';
+import AppShell from '@/shared/layout/AppShell';
 import { THEME_INIT_SCRIPT } from '@/shared/theme/theme';
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from '@/shared/lib/site';
 
@@ -67,7 +67,7 @@ export default function RootLayout({
         </Script>
 
         <Providers>
-          <DesktopShell>{children}</DesktopShell>
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

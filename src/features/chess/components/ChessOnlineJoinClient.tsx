@@ -22,12 +22,12 @@ export default function ChessOnlineJoinClient({ code }: ChessOnlineJoinClientPro
   if (!isLoggedIn) {
     return (
       <ChessPageFrame title="초대" backHref="/chess/online" backLabel="Online">
-        <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
           <LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />
           <h2 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h2>
           <Link
             href={`/login?redirect=/chess/online/join/${encodeURIComponent(code)}`}
-            className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+            className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
           >
             로그인
           </Link>
@@ -60,14 +60,14 @@ function JoinByCode({ code }: ChessOnlineJoinClientProps) {
 
   return (
     <ChessPageFrame title="초대" backHref="/chess/online" backLabel="Online">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         {error ? (
           <>
-            <AlertCircle className="mb-3 text-red-500" size={30} />
+            <AlertCircle className="mb-3 text-[var(--color-danger)]" size={30} />
             <p className="text-base font-bold text-[var(--color-text)]">{error}</p>
             <Link
               href="/chess/online"
-              className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+              className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
             >
               Online으로
             </Link>

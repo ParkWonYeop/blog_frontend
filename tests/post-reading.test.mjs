@@ -69,6 +69,10 @@ test('pagination renders real previous/next links and disables boundary navigati
   assert.equal(render(1, 1), '');
 });
 
+const PostListItem = loadSource('src/features/post/components/PostListItem.tsx', {
+  'next/link': Link, '@/shared/lib/dates': { formatKoreanNumericDate: (date) => date }, '@/features/post/lib': postLib,
+}).default;
+
 function homeWithResponse(response, calls) {
   const Surface = ({ children }) => React.createElement('section', null, children);
   return loadSource('src/app/page.tsx', {
@@ -77,6 +81,7 @@ function homeWithResponse(response, calls) {
     'lucide-react': icons,
     '@/features/post/publicApi': { fetchPublicPosts: async (params) => { calls.push(params); return response; } },
     '@/features/post/components/SearchPagination': SearchPagination,
+    '@/features/post/components/PostListItem': PostListItem,
     '@/features/post/search': search,
     '@/shared/lib/pagination': pagination,
     '@/shared/ui/EmptyState': ({ title }) => React.createElement('p', null, title),
@@ -120,7 +125,7 @@ test('the server search route requests the selected zero-based backend page', as
   assert.equal(calls[0].keyword, '검색어');
   assert.equal(calls[0].page, 1);
   assert.equal(calls[0].size, 20);
-  assert.match(html, /45건/);
+  assert.match(html, />45<\/span>개/);
   assert.match(html, /rel="next"/);
 });
 
@@ -134,9 +139,9 @@ test('out-of-range searches redirect to the last available page or an empty firs
 test('search failures preserve the requested URL for a full reload and show no false count', async () => {
   const Home = homeWithResponse(null, []);
   const html = renderToStaticMarkup(await Home({ searchParams: Promise.resolve({ keyword: 'React', page: '2' }) }));
-  assert.match(html, /검색 결과를 불러오지 못했습니다/);
+  assert.match(html, /검색 결과를 불러오지 못했어요/);
   assert.match(html, /href="\/\?keyword=React&amp;page=2"/);
-  assert.doesNotMatch(html, /0건|검색 결과 페이지/);
+  assert.doesNotMatch(html, />0<\/span>개|검색 결과 페이지/);
 });
 
 test('reading progress completes at the article body end and clamps before/after it', () => {

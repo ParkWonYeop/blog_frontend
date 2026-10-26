@@ -55,7 +55,7 @@ export default function PostEditorSidebar({
             [wordCount.toLocaleString(), '단어'],
             [readingMinutes, '분'],
           ].map(([value, label]) => (
-            <div key={label} className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3 shadow-[var(--shadow-card)]">
+            <div key={label} className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
               <p className="text-lg font-bold tabular-nums text-[var(--color-text)]">{value}</p>
               <p className="text-[10px] font-semibold text-[var(--color-text-subtle)]">{label}</p>
             </div>
@@ -71,7 +71,7 @@ export default function PostEditorSidebar({
           <Folder size={17} />
           카테고리
         </h2>
-        <div className="max-h-64 overflow-y-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-2 shadow-[var(--shadow-card)]">
+        <div className="max-h-64 overflow-y-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-2">
           {categories.length > 0 ? (
             <CategoryOptions categories={categories} selectedId={categoryId} onSelect={onCategoryChange} />
           ) : (
@@ -102,7 +102,7 @@ export default function PostEditorSidebar({
           <ImageIcon size={17} />
           이미지
         </h2>
-        <label className={`flex min-h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--card-border)] bg-[var(--card-bg)] p-4 text-center shadow-[var(--shadow-card)] transition hover:border-[var(--color-accent)] hover:bg-[var(--card-bg-strong)] ${isUploading ? 'cursor-wait opacity-60' : ''}`}>
+        <label className={`flex min-h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--card-border)] bg-[var(--card-bg)] p-4 text-center transition hover:border-[var(--color-accent)] hover:bg-[var(--card-bg-strong)] ${isUploading ? 'cursor-wait opacity-60' : ''}`}>
           <UploadCloud className="mb-2 h-7 w-7 text-[var(--color-text-subtle)]" />
           <span className="text-sm font-semibold text-[var(--color-text)]">
             {isUploading ? '업로드 중...' : '이미지 선택'}
@@ -147,7 +147,7 @@ export default function PostEditorSidebar({
                       <button
                         type="button"
                         onClick={() => onDeleteDraft(draft.id)}
-                        className="rounded p-1.5 text-[var(--color-text-subtle)] transition hover:bg-[var(--color-danger-soft)] hover:text-red-500"
+                        className="rounded p-1.5 text-[var(--color-text-subtle)] transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                         title="삭제"
                       >
                         <Trash2 size={14} />

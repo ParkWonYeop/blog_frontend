@@ -98,12 +98,12 @@ export default function McpKeyCreateForm({ isCreating, hasNewKey, error, onCreat
             ? '읽기 및 쓰기 키는 글·카테고리·댓글·프로필을 변경하고 글·카테고리·댓글을 삭제할 수 있습니다.'
             : '읽기 전용 키는 글·카테고리·댓글·프로필 조회에만 사용합니다.'}
         </p>
-        {displayedError && <p id={errorId} role="alert" className="text-sm text-red-700 dark:text-red-300">{displayedError}</p>}
+        {displayedError && <p id={errorId} role="alert" className="text-sm text-[var(--color-danger)]">{displayedError}</p>}
         {hasNewKey && <p className="text-xs text-[var(--color-text-muted)]">발급된 키를 복사하고 안내를 닫으면 새 키를 만들 수 있습니다.</p>}
         <button
           type="submit"
           disabled={disabled}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isCreating ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <KeyRound size={16} aria-hidden="true" />}
           {isCreating ? '발급 중…' : '연결 키 발급'}

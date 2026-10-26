@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import type { Comment } from '@/shared/types';
-import { useAuthStore } from '@/features/auth/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteComment } from '@/features/comment/api';
 import { format } from 'date-fns';
-import { User, CheckCircle2, Trash2, MessageSquare, UserCheck, X } from 'lucide-react';
-import CommentForm from './CommentForm';
 import { clsx } from 'clsx';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '@/features/auth/store';
+import { deleteComment } from '@/features/comment/api';
 import { getErrorMessage } from '@/shared/lib/errors';
 import { queryKeys } from '@/shared/lib/queryKeys';
+import StatusBadge from '@/shared/ui/StatusBadge';
+import type { Comment } from '@/shared/types';
+import CommentForm from './CommentForm';
 
 interface CommentItemProps {
   comment: Comment;
@@ -19,18 +19,20 @@ interface CommentItemProps {
   depth?: number;
 }
 
+const textButtonClass = 'inline-flex h-8 items-center font-semibold transition-colors hover:text-[var(--color-text)]';
+
 export default function CommentItem({ comment, postSlug, depth = 0 }: CommentItemProps) {
   const { isLoggedIn, user } = useAuthStore();
-  
+
   const queryClient = useQueryClient();
   const [isReplying, setIsReplying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [guestPassword, setGuestPassword] = useState('');
 
   const isGuestComment = !comment.memberId;
-  
+
   const isMyComment = isLoggedIn && !isGuestComment && (
-    (user?.memberId && comment.memberId && user.memberId === comment.memberId) || 
+    (user?.memberId && comment.memberId && user.memberId === comment.memberId) ||
     (user?.nickname === comment.author)
   );
 
@@ -40,16 +42,16 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
     mutationFn: ({ id, password }: { id: number; password?: string }) => deleteComment(id, password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.comments.post(postSlug) });
-      toast.success('댓글이 삭제되었습니다.');
+      toast.success('댓글을 삭제했어요');
     },
     onError: (error) => {
-      toast.error(`삭제 실패: ${getErrorMessage(error, '비밀번호가 틀렸습니다.')}`);
+      toast.error(getErrorMessage(error, '비밀번호를 확인해 주세요'));
     },
   });
 
   const handleDeleteClick = () => {
     if (isMyComment) {
-      if (confirm('이 댓글을 삭제하시겠습니까?')) {
+      if (confirm('댓글을 삭제할까요?')) {
         deleteMutation.mutate({ id: comment.id });
       }
       return;
@@ -62,133 +64,106 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
 
   const handleGuestDeleteSubmit = () => {
     if (!guestPassword.trim()) {
-      toast.error('비밀번호를 입력해주세요.');
+      toast.error('비밀번호를 입력해 주세요');
       return;
     }
     deleteMutation.mutate({ id: comment.id, password: guestPassword });
   };
 
   return (
-    <div className={clsx("flex flex-col", depth > 0 && "mt-3")}>
-      <div 
-        className={clsx(
-          "relative p-4 rounded-xl transition-colors group",
-          comment.isPostAuthor
-            ? "border border-blue-500/15 bg-[var(--color-accent-soft)]"
-            : "border border-[var(--color-line)] bg-[var(--color-surface)]"
-        )}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div 
-              className={clsx(
-                "flex items-center justify-center rounded-full p-1.5", 
-                comment.isPostAuthor ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" :
-                !isGuestComment ? "bg-green-500/15 text-green-600 dark:text-green-300" : 
-                "bg-black/[0.05] text-[var(--color-text-muted)] dark:bg-white/10"
-              )}
-            >
-              {comment.isPostAuthor ? <CheckCircle2 size={14} /> : 
-               !isGuestComment ? <UserCheck size={14} /> : 
-               <User size={14} />}
-            </div>
+    <li className={clsx(depth === 0 ? 'border-b border-[var(--stroke-subtle)] py-5 last:border-b-0' : 'pt-5')}>
+      <div className="flex gap-3">
+        <span
+          aria-hidden="true"
+          className={clsx(
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-body2 font-bold',
+            comment.isPostAuthor ? 'bg-[var(--color-inverse)] text-[var(--color-on-inverse)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)]',
+          )}
+        >
+          {comment.author.slice(0, 1)}
+        </span>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2">
-              <span className={clsx("flex items-center gap-1 text-sm font-bold", comment.isPostAuthor ? "text-[var(--color-accent)]" : "text-[var(--color-text)]")}>
-                {comment.author}
-                {comment.isPostAuthor && <span className="rounded-full bg-[var(--color-accent-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">작성자</span>}
-              </span>
-              <span className="text-xs text-[var(--color-text-subtle)]">
-                {format(new Date(comment.createdAt), 'yyyy.MM.dd HH:mm')}
-              </span>
-            </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5">
+            <span className="truncate text-body2 font-semibold text-[var(--color-text)]">{comment.author}</span>
+            {comment.isPostAuthor && <StatusBadge tone="success">작성자</StatusBadge>}
           </div>
 
-          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-            <button
-              type="button"
-              onClick={() => setIsReplying(!isReplying)}
-              className="rounded p-1.5 text-[var(--color-text-subtle)] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)]"
-              title="답글 달기"
-              aria-label="답글 달기"
-            >
-              <MessageSquare size={14} />
+          <p className="mt-1 whitespace-pre-wrap break-words text-body1 text-[var(--color-text)]">
+            {comment.content}
+          </p>
+
+          <div className="mt-1 flex items-center gap-3 text-caption1 text-[var(--color-text-subtle)]">
+            <time dateTime={comment.createdAt} className="tabular-nums">{format(new Date(comment.createdAt), 'yyyy.MM.dd HH:mm')}</time>
+            <button type="button" onClick={() => setIsReplying(!isReplying)} aria-expanded={isReplying} className={textButtonClass}>
+              답글 쓰기
             </button>
-            
             {showDeleteButton && (
               <button
                 type="button"
                 onClick={handleDeleteClick}
-                className={clsx(
-                  "p-1.5 rounded transition-colors",
-                  isDeleting ? "bg-red-500/10 text-red-600" : 
-                  "text-[var(--color-text-subtle)] hover:bg-red-500/10 hover:text-red-600"
-                )}
-                title="삭제"
-                aria-label="댓글 삭제"
+                aria-expanded={isGuestComment ? isDeleting : undefined}
+                className={clsx(textButtonClass, 'hover:text-[var(--color-danger)]')}
               >
-                <Trash2 size={14} />
+                삭제
               </button>
             )}
           </div>
+
+          {isDeleting && isGuestComment && (
+            <div className="mt-2 flex max-w-sm items-center gap-2">
+              <input
+                type="password"
+                aria-label="댓글 비밀번호"
+                placeholder="비밀번호"
+                value={guestPassword}
+                onChange={(e) => setGuestPassword(e.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-lg border px-3 text-body2 outline-none"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleGuestDeleteSubmit}
+                disabled={deleteMutation.isPending}
+                className="h-10 shrink-0 rounded-lg bg-[var(--color-danger)] px-3.5 text-body2 font-semibold text-[var(--color-on-accent)] transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                삭제
+              </button>
+              <button
+                type="button"
+                onClick={() => { setIsDeleting(false); setGuestPassword(''); }}
+                className="h-10 shrink-0 rounded-lg px-3 text-body2 font-semibold text-[var(--color-text-subtle)] hover:bg-[var(--color-hover)]"
+              >
+                닫기
+              </button>
+            </div>
+          )}
+
+          {isReplying && (
+            <div className="mt-3">
+              <CommentForm
+                postSlug={postSlug}
+                parentId={comment.id}
+                onSuccess={() => setIsReplying(false)}
+                placeholder={`${comment.author}님에게 답글 남기기`}
+              />
+            </div>
+          )}
+
+          {comment.children && comment.children.length > 0 && (
+            <ul>
+              {comment.children.map((child) => (
+                <CommentItem
+                  key={child.id}
+                  comment={child}
+                  postSlug={postSlug}
+                  depth={depth + 1}
+                />
+              ))}
+            </ul>
+          )}
         </div>
-
-        <p className="pl-1 text-sm leading-relaxed text-[var(--color-text)] whitespace-pre-wrap">
-          {comment.content}
-        </p>
-
-        {isDeleting && isGuestComment && (
-           <div className="mt-3 flex animate-in items-center gap-2 rounded-lg bg-black/[0.04] p-2 duration-200 fade-in slide-in-from-top-1 dark:bg-white/10">
-             <input
-               type="password"
-               placeholder="비밀번호 입력"
-               value={guestPassword}
-               onChange={(e) => setGuestPassword(e.target.value)}
-               className="rounded border border-[var(--color-line)] bg-[var(--color-control)] px-2 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-accent)] focus:outline-none"
-               autoFocus
-             />
-             <button
-               type="button"
-               onClick={handleGuestDeleteSubmit}
-               className="text-xs bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 transition-colors font-medium"
-             >
-               삭제
-             </button>
-             <button
-               type="button"
-               onClick={() => { setIsDeleting(false); setGuestPassword(''); }}
-               className="rounded-full p-1 text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)]"
-               aria-label="삭제 취소"
-             >
-               <X size={14} />
-             </button>
-           </div>
-        )}
       </div>
-
-      {isReplying && (
-        <div className="mt-2 ml-4 animate-in border-l-2 border-[var(--color-line)] pl-4 fade-in slide-in-from-top-2">
-          <CommentForm 
-            postSlug={postSlug} 
-            parentId={comment.id} 
-            onSuccess={() => setIsReplying(false)}
-            placeholder={`@${comment.author}님에게 답글 남기기`}
-          />
-        </div>
-      )}
-
-      {comment.children && comment.children.length > 0 && (
-        <div className="mt-2 ml-2 space-y-3 border-l-2 border-[var(--color-line)] pl-4 md:ml-4 md:pl-8">
-          {comment.children.map((child) => (
-            <CommentItem 
-              key={child.id} 
-              comment={child} 
-              postSlug={postSlug} 
-              depth={depth + 1} 
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </li>
   );
 }

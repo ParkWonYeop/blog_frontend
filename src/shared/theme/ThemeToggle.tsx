@@ -20,7 +20,7 @@ export default function ThemeToggle() {
 
   return (
     <div
-      className="inline-flex h-9 shrink-0 items-center rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-[18px]"
+      className="inline-flex h-9 shrink-0 items-center rounded-lg bg-[var(--color-control)] p-0.5"
       role="group"
       aria-label="화면 테마"
     >
@@ -37,13 +37,13 @@ export default function ThemeToggle() {
             title={`${option.label} 모드`}
             onClick={() => setMode(option.value)}
             className={clsx(
-              'inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition duration-150 sm:w-8',
+              'inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors',
               isSelected
-                ? 'bg-[var(--card-bg-strong)] text-[var(--color-text)] shadow-sm'
-                : 'text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
+                ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
             )}
           >
-            <Icon size={15} strokeWidth={2.2} />
+            <Icon size={16} strokeWidth={2} />
           </button>
         );
       })}

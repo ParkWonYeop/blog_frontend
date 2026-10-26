@@ -213,7 +213,7 @@ export default function AdminPostsPanel() {
   };
 
   return (
-    <WindowSurface title="Posts" subtitle="Management" bodyClassName="p-5">
+    <WindowSurface bodyClassName="p-5">
       <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -225,7 +225,7 @@ export default function AdminPostsPanel() {
 
         <Link
           href="/admin/posts/new"
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           <Edit2 size={15} />
           새 글 작성
@@ -241,13 +241,13 @@ export default function AdminPostsPanel() {
               value={keywordInput}
               onChange={(event) => setKeywordInput(event.target.value)}
               placeholder="제목 또는 본문 검색"
-              className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-[var(--color-text)] focus:bg-white"
             />
           </label>
 
           <button
             type="submit"
-            className="inline-flex shrink-0 items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
           >
             검색
           </button>
@@ -256,7 +256,7 @@ export default function AdminPostsPanel() {
             <button
               type="button"
               onClick={handleClearSearch}
-              className="inline-flex shrink-0 items-center justify-center rounded-full px-3 py-2 text-sm font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
             >
               초기화
             </button>
@@ -279,7 +279,7 @@ export default function AdminPostsPanel() {
                 type="button"
                 onClick={() => setIsBulkDeleteOpen(true)}
                 disabled={isFetching}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-3 py-2 text-sm font-semibold text-[var(--color-danger)] transition hover:bg-[var(--color-danger-soft)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Trash2 size={15} />
                 선택 삭제 {selectedPostIds.size.toLocaleString()}
@@ -291,7 +291,7 @@ export default function AdminPostsPanel() {
               <select
                 value={categoryName}
                 onChange={handleCategoryChange}
-                className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 outline-none transition focus:border-[var(--color-text)]"
               >
                 <option value="">전체 카테고리</option>
                 {categoryOptions.map((category) => (
@@ -307,7 +307,7 @@ export default function AdminPostsPanel() {
               <select
                 value={sort}
                 onChange={handleSortChange}
-                className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 outline-none transition focus:border-[var(--color-text)]"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -328,7 +328,7 @@ export default function AdminPostsPanel() {
               checked={allPageSelected}
               onChange={togglePageSelection}
               disabled={posts.length === 0 || isFetching}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-4 w-4 rounded border-gray-300 text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="현재 페이지 게시글 전체 선택"
             />
           </span>
@@ -341,7 +341,7 @@ export default function AdminPostsPanel() {
 
         {isLoading ? (
           <div className="flex min-h-64 items-center justify-center">
-            <Loader2 className="animate-spin text-blue-500" size={28} />
+            <Loader2 className="animate-spin text-[var(--color-text)]" size={28} />
           </div>
         ) : posts.length > 0 ? (
           <div className={clsx('divide-y divide-gray-100', isFetching && 'opacity-70')}>
@@ -356,14 +356,14 @@ export default function AdminPostsPanel() {
                     type="checkbox"
                     checked={selectedPostIds.has(post.id)}
                     onChange={() => togglePostSelection(post.id)}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 md:mt-0"
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-[var(--color-text)] md:mt-0"
                   />
                 </label>
 
                 <div className="min-w-0">
                   <Link
                     href={`/posts/${post.slug}`}
-                    className="line-clamp-2 text-sm font-semibold text-gray-950 transition hover:text-blue-600"
+                    className="line-clamp-2 text-sm font-semibold text-gray-950 transition hover:text-[var(--color-text)]"
                   >
                     {post.title}
                   </Link>
@@ -388,7 +388,7 @@ export default function AdminPostsPanel() {
                   </Link>
                   <Link
                     href={`/admin/posts/${post.slug}/edit`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-blue-50 hover:text-blue-600"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]"
                     aria-label={`${post.title} 수정`}
                   >
                     <Edit2 size={16} />
@@ -396,7 +396,7 @@ export default function AdminPostsPanel() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(post)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                     aria-label={`${post.title} 삭제`}
                   >
                     <Trash2 size={16} />
@@ -426,7 +426,7 @@ export default function AdminPostsPanel() {
             type="button"
             onClick={() => goToPage(page - 1)}
             disabled={page === 0 || isFetching}
-            className="inline-flex items-center justify-center gap-1 rounded-full border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft size={15} />
             이전
@@ -439,13 +439,13 @@ export default function AdminPostsPanel() {
               value={pageInput}
               onChange={(event) => setPageInput(event.target.value)}
               disabled={isFetching}
-              className="h-9 w-20 rounded-full border border-gray-200 px-3 text-center text-sm font-semibold text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-50"
+              className="h-9 w-20 rounded-lg border border-gray-200 px-3 text-center text-sm font-semibold text-gray-700 outline-none transition focus:border-[var(--color-text)] disabled:cursor-not-allowed disabled:bg-gray-50"
               aria-label="이동할 페이지 번호"
             />
             <button
               type="submit"
               disabled={isFetching}
-              className="inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 px-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               이동
             </button>
@@ -454,7 +454,7 @@ export default function AdminPostsPanel() {
             type="button"
             onClick={() => goToPage(page + 1)}
             disabled={isLastPage || isFetching}
-            className="inline-flex items-center justify-center gap-1 rounded-full border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             다음
             <ChevronRight size={15} />

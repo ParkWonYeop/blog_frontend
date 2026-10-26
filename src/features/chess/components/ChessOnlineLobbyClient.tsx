@@ -27,9 +27,9 @@ const TIME_CONTROL_SECTIONS = TIME_CONTROL_GROUPS.map((group) => ({
 }));
 
 const primaryButtonClass =
-  'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-bold text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-bold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60';
 const secondaryButtonClass =
-  'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50';
 
 const socketStatusLabel: Record<ChessSocketStatus, string> = {
   idle: '연결 대기',
@@ -43,12 +43,12 @@ const socketStatusLabel: Record<ChessSocketStatus, string> = {
 function LoginRequired() {
   return (
     <ChessPageFrame title="Online" backHref="/chess" backLabel="체스">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <LockKeyhole className="mb-3 text-[var(--color-accent)]" size={30} />
         <h2 className="break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">로그인이 필요합니다.</h2>
         <Link
           href={`/login?redirect=${LOBBY_PATH}`}
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           로그인
         </Link>
@@ -60,7 +60,7 @@ function LoginRequired() {
 function LoadingGate() {
   return (
     <ChessPageFrame title="Online" backHref="/chess" backLabel="체스">
-      <WindowSurface title="Chess" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+      <WindowSurface title="Chess" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
         <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={30} />
         <p className="text-sm font-semibold text-[var(--color-text)]">진행 중인 대국을 확인하는 중입니다.</p>
       </WindowSurface>
@@ -162,7 +162,7 @@ function OnlineLobby({ onMatch }: { onMatch: (gameId: string) => void }) {
           <span
             className={clsx(
               'h-2 w-2 rounded-full',
-              isReady ? 'bg-emerald-500' : status === 'replaced' ? 'bg-red-500' : 'bg-amber-500',
+              isReady ? 'bg-[var(--color-text)]' : status === 'replaced' ? 'bg-[var(--color-danger)]' : 'bg-[var(--color-text-subtle)]',
             )}
             aria-hidden="true"
           />
@@ -175,7 +175,7 @@ function OnlineLobby({ onMatch }: { onMatch: (gameId: string) => void }) {
         </span>
       )}
     >
-      <WindowSurface title="Time Control" showTrafficLights={false} bodyClassName="p-4 md:p-5">
+      <WindowSurface title="Time Control" bodyClassName="p-4 md:p-5">
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           {TIME_CONTROL_SECTIONS.map((section) => (
             <div key={section.group} className="min-w-0">
@@ -196,13 +196,13 @@ function OnlineLobby({ onMatch }: { onMatch: (gameId: string) => void }) {
       </WindowSurface>
 
       <section className="grid min-w-0 items-start gap-5 md:grid-cols-2">
-        <WindowSurface title="Random" showTrafficLights={false} bodyClassName="p-4 md:p-5">
+        <WindowSurface title="Random" bodyClassName="p-4 md:p-5">
           <div className="mb-4 flex items-center gap-2 text-[var(--color-text)]">
             <Shuffle size={18} className="text-[var(--color-accent)]" />
             <span className="text-base font-bold">랜덤 매칭</span>
           </div>
           {queued ? (
-            <div className="flex flex-col items-center gap-3 rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-4 py-6 text-center dark:bg-white/[0.06]">
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-6 text-center">
               <Loader2 className="animate-spin text-[var(--color-accent)]" size={26} />
               <p className="text-sm font-semibold text-[var(--color-text)]">상대를 찾는 중입니다.</p>
               <button type="button" onClick={() => send({ type: 'QUEUE_LEAVE' })} className={secondaryButtonClass}>
@@ -218,14 +218,14 @@ function OnlineLobby({ onMatch }: { onMatch: (gameId: string) => void }) {
           )}
         </WindowSurface>
 
-        <WindowSurface title="Invite" showTrafficLights={false} bodyClassName="p-4 md:p-5">
+        <WindowSurface title="Invite" bodyClassName="p-4 md:p-5">
           <div className="mb-4 flex items-center gap-2 text-[var(--color-text)]">
             <Users size={18} className="text-[var(--color-accent)]" />
             <span className="text-base font-bold">초대</span>
           </div>
 
           {inviteCode ? (
-            <div className="rounded-lg border border-[var(--color-line)] bg-black/[0.025] px-4 py-4 dark:bg-white/[0.06]">
+            <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
               <p className="text-center font-mono text-3xl font-bold tracking-[0.3em] text-[var(--color-text)]">{inviteCode}</p>
               <p className="mt-2 flex items-center justify-center gap-2 text-xs font-semibold text-[var(--color-text-subtle)]">
                 <Loader2 className="animate-spin" size={13} />

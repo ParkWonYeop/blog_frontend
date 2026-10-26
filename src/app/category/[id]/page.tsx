@@ -3,15 +3,13 @@
 import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { ChevronLeft, ChevronRight, FolderOpen, LayoutGrid, List, Loader2, Search as SearchIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, List, Loader2 } from 'lucide-react';
 import { getPostsByCategory } from '@/features/post/api';
 import PostCard from '@/features/post/components/PostCard';
 import PostListItem from '@/features/post/components/PostListItem';
 import PostSearch from '@/features/post/components/PostSearch';
 import EmptyState from '@/shared/ui/EmptyState';
 import SegmentedControl from '@/shared/ui/SegmentedControl';
-import Surface from '@/shared/ui/Surface';
-import WindowSurface from '@/shared/ui/WindowSurface';
 import { isNoticeCategoryName } from '@/features/post/lib';
 import { decodePathSegment } from '@/shared/lib/paths';
 import { queryKeys } from '@/shared/lib/queryKeys';
@@ -79,18 +77,17 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   if (isLoading || (postsData === undefined && !error)) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={40} />
+        <Loader2 className="animate-spin text-[var(--color-text-subtle)]" size={28} aria-label="불러오는 중" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <WindowSurface className="mx-auto md:w-[70vw] md:max-w-[900px]" bodyClassName="px-5 py-10 text-center text-red-500">
-        게시글을 불러오는 중 오류가 발생했습니다.
-        <br />
-        <span className="text-sm text-[var(--color-text-subtle)]">카테고리 이름을 확인해 주세요.</span>
-      </WindowSurface>
+      <div className="mx-auto max-w-[1040px]">
+        <h1 className="text-title1 font-bold text-[var(--color-text)]">{apiCategoryName}</h1>
+        <EmptyState title="글을 불러오지 못했어요" className="mt-6" />
+      </div>
     );
   }
 
@@ -107,130 +104,102 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
     if (!isLast) setPage((old) => old + 1);
   };
 
+  const viewButtonClass = (mode: 'grid' | 'list') => clsx(
+    'flex h-8 w-9 items-center justify-center rounded-lg transition-colors',
+    activeViewMode === mode
+      ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+      : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
+  );
+  const pageButtonClass = 'flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-control)] text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-strong)] disabled:cursor-not-allowed disabled:bg-transparent disabled:text-[var(--color-text-disabled)]';
+
   return (
-    <div className="mx-auto w-full px-0 py-4 md:w-[78vw] md:max-w-[1280px] md:py-6">
-      <WindowSurface
-        title="Finder"
-        subtitle={apiCategoryName}
-        bodyClassName="p-5 md:p-6"
-      >
-        <div className="mb-8 flex flex-col justify-between gap-4 border-b border-[var(--color-line)] pb-5 md:flex-row md:items-center">
-          <h1 className="flex min-w-0 items-center gap-3 text-2xl font-bold tracking-normal text-[var(--color-text)]">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--card-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]">
-              <FolderOpen size={20} />
-            </span>
-            <span className="min-w-0 truncate">{apiCategoryName}</span>
-            <span className="text-lg font-normal text-[var(--color-text-subtle)]">글 목록</span>
-          </h1>
+    <div className="mx-auto min-w-0 max-w-[1040px]">
+      <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="break-words text-title1 font-bold text-[var(--color-text)] md:text-display">{apiCategoryName}</h1>
+          <p className="mt-1 text-body2 text-[var(--color-text-subtle)]">
+            {keyword ? `‘${keyword}’ 검색 결과 ` : '글 '}
+            <span className="font-semibold tabular-nums text-[var(--color-text)]">{totalElements.toLocaleString()}</span>개
+          </p>
+        </div>
 
-          <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-            <PostSearch
-              onSearch={handleSearch}
-              placeholder={`${apiCategoryName} 검색`}
-              className="w-full md:w-64"
-            />
-
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center lg:w-auto">
+          <PostSearch
+            onSearch={handleSearch}
+            placeholder={`${apiCategoryName}에서 검색`}
+            className="sm:w-64"
+          />
+          <div className="flex items-center gap-2">
             <SegmentedControl
               ariaLabel="페이지당 게시글 수"
               options={PAGE_SIZE_OPTIONS}
               value={pageSize}
               onChange={handlePageSizeChange}
-              className="justify-center"
+              className="flex-1 sm:flex-none"
             />
-
-            <div className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] p-1 shadow-[var(--shadow-control)] backdrop-blur-[18px]">
-              <button
-                type="button"
-                onClick={() => handleViewModeChange('grid')}
-                className={clsx(
-                  'rounded-full p-2 transition-all duration-150',
-                  activeViewMode === 'grid'
-                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-sm'
-                    : 'text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
-                )}
-                title="카드로 보기"
-                aria-label="카드로 보기"
-                aria-pressed={activeViewMode === 'grid'}
-              >
-                <LayoutGrid size={18} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleViewModeChange('list')}
-                className={clsx(
-                  'rounded-full p-2 transition-all duration-150',
-                  activeViewMode === 'list'
-                    ? 'bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-sm'
-                    : 'text-[var(--color-text-subtle)] hover:bg-[var(--card-bg)] hover:text-[var(--color-text)]',
-                )}
-                title="리스트로 보기"
-                aria-label="리스트로 보기"
-                aria-pressed={activeViewMode === 'list'}
-              >
-                <List size={18} />
-              </button>
-            </div>
+            {!isNoticeCategory && (
+              <div role="group" aria-label="보기 방식" className="flex h-10 shrink-0 items-center rounded-xl bg-[var(--color-control)] p-1">
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('grid')}
+                  className={viewButtonClass('grid')}
+                  title="카드로 보기"
+                  aria-label="카드로 보기"
+                  aria-pressed={activeViewMode === 'grid'}
+                >
+                  <LayoutGrid size={17} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('list')}
+                  className={viewButtonClass('list')}
+                  title="리스트로 보기"
+                  aria-label="리스트로 보기"
+                  aria-pressed={activeViewMode === 'list'}
+                >
+                  <List size={17} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
+      </header>
 
-        {keyword && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm text-[var(--color-text-muted)]">
-            <SearchIcon size={16} className="text-[var(--color-accent)]" />
-            <span>
-              검색어 <strong>{keyword}</strong> 결과: <strong>{totalElements}</strong>건
-            </span>
-          </div>
-        )}
-
+      <div className="mt-8">
         {posts.length === 0 ? (
-          <EmptyState
-            title={keyword ? `${keyword}에 대한 검색 결과가 없습니다.` : '아직 작성된 글이 없습니다.'}
-            className="py-20"
-          />
+          <EmptyState title={keyword ? '검색 결과가 없어요' : '아직 쓴 글이 없어요'} className="py-20" />
         ) : (
           <>
             {activeViewMode === 'grid' ? (
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
               </div>
             ) : (
-              <Surface className="flex flex-col p-2 shadow-none">
+              <ul className="border-t border-[var(--stroke-subtle)]">
                 {posts.map((post) => (
-                  <PostListItem key={post.id} post={post} />
+                  <PostListItem key={post.id} post={post} withSummary />
                 ))}
-              </Surface>
+              </ul>
             )}
 
-            <div className="mb-2 mt-10 flex items-center justify-center gap-6">
-              <button
-                type="button"
-                onClick={handlePrevPage}
-                disabled={page === 0}
-                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
-                aria-label="이전 페이지"
-              >
-                <ChevronLeft size={24} />
-              </button>
-
-              <span className="text-sm font-medium text-[var(--color-text-muted)]">
-                페이지 <span className="font-bold text-[var(--color-text)]">{page + 1}</span> {totalPages > 0 && `/ ${totalPages}`}
-              </span>
-
-              <button
-                type="button"
-                onClick={handleNextPage}
-                disabled={isLast || isPlaceholderData}
-                className="rounded-full p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--card-bg)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
-                aria-label="다음 페이지"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
+            {totalPages > 1 && (
+              <nav aria-label="페이지" className="mt-10 flex items-center justify-center gap-4">
+                <button type="button" onClick={handlePrevPage} disabled={page === 0} className={pageButtonClass} aria-label="이전 페이지">
+                  <ChevronLeft size={20} />
+                </button>
+                <span className="min-w-14 text-center text-body2 tabular-nums text-[var(--color-text-subtle)]">
+                  <span className="font-bold text-[var(--color-text)]">{page + 1}</span> / {totalPages}
+                </span>
+                <button type="button" onClick={handleNextPage} disabled={isLast || isPlaceholderData} className={pageButtonClass} aria-label="다음 페이지">
+                  <ChevronRight size={20} />
+                </button>
+              </nav>
+            )}
           </>
         )}
-      </WindowSurface>
+      </div>
     </div>
   );
 }

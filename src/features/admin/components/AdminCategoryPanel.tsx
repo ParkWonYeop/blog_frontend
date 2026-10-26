@@ -53,7 +53,7 @@ function ParentSelect({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       disabled={disabled}
-      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-50"
+      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)] disabled:cursor-not-allowed disabled:bg-gray-50"
     >
       <option value={ROOT_PARENT}>최상위 카테고리</option>
       {categories.map((category) => (
@@ -93,7 +93,7 @@ function CategoryTree({
               onClick={() => onSelect(category)}
               className={clsx(
                 'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition',
-                isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50',
+                isSelected ? 'bg-[var(--color-surface)] text-[var(--color-text)]' : 'text-gray-700 hover:bg-gray-50',
               )}
               style={{ paddingLeft: `${12 + depth * 16}px` }}
             >
@@ -174,7 +174,7 @@ function SelectedCategoryEditor({
             value={name}
             onChange={(event) => setName(event.target.value)}
             disabled={isBusy}
-            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-50"
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)] disabled:cursor-not-allowed disabled:bg-gray-50"
             required
           />
         </label>
@@ -200,7 +200,7 @@ function SelectedCategoryEditor({
               type="button"
               onClick={() => setDeleteArmed(true)}
               disabled={isBusy}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-red-100 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-white px-4 py-2 text-sm font-semibold text-[var(--color-danger)] transition hover:bg-[var(--color-danger-soft)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Trash2 size={15} />
               삭제
@@ -211,7 +211,7 @@ function SelectedCategoryEditor({
                 type="button"
                 onClick={() => onDelete(category.id)}
                 disabled={isBusy}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-danger)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isDeleting ? <Loader2 className="animate-spin" size={15} /> : <Trash2 size={15} />}
                 삭제 확인
@@ -231,7 +231,7 @@ function SelectedCategoryEditor({
         <button
           type="submit"
           disabled={isBusy}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           {isSaving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
           변경 저장
@@ -307,7 +307,7 @@ export default function AdminCategoryPanel() {
   };
 
   return (
-    <WindowSurface title="Categories" subtitle="Finder tree" bodyClassName="p-5">
+    <WindowSurface bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -327,7 +327,7 @@ export default function AdminCategoryPanel() {
 
           {isLoading ? (
             <div className="flex min-h-64 items-center justify-center rounded-lg bg-gray-50">
-              <Loader2 className="animate-spin text-blue-500" size={28} />
+              <Loader2 className="animate-spin text-[var(--color-text)]" size={28} />
             </div>
           ) : categories.length > 0 ? (
             <CategoryTree categories={categories} selectedId={selectedId} onSelect={(category) => setSelectedId(category.id)} />
@@ -341,7 +341,7 @@ export default function AdminCategoryPanel() {
         <div className="space-y-4">
           <form onSubmit={handleCreate} className="rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-4 flex items-center gap-2">
-              <FolderPlus size={18} className="text-blue-600" />
+              <FolderPlus size={18} className="text-[var(--color-text)]" />
               <h3 className="text-sm font-bold text-gray-900">새 카테고리 추가</h3>
             </div>
 
@@ -351,7 +351,7 @@ export default function AdminCategoryPanel() {
                 onChange={(event) => setCreateName(event.target.value)}
                 placeholder="카테고리 이름"
                 disabled={createMutation.isPending}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-50"
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[var(--color-text)] disabled:cursor-not-allowed disabled:bg-gray-50"
               />
               <ParentSelect
                 value={createParentValue}
@@ -365,7 +365,7 @@ export default function AdminCategoryPanel() {
               <button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {createMutation.isPending ? <Loader2 className="animate-spin" size={15} /> : <FolderPlus size={15} />}
                 추가

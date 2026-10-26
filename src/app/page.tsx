@@ -2,15 +2,13 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Archive, ChevronRight, FileText, Search } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { fetchPublicPosts } from '@/features/post/publicApi';
+import PostListItem from '@/features/post/components/PostListItem';
 import SearchPagination from '@/features/post/components/SearchPagination';
 import { getSearchPageHref, parseSearchPage, SEARCH_PAGE_SIZE } from '@/features/post/search';
 import { getPageMeta } from '@/shared/lib/pagination';
 import EmptyState from '@/shared/ui/EmptyState';
-import StatusBadge from '@/shared/ui/StatusBadge';
-import Surface from '@/shared/ui/Surface';
-import WindowSurface from '@/shared/ui/WindowSurface';
 import { formatKoreanDate } from '@/shared/lib/dates';
 import { getPostSummary, isNoticePost } from '@/features/post/lib';
 import { DEFAULT_DESCRIPTION, SITE_NAME } from '@/shared/lib/site';
@@ -50,235 +48,118 @@ function SearchResults({
   page: number;
 }) {
   const searchResults = data?.content || [];
-  const { totalElements: searchTotalElements, totalPages } = getPageMeta(data);
+  const { totalElements, totalPages } = getPageMeta(data);
 
   return (
-    <WindowSurface
-      title="Spotlight"
-      subtitle={`"${keyword}"`}
-      bodyClassName="p-0"
-      className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-    >
-      <div className="border-b border-[var(--color-line)] bg-[var(--window-titlebar)] px-4 py-4 md:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--card-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]">
-            <Search size={20} />
-          </div>
-          <div className="min-w-0">
-            <h1 className="min-w-0 break-words text-2xl font-bold tracking-normal text-[var(--color-text)]">
-              검색 결과
-            </h1>
-            {data && <p className="break-words text-sm text-[var(--color-text-muted)]">
-              검색어 <span className="font-semibold text-[var(--color-text)]">{keyword}</span>에 대한 글 {searchTotalElements.toLocaleString()}건
-            </p>}
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto min-w-0 max-w-[720px]">
+      <h1 className="break-words text-title2 font-bold text-[var(--color-text)]">
+        ‘{keyword}’ 검색 결과
+      </h1>
+      {data && (
+        <p className="mt-1 text-body2 text-[var(--color-text-subtle)]">
+          글 <span className="font-semibold tabular-nums text-[var(--color-text)]">{totalElements.toLocaleString()}</span>개
+        </p>
+      )}
 
-      <div className="p-4 md:p-6">
+      <div className="mt-6">
         {!data ? (
           <div className="text-center">
-            <EmptyState title="검색 결과를 불러오지 못했습니다." description="잠시 후 다시 시도해 주세요." />
-            <a href={getSearchPageHref(keyword, page)} className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-[var(--color-accent)]">다시 시도</a>
+            <EmptyState title="검색 결과를 불러오지 못했어요" description="잠시 후 다시 시도해 주세요" />
+            <a href={getSearchPageHref(keyword, page)} className="inline-flex h-10 items-center rounded-lg bg-[var(--color-control)] px-4 text-body2 font-semibold text-[var(--color-text)]">다시 시도</a>
           </div>
         ) : searchResults.length > 0 ? (
-          <div className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-2">
+          <ul>
             {searchResults.map((post) => (
-              <CompactPostRow key={post.id} post={post} />
+              <PostListItem key={post.id} post={post} withSummary />
             ))}
-          </div>
+          </ul>
         ) : (
-          <EmptyState title="검색 결과가 없습니다." description="다른 키워드로 다시 찾아보세요." />
+          <EmptyState title="검색 결과가 없어요" description="다른 단어로 찾아보세요" />
         )}
         {data && <SearchPagination keyword={keyword} page={page} totalPages={totalPages} />}
       </div>
-    </WindowSurface>
+    </div>
   );
 }
 
-function NoticeStrip({ notices }: { notices: Post[] }) {
+function NoticeList({ notices }: { notices: Post[] }) {
   if (notices.length === 0) return null;
 
   return (
-    <section className="space-y-2" aria-label="공지">
+    <section aria-label="공지" className="mb-6 overflow-hidden rounded-2xl bg-[var(--color-surface)]">
       {notices.slice(0, 3).map((notice) => (
-        <Link key={notice.id} href={`/posts/${notice.slug}`} className="group block min-w-0">
-          <Surface
-            interactive
-            className="flex min-w-0 items-center justify-between gap-3 border-red-500/10 bg-red-500/[0.045] px-4 py-3 shadow-none"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <StatusBadge tone="danger" className="shrink-0">공지</StatusBadge>
-              <span className="min-w-0 truncate text-sm font-semibold text-[var(--color-text)]">
-                {notice.title}
-              </span>
-            </div>
-            <div className="flex shrink-0 items-center gap-2 text-xs font-medium text-[var(--color-text-subtle)]">
-              <time className="hidden sm:inline">{formatKoreanDate(notice.createdAt)}</time>
-              <ChevronRight size={15} className="transition group-hover:translate-x-0.5" />
-            </div>
-          </Surface>
+        <Link
+          key={notice.id}
+          href={`/posts/${notice.slug}`}
+          className="flex min-h-12 min-w-0 items-center gap-3 border-b border-[var(--stroke-subtle)] px-4 transition-colors last:border-b-0 hover:bg-[var(--color-hover)]"
+        >
+          <span className="shrink-0 text-body2 font-bold text-[var(--color-text)]">공지</span>
+          <span className="min-w-0 flex-1 truncate text-body2 text-[var(--color-text-muted)]">{notice.title}</span>
+          <ChevronRight size={16} className="shrink-0 text-[var(--color-text-placeholder)]" />
         </Link>
       ))}
     </section>
   );
 }
 
-function CompactPostRow({
-  post,
-  rank,
-  showViews = false,
-  featured = false,
-}: {
-  post: Post;
-  rank?: number;
-  showViews?: boolean;
-  featured?: boolean;
-}) {
-  const summary = getPostSummary(post.content, featured ? 150 : 92);
+function LatestPost({ post }: { post: Post }) {
+  const summary = getPostSummary(post.content, 160);
 
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className={clsxSafe(
-        'group flex min-w-0 items-start justify-between gap-3 rounded-lg px-1 py-4 transition duration-150 hover:bg-[var(--card-bg)] hover:px-3',
-        featured && 'md:py-5',
-      )}
+      className="group block min-w-0 rounded-4xl bg-[var(--color-inverse)] px-6 pb-8 pt-7 text-[var(--color-on-inverse)] transition-colors hover:bg-[var(--color-accent-hover)] md:px-10 md:pb-12 md:pt-10"
     >
-      {rank !== undefined && (
-        <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold tabular-nums text-[var(--color-accent)]">
-          {rank}
-        </span>
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body2 text-[var(--color-on-inverse-muted)]">
+        <span className="font-bold text-[var(--color-on-inverse)]">새로 올라온 글</span>
+        <span>{post.categoryName || '미분류'}</span>
+        <time dateTime={post.createdAt}>{formatKoreanDate(post.createdAt)}</time>
+      </p>
+      <h2 className="mt-4 max-w-[24ch] break-words text-title1 font-bold md:text-display">
+        {post.title}
+      </h2>
+      {summary && (
+        <p className="mt-4 line-clamp-2 max-w-[56ch] break-words text-body1 text-[var(--color-on-inverse-muted)]">
+          {summary}
+        </p>
       )}
-      {rank === undefined && (
-        <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--card-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]">
-          <FileText size={17} />
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">
-          <StatusBadge tone={isNoticePost(post) ? 'danger' : 'neutral'} className="shrink-0">
-            {post.categoryName || '미분류'}
-          </StatusBadge>
-          <time className="shrink-0 text-xs text-[var(--color-text-subtle)]">
-            {formatKoreanDate(post.createdAt)}
-          </time>
-          {showViews && (
-            <span className="shrink-0 text-xs tabular-nums text-[var(--color-text-subtle)]">
-              조회 {post.viewCount.toLocaleString()}
+    </Link>
+  );
+}
+
+function SectionHeader({ title, action }: { title: string; action?: ReactNode }) {
+  return (
+    <div className="mb-2 flex min-h-10 items-center justify-between gap-3">
+      <h2 className="text-title4 font-bold text-[var(--color-text)]">{title}</h2>
+      {action}
+    </div>
+  );
+}
+
+function PopularPosts({ posts }: { posts: Post[] }) {
+  if (posts.length === 0) {
+    return <EmptyState title="아직 집계된 글이 없어요" className="min-h-48" />;
+  }
+
+  return (
+    <ol>
+      {posts.map((post, index) => (
+        <li key={post.id}>
+          <Link
+            href={`/posts/${post.slug}`}
+            className="-mx-2 flex min-w-0 items-start gap-4 rounded-xl px-2 py-3 transition-colors hover:bg-[var(--color-hover)] active:bg-[var(--color-pressed)]"
+          >
+            <span className="w-5 shrink-0 text-title4 font-bold tabular-nums text-[var(--color-text)]">{index + 1}</span>
+            <span className="min-w-0 flex-1">
+              <span className="line-clamp-2 break-words text-body1 font-semibold text-[var(--color-text)]">{post.title}</span>
+              <span className="mt-0.5 block text-caption1 tabular-nums text-[var(--color-text-subtle)]">
+                조회 {post.viewCount.toLocaleString()}
+              </span>
             </span>
-          )}
-        </div>
-        <h3 className="line-clamp-2 break-words text-base font-semibold text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">
-          {post.title}
-        </h3>
-        {summary && (
-          <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-[var(--color-text-muted)]">
-            {summary}
-          </p>
-        )}
-      </div>
-      <ChevronRight size={17} className="mt-7 shrink-0 text-[var(--color-text-subtle)] transition group-hover:translate-x-0.5 group-hover:text-[var(--color-accent)]" />
-    </Link>
-  );
-}
-
-function clsxSafe(...classes: Array<string | false | undefined>) {
-  return classes.filter(Boolean).join(' ');
-}
-
-function HeroPost({ post }: { post: Post }) {
-  const summary = getPostSummary(post.content, 160);
-
-  return (
-    <Link href={`/posts/${post.slug}`} className="group block min-w-0">
-      <Surface as="article" strong interactive className="min-w-0 p-6 md:px-7">
-        <div className="mb-3 flex min-w-0 flex-wrap items-center gap-2.5">
-          <span className="shrink-0 rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[var(--color-accent)]">
-            최신 글
-          </span>
-          <span className="shrink-0 text-xs font-semibold text-[var(--color-text-muted)]">
-            {post.categoryName || '미분류'}
-          </span>
-          <time className="ml-auto shrink-0 text-xs text-[var(--color-text-subtle)]">
-            {formatKoreanDate(post.createdAt)}
-          </time>
-        </div>
-        <h2 className="break-words text-2xl font-extrabold leading-snug tracking-tight text-[var(--color-text)] transition group-hover:text-[var(--color-accent)] md:text-[26px]">
-          {post.title}
-        </h2>
-        {summary && (
-          <p className="mt-2.5 max-w-[62ch] break-words text-sm leading-relaxed text-[var(--color-text-muted)]">
-            {summary}
-          </p>
-        )}
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)]">
-          계속 읽기
-          <ChevronRight size={15} className="transition group-hover:translate-x-0.5" />
-        </span>
-      </Surface>
-    </Link>
-  );
-}
-
-function PostListSection({
-  title,
-  action,
-  posts,
-  isPopular = false,
-  emptyTitle,
-}: {
-  title: string;
-  action?: ReactNode;
-  posts: Post[];
-  isPopular?: boolean;
-  emptyTitle: string;
-}) {
-  return (
-    <section className="min-w-0">
-      <div className="flex items-center justify-between gap-3 px-1 pb-2.5">
-        <h2 className="text-sm font-bold text-[var(--color-text)]">{title}</h2>
-        {action}
-      </div>
-      <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-4">
-        {posts.length > 0 ? (
-          <div className="divide-y divide-[var(--color-line)]">
-            {posts.map((post, index) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug}`}
-                className="group flex min-w-0 items-baseline gap-3 py-3.5"
-              >
-                {isPopular && (
-                  <span className="w-4 shrink-0 text-[13px] font-extrabold tabular-nums text-[var(--color-accent)]">
-                    {index + 1}
-                  </span>
-                )}
-                <div className="min-w-0 flex-1">
-                  <h3 className="line-clamp-1 break-words text-sm font-semibold text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">
-                    {post.title}
-                  </h3>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-subtle)]">
-                    {isPopular ? (
-                      <span className="tabular-nums">조회 {post.viewCount.toLocaleString()}</span>
-                    ) : (
-                      <>
-                        <span className="font-medium text-[var(--color-text-muted)]">
-                          {post.categoryName || '미분류'}
-                        </span>
-                        <time>{formatKoreanDate(post.createdAt)}</time>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <EmptyState title={emptyTitle} className="min-h-48" />
-        )}
-      </div>
-    </section>
+          </Link>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -294,11 +175,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       redirect(getSearchPageHref(keyword, Math.max(1, totalPages)));
     }
 
-    return (
-      <div className="mx-auto min-w-0 max-w-[1180px] px-0 py-3 md:py-6">
-        <SearchResults keyword={keyword} data={searchData} page={page} />
-      </div>
-    );
+    return <SearchResults keyword={keyword} data={searchData} page={page} />;
   }
 
   const [noticesData, latestData, popularData] = await Promise.all([
@@ -311,54 +188,46 @@ export default async function Home({ searchParams }: HomePageProps) {
   const latestList = (latestData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 7);
   const popularList = (popularData?.content || []).filter((post) => !isNoticePost(post)).slice(0, 5);
   const heroPost = latestList[0];
-  const recentList = latestList.slice(1, 6);
+  const recentList = latestList.slice(1, 7);
 
   return (
-    <div className="mx-auto min-w-0 max-w-[1180px] px-0 py-3 md:py-6">
+    <div className="mx-auto min-w-0 max-w-[1040px]">
       <h1 className="sr-only">{SITE_NAME}</h1>
-      <WindowSurface
-        title="WYPark"
-        subtitle="블로그 라이브러리"
-        controls={(
-          <Link
-            href="/archive"
-            className="inline-flex h-8 min-w-0 items-center gap-2 rounded-full bg-[var(--color-text)] px-3 text-xs font-semibold text-[var(--color-page)] shadow-[var(--shadow-control)] transition hover:opacity-90 dark:bg-white dark:text-black"
-          >
-            <span className="hidden sm:inline">전체 글</span>
-            <Archive size={14} />
-          </Link>
-        )}
-        bodyClassName="space-y-6 p-4 md:p-6"
-      >
-        <NoticeStrip notices={notices} />
+      <NoticeList notices={notices} />
 
-        {heroPost ? (
-          <HeroPost post={heroPost} />
-        ) : (
-          <EmptyState title="아직 공개된 글이 없습니다." className="min-h-48" />
-        )}
+      {heroPost ? (
+        <LatestPost post={heroPost} />
+      ) : (
+        <EmptyState title="아직 공개된 글이 없어요" className="min-h-48" />
+      )}
 
-        <section className="grid min-w-0 gap-6 lg:grid-cols-2">
-          <PostListSection
-            title="최근 게시글"
+      <div className="mt-12 grid min-w-0 gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
+        <section className="min-w-0">
+          <SectionHeader
+            title="최근 글"
             action={(
-              <Link href="/archive" className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-accent)]">
+              <Link href="/archive" className="-mr-2 inline-flex h-9 items-center gap-0.5 rounded-lg px-2 text-body2 font-semibold text-[var(--color-text-subtle)] transition-colors hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]">
                 전체 보기
-                <ChevronRight size={14} />
+                <ChevronRight size={16} />
               </Link>
             )}
-            posts={recentList}
-            emptyTitle="아직 공개된 글이 없습니다."
           />
-          <PostListSection
-            title="인기 글"
-            action={<span className="text-xs text-[var(--color-text-subtle)]">조회수 기준</span>}
-            posts={popularList}
-            isPopular
-            emptyTitle="인기 글을 집계 중입니다."
-          />
+          {recentList.length > 0 ? (
+            <ul>
+              {recentList.map((post) => (
+                <PostListItem key={post.id} post={post} withSummary />
+              ))}
+            </ul>
+          ) : (
+            <EmptyState title="아직 공개된 글이 없어요" className="min-h-48" />
+          )}
         </section>
-      </WindowSurface>
+
+        <section className="min-w-0">
+          <SectionHeader title="많이 읽은 글" />
+          <PopularPosts posts={popularList} />
+        </section>
+      </div>
     </div>
   );
 }

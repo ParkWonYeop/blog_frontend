@@ -22,11 +22,11 @@ export default function ChessPromotionPicker({ color, onSelect, onCancel }: Ches
     <div
       role="dialog"
       aria-label="승격 기물 선택"
-      className="absolute inset-0 z-40 flex items-center justify-center rounded-lg bg-black/45 backdrop-blur-[2px]"
+      className="absolute inset-0 z-40 flex items-center justify-center rounded-lg bg-black/45"
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-80 flex-col items-center gap-3 rounded-xl border border-white/20 bg-[var(--window-bg)] p-3 shadow-[var(--shadow-window)]"
+        className="flex w-full max-w-80 flex-col items-center gap-3 rounded-xl border border-white/20 bg-[var(--window-bg)] p-3"
         onClick={(event) => event.stopPropagation()}
       >
         <p className="text-sm font-bold text-[var(--color-text)]">승격할 기물을 고르세요</p>
@@ -39,7 +39,7 @@ export default function ChessPromotionPicker({ color, onSelect, onCancel }: Ches
               onClick={() => onSelect(piece)}
               aria-label={label}
               title={label}
-              className="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] text-[var(--color-text)] transition hover:bg-[var(--card-bg-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               <ChessPiece color={color} type={piece} className="h-10 w-10" />
               <span className="text-xs font-semibold">{label}</span>

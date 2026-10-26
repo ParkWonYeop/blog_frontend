@@ -1,7 +1,4 @@
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
-import StatusBadge from '@/shared/ui/StatusBadge';
-import Surface from '@/shared/ui/Surface';
 import { formatKoreanDate } from '@/shared/lib/dates';
 import { getPostSummary, isNoticePost } from '@/features/post/lib';
 import type { Post } from '@/shared/types';
@@ -11,36 +8,24 @@ export default function PostCard({ post }: { post: Post }) {
   const summary = getPostSummary(post.content);
 
   return (
-    <Link href={`/posts/${post.slug}`} className="group block h-full">
-      <Surface
-        as="article"
-        interactive
-        className="flex h-full min-h-52 flex-col p-5 shadow-none"
-      >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--card-border)] bg-[var(--card-bg-strong)] text-[var(--color-accent)] shadow-[var(--shadow-control)]">
-              <FileText size={17} />
-            </span>
-            <StatusBadge tone={isNotice ? 'danger' : 'neutral'} className="shrink-0">
-              {post.categoryName || '미분류'}
-            </StatusBadge>
-          </div>
-          <time className="text-xs font-medium text-[var(--color-text-subtle)]">
-            {formatKoreanDate(post.createdAt)}
-          </time>
-        </div>
-
-        <h2 className="line-clamp-2 text-xl font-bold leading-snug tracking-normal text-[var(--color-text)] transition group-hover:text-[var(--color-accent)]">
-          {post.title}
-        </h2>
-
-        {summary && (
-          <p className="mt-3 line-clamp-3 flex-1 break-words text-sm leading-6 text-[var(--color-text-muted)]">
-            {summary}
-          </p>
-        )}
-      </Surface>
+    <Link
+      href={`/posts/${post.slug}`}
+      className="group flex h-full min-h-52 flex-col rounded-3xl bg-[var(--color-surface)] p-6 transition-colors hover:bg-[var(--color-surface-strong)]"
+    >
+      <p className="text-caption1 font-semibold text-[var(--color-text-muted)]">
+        {isNotice ? '공지' : post.categoryName || '미분류'}
+      </p>
+      <h2 className="mt-2 line-clamp-2 break-words text-title4 font-bold text-[var(--color-text)]">
+        {post.title}
+      </h2>
+      {summary && (
+        <p className="mt-2 line-clamp-3 break-words text-body2 text-[var(--color-text-muted)]">
+          {summary}
+        </p>
+      )}
+      <time dateTime={post.createdAt} className="mt-auto pt-5 text-caption1 text-[var(--color-text-subtle)]">
+        {formatKoreanDate(post.createdAt)}
+      </time>
     </Link>
   );
 }

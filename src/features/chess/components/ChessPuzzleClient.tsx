@@ -56,7 +56,7 @@ const formatDate = (value: string) => {
 
 function BoardWindow({ children }: { children: ReactNode }) {
   return (
-    <WindowSurface title="체스 보드" showTrafficLights={false} bodyClassName="p-1 sm:p-2 md:p-3">
+    <WindowSurface title="체스 보드" bodyClassName="p-1 sm:p-2 md:p-3">
       <div className="relative mx-auto max-w-full" style={BOARD_SIZE_STYLE}>
         {children}
       </div>
@@ -69,21 +69,21 @@ function LoadingState() {
     <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
       <section className="grid min-w-0 grid-cols-1 items-start justify-center gap-3 sm:gap-5 lg:grid-cols-[minmax(0,40rem)_20rem]">
         <BoardWindow>
-          <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-lg border border-[var(--color-line)]">
+          <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-xl">
             {BOARD_SQUARES.map((square, index) => (
               <div
                 key={square}
                 className={clsx(
                   'aspect-square animate-pulse',
                   (index + Math.floor(index / 8)) % 2 === 0
-                    ? 'bg-[#edf2f5] dark:bg-[#c8d0d6]'
-                    : 'bg-[#7fa18b] dark:bg-[#415d52]',
+                    ? 'bg-[#eeeeee] dark:bg-[#c9c9c9]'
+                    : 'bg-[#b8b8b8] dark:bg-[#858585]',
                 )}
               />
             ))}
           </div>
         </BoardWindow>
-        <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="flex min-h-72 flex-col items-center justify-center p-5 text-center">
+        <WindowSurface title="Puzzle" as="aside" bodyClassName="flex min-h-72 flex-col items-center justify-center p-5 text-center">
           <Loader2 className="mb-3 animate-spin text-[var(--color-accent)]" size={28} />
           <p className="text-sm font-semibold text-[var(--color-text)]">오늘의 퍼즐을 불러오는 중입니다.</p>
         </WindowSurface>
@@ -95,13 +95,13 @@ function LoadingState() {
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <ChessPageFrame title="오늘의 퍼즐" backHref="/chess" backLabel="체스">
-      <WindowSurface title="Puzzle" showTrafficLights={false} bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
-        <AlertCircle className="mb-3 text-red-500" size={30} />
+      <WindowSurface title="Puzzle" bodyClassName="flex min-h-80 flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="mb-3 text-[var(--color-danger)]" size={30} />
         <h2 className="break-words text-lg font-bold text-[var(--color-text)]">오늘의 퍼즐을 불러오지 못했습니다.</h2>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)]"
         >
           <RotateCcw size={16} />
           다시 시도
@@ -260,9 +260,9 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
           <div role="status" aria-live="polite"
             className={clsx(
               'mb-2 break-words rounded-lg border px-3 py-3 text-sm font-semibold leading-6',
-              feedback.tone === 'success' && 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-              feedback.tone === 'error' && 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300',
-              feedback.tone === 'neutral' && 'border-[var(--color-line)] bg-black/[0.025] text-[var(--color-text-muted)] dark:bg-white/[0.06]',
+              feedback.tone === 'success' && 'border-[var(--stroke-weak)] bg-[var(--color-surface)] text-[var(--color-text)]',
+              feedback.tone === 'error' && 'border-transparent bg-[var(--color-danger-soft)] text-[var(--color-danger)]',
+              feedback.tone === 'neutral' && 'border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-text-muted)]',
             )}
           >
             {feedback.message}
@@ -317,10 +317,10 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
         </BoardWindow>
 
         <ChessGameDetails ended={solved} label="퍼즐 정보">
-          <WindowSurface title="Puzzle" showTrafficLights={false} as="aside" bodyClassName="p-4 md:p-5">
+          <WindowSurface title="Puzzle" as="aside" bodyClassName="p-4 md:p-5">
             <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-normal text-[var(--color-text-subtle)]">
+                <p className="text-caption1 font-semibold text-[var(--color-text-subtle)]">
                   {formatDate(puzzle.date)}
                 </p>
                 <h2 className="mt-1 break-words text-xl font-bold tracking-normal text-[var(--color-text)]">
@@ -328,15 +328,15 @@ function ChessPuzzleBoard({ puzzle }: { puzzle: ChessPuzzle }) {
                 </h2>
                 <p className="mt-1 break-words text-sm text-[var(--color-text-muted)]">{puzzle.theme}</p>
               </div>
-              {solved && <CheckCircle2 size={24} className="shrink-0 text-emerald-500" />}
+              {solved && <CheckCircle2 size={24} className="shrink-0 text-[var(--color-text)]" />}
             </div>
 
             <dl className="grid grid-cols-2 gap-3 text-sm">
-              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
                 <dt className="text-xs text-[var(--color-text-subtle)]">레이팅</dt>
                 <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">{puzzle.rating}</dd>
               </div>
-              <div className="min-w-0 rounded-lg bg-black/[0.025] px-3 py-2 dark:bg-white/[0.06]">
+              <div className="min-w-0 rounded-lg bg-[var(--color-surface)] px-3 py-2">
                 <dt className="text-xs text-[var(--color-text-subtle)]">정답</dt>
                 <dd className="mt-0.5 truncate font-semibold text-[var(--color-text)]">
                   {solved ? puzzle.answer : '숨김'}

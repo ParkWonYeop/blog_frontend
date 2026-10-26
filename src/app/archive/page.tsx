@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import { Archive } from 'lucide-react';
 import { fetchPublicPosts } from '@/features/post/publicApi';
 import ArchiveExplorer from '@/features/post/components/ArchiveExplorer';
-import WindowSurface from '@/shared/ui/WindowSurface';
 import { SITE_NAME } from '@/shared/lib/site';
 import type { PostListResponse } from '@/shared/types';
 
@@ -32,24 +30,15 @@ export default async function ArchivePage() {
   const totalPosts = getTotalElements(data);
 
   return (
-    <div className="mx-auto min-w-0 max-w-[1180px] px-0 py-3 md:py-6">
-      <WindowSurface
-        title="Finder"
-        subtitle={`Archive · ${totalPosts.toLocaleString()} posts`}
-        bodyClassName="p-4 md:p-7"
-      >
-        <div className="mb-7 min-w-0 border-b border-[var(--color-line)] pb-6 text-center md:text-left">
-          <h1 className="mb-3 flex min-w-0 items-center justify-center gap-3 text-3xl font-bold tracking-normal text-[var(--color-text)] md:justify-start">
-            <Archive className="shrink-0 text-[var(--color-accent)]" size={32} />
-            <span className="min-w-0 break-words">아카이브</span>
-          </h1>
-          <p className="break-words text-sm leading-6 text-[var(--color-text-muted)] md:text-base">
-            지금까지 작성한 <span className="font-bold text-[var(--color-accent)]">{totalPosts.toLocaleString()}</span>개의 글을 기록 순서로 정리했습니다.
-          </p>
-        </div>
+    <div className="mx-auto min-w-0 max-w-[1040px]">
+      <h1 className="text-title1 font-bold text-[var(--color-text)] md:text-display">아카이브</h1>
+      <p className="mt-1 text-body2 text-[var(--color-text-subtle)]">
+        글 <span className="font-semibold tabular-nums text-[var(--color-text)]">{totalPosts.toLocaleString()}</span>개
+      </p>
 
+      <div className="mt-8">
         <ArchiveExplorer posts={posts} />
-      </WindowSurface>
+      </div>
     </div>
   );
 }

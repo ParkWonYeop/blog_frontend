@@ -295,13 +295,11 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
   return (
     <div className="w-full min-w-0" onPaste={handlePaste}>
       <WindowSurface
-        title={isEditMode ? '글 수정' : '새 글 작성'}
-        subtitle="Markdown Studio"
         controls={(
           <button
             type="button"
             onClick={() => router.push('/admin/posts')}
-            className="inline-flex h-8 items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+            className="inline-flex h-8 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-3 text-xs font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
           >
             <ArrowLeft size={14} />
             목록
@@ -314,8 +312,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
             <Surface strong className="p-4 shadow-none md:p-5">
               <div className="mb-4 flex flex-col gap-3 border-b border-[var(--color-line)] pb-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-normal text-[var(--color-text-subtle)]">Document</p>
-                  <h1 className="mt-1 text-xl font-bold text-[var(--color-text)]">
+                  <h1 className="text-title3 font-bold text-[var(--color-text)]">
                     {isEditMode ? '게시글 수정' : '게시글 작성'}
                   </h1>
                 </div>
@@ -324,7 +321,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
                   <button
                     type="button"
                     onClick={handleTempSave}
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] shadow-[var(--shadow-control)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--color-control)] px-4 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
                   >
                     <FileText size={16} />
                     임시저장
@@ -333,7 +330,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting || isUploading || !canSubmit}
-                    className="inline-flex h-9 items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 text-sm font-bold text-white shadow-[var(--shadow-control)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-55"
+                    className="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 text-sm font-bold text-[var(--color-on-accent)] transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                     {isEditMode ? '수정하기' : '발행하기'}
@@ -341,7 +338,7 @@ export default function AdminPostEditor({ editSlug }: AdminPostEditorProps) {
                 </div>
               </div>
 
-              <label className="mb-2 block text-xs font-bold uppercase tracking-normal text-[var(--color-text-subtle)]">
+              <label className="mb-2 block text-body2 font-medium text-[var(--color-text-muted)]">
                 제목
               </label>
               <input

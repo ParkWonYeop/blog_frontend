@@ -36,7 +36,7 @@ function DeleteCommentDialog({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-gray-950/35 px-4 py-6 backdrop-blur-sm sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-accent)]/35 px-4 py-6 sm:items-center">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-xl">
         <div className="flex items-start justify-between gap-4 border-b border-gray-100 p-5">
           <div>
@@ -57,9 +57,9 @@ function DeleteCommentDialog({
         </div>
 
         <div className="p-5">
-          <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3">
-            <p className="line-clamp-3 text-sm font-semibold text-red-950">{comment.content}</p>
-            <p className="mt-2 text-xs text-red-700">
+          <div className="rounded-lg border border-transparent bg-[var(--color-danger-soft)] px-4 py-3">
+            <p className="line-clamp-3 text-sm font-semibold text-[var(--color-danger)]">{comment.content}</p>
+            <p className="mt-2 text-xs text-[var(--color-danger)]">
               {getAdminCommentAuthor(comment)} · {formatKoreanDateTime(comment.createdAt)}
             </p>
           </div>
@@ -69,7 +69,7 @@ function DeleteCommentDialog({
               type="button"
               onClick={onCancel}
               disabled={isDeleting}
-              className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               취소
             </button>
@@ -77,7 +77,7 @@ function DeleteCommentDialog({
               type="button"
               onClick={onConfirm}
               disabled={isDeleting}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-danger)] px-4 py-2 text-sm font-semibold text-[var(--color-on-accent)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isDeleting ? <Loader2 className="animate-spin" size={15} /> : <Trash2 size={15} />}
               삭제
@@ -126,7 +126,7 @@ export default function AdminCommentsPanel() {
   };
 
   return (
-    <WindowSurface title="Comments" subtitle="Moderation" bodyClassName="p-5">
+    <WindowSurface bodyClassName="p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-gray-950">
@@ -150,7 +150,7 @@ export default function AdminCommentsPanel() {
 
         {isLoading ? (
           <div className="flex min-h-48 items-center justify-center">
-            <Loader2 className="animate-spin text-blue-500" size={28} />
+            <Loader2 className="animate-spin text-[var(--color-text)]" size={28} />
           </div>
         ) : comments.length > 0 ? (
           <div className={isFetching ? 'divide-y divide-gray-100 opacity-70' : 'divide-y divide-gray-100'}>
@@ -188,7 +188,7 @@ export default function AdminCommentsPanel() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(comment)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                     aria-label="댓글 삭제"
                   >
                     <Trash2 size={16} />
@@ -216,7 +216,7 @@ export default function AdminCommentsPanel() {
             type="button"
             onClick={() => setPage((currentPage) => Math.max(0, currentPage - 1))}
             disabled={page === 0 || isFetching}
-            className="inline-flex items-center justify-center gap-1 rounded-full border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft size={15} />
             이전
@@ -225,7 +225,7 @@ export default function AdminCommentsPanel() {
             type="button"
             onClick={() => setPage((currentPage) => currentPage + 1)}
             disabled={isLastPage || isFetching}
-            className="inline-flex items-center justify-center gap-1 rounded-full border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             다음
             <ChevronRight size={15} />

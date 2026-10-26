@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type RefObject } from 'react';
-import { ChevronDown, List } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
-import WindowSurface from '@/shared/ui/WindowSurface';
 
 interface TOCProps {
   content: string;
@@ -83,9 +82,11 @@ export default function TOC({ content, contentRef }: TOCProps) {
 
   if (headings.length === 0) return null;
 
+  const activeHeading = headings.find((heading) => heading.id === activeId);
+
   return (
     <aside
-      className="sticky top-3 z-20 w-full min-w-0 self-start md:top-14 xl:order-2 xl:top-16 xl:w-[220px] xl:shrink-0"
+      className="sticky top-14 z-30 -mx-4 min-w-0 self-stretch border-b border-[var(--stroke-subtle)] bg-[var(--color-page)] px-4 md:-mx-8 md:px-8 xl:order-2 xl:top-24 xl:mx-0 xl:w-[200px] xl:shrink-0 xl:self-start xl:border-0 xl:bg-transparent xl:px-0"
       onKeyDown={(event) => {
         if (event.key === 'Escape' && expanded) {
           setExpanded(false);
@@ -93,46 +94,49 @@ export default function TOC({ content, contentRef }: TOCProps) {
         }
       }}
     >
-      <WindowSurface as="div" showTrafficLights={false} className="shadow-[var(--shadow-card)]" bodyClassName="p-2 xl:p-4">
-        <button
-          ref={toggleRef}
-          type="button"
-          aria-expanded={expanded}
-          aria-controls={listId}
-          onClick={() => setExpanded((value) => !value)}
-          className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-[var(--color-text)] xl:hidden"
-        >
-          <List size={18} className="shrink-0 text-[var(--color-accent)]" />
-          목차
-          <span className="min-w-0 flex-1 truncate text-left text-xs font-normal text-[var(--color-text-muted)]">
-            {headings.find((heading) => heading.id === activeId)?.text}
-          </span>
-          <ChevronDown size={16} className={clsx('shrink-0 transition-transform motion-reduce:transition-none', expanded && 'rotate-180')} />
-        </button>
-        <h2 className="mb-3 hidden text-sm font-semibold text-[var(--color-text)] xl:block">목차</h2>
-        <nav id={listId} aria-label="본문 목차" className={clsx('max-h-[50svh] overflow-y-auto overscroll-contain xl:block xl:max-h-[calc(100svh-10rem)]', expanded ? 'block' : 'hidden')}>
-          <ul className="space-y-1 py-1">
-            {headings.map((heading) => (
+      <button
+        ref={toggleRef}
+        type="button"
+        aria-expanded={expanded}
+        aria-controls={listId}
+        onClick={() => setExpanded((value) => !value)}
+        className="flex h-12 w-full min-w-0 items-center gap-3 text-left xl:hidden"
+      >
+        <span className="shrink-0 text-body2 font-bold text-[var(--color-text)]">목차</span>
+        <span className="min-w-0 flex-1 truncate text-body2 text-[var(--color-text-subtle)]">{activeHeading?.text}</span>
+        <ChevronDown size={18} className={clsx('shrink-0 text-[var(--color-text-subtle)] transition-transform', expanded && 'rotate-180')} />
+      </button>
+      <h2 className="mb-3 hidden text-caption1 font-semibold text-[var(--color-text-subtle)] xl:block">목차</h2>
+      <nav
+        id={listId}
+        aria-label="본문 목차"
+        className={clsx('max-h-[50svh] overflow-y-auto overscroll-contain pb-3 xl:block xl:max-h-[calc(100svh-8rem)] xl:pb-0', expanded ? 'block' : 'hidden')}
+      >
+        <ul>
+          {headings.map((heading) => {
+            const isActive = activeId === heading.id;
+
+            return (
               <li key={heading.id}>
                 <a
                   href={`#${encodeURIComponent(heading.id)}`}
                   onClick={(event) => goToHeading(event, heading.id)}
-                  aria-current={activeId === heading.id ? 'location' : undefined}
+                  aria-current={isActive ? 'location' : undefined}
                   className={clsx(
-                    'flex min-h-11 items-center break-words border-l-2 py-2 pr-2 text-sm leading-5 [overflow-wrap:anywhere] xl:min-h-0',
+                    'flex min-h-10 items-center break-words border-l-2 py-1.5 pr-2 text-body2 [overflow-wrap:anywhere] xl:min-h-0 xl:text-caption1',
                     heading.level >= 3 ? 'pl-6' : 'pl-3',
-                    activeId === heading.id
-                      ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]'
-                      : 'border-[var(--color-line)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
+                    isActive
+                      ? 'border-[var(--color-text)] font-semibold text-[var(--color-text)]'
+                      : 'border-[var(--stroke-muted)] text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
                   )}
                 >
                   {heading.text}
                 </a>
               </li>
-            ))}
-          </ul>
-        </nav>
-      </WindowSurface>
+            );
+          })}
+        </ul>
+      </nav>
     </aside>
   );
 }

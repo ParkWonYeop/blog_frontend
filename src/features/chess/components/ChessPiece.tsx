@@ -13,10 +13,10 @@ const PIECE_NAMES: Record<PieceSymbol, string> = {
 };
 
 // Original vector silhouettes keep pieces identical across system fonts and screens.
-// Fixed ivory/charcoal colors preserve white/black identity in either UI theme.
+// Fixed white/ink colors preserve piece identity in either UI theme.
 export default function ChessPiece({ color, type, className, decorative = true }: ChessPieceProps) {
-  const fill = color === 'w' ? '#fffaf0' : '#202b35';
-  const outline = color === 'w' ? '#26323c' : '#f2eee4';
+  const fill = color === 'w' ? '#ffffff' : '#1b1b1b';
+  const outline = color === 'w' ? '#1b1b1b' : '#f4f4f4';
 
   return (
     <svg

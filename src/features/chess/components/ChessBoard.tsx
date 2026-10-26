@@ -271,8 +271,8 @@ export default function ChessBoard({
   }
 
   return (
-    <div className="relative aspect-square w-full select-none rounded-lg border border-[var(--color-line)] bg-[var(--color-control)] p-0.5 shadow-[var(--shadow-control)] sm:p-1">
-      <div ref={boardRef} role="group" aria-label="체스 보드" className="relative h-full w-full overflow-hidden rounded-md border border-white/60 bg-[var(--color-surface-strong)] [container-type:inline-size] shadow-[0_1px_0_rgb(255_255_255_/_0.46)_inset] dark:border-white/10">
+    <div className="relative aspect-square w-full select-none overflow-hidden rounded-xl">
+      <div ref={boardRef} role="group" aria-label="체스 보드" className="relative h-full w-full overflow-hidden [container-type:inline-size]">
         <div className="grid h-full w-full grid-cols-[repeat(8,minmax(0,1fr))] grid-rows-[repeat(8,minmax(0,1fr))]">
           {boardSquares.map((square) => {
             const piece = game.get(square);
@@ -311,21 +311,21 @@ export default function ChessBoard({
                 onContextMenu={(event) => { if (canDrag) event.preventDefault(); }}
                 className={clsx(
                   'relative min-h-0 min-w-0 overflow-hidden transition-[filter,box-shadow] duration-150',
-                  isLight ? 'bg-[#edf2f5] dark:bg-[#c8d0d6]' : 'bg-[#7fa18b] dark:bg-[#415d52]',
+                  isLight ? 'bg-[#eeeeee] dark:bg-[#c9c9c9]' : 'bg-[#b8b8b8] dark:bg-[#858585]',
                   canDrag ? 'touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]' : 'touch-manipulation',
                   !disabled && 'hover:brightness-[1.04] focus-visible:z-20',
                   disabled && 'cursor-not-allowed',
-                  activeDrag?.target === square && isTarget && 'brightness-125 ring-4 ring-inset ring-[var(--color-accent)]',
+                  activeDrag?.target === square && isTarget && 'ring-4 ring-inset ring-[#1b1b1b]',
                 )}
                 aria-label={`${getSquareLabel(square, piece)}${isCheckSquare ? ' 체크' : ''}${isTarget ? ' 이동 가능' : ''}`}
                 aria-pressed={isSelected}
                 aria-disabled={disabled}
               >
                 {isLastMoveSquare && (
-                  <span className="absolute inset-1 rounded bg-[var(--color-accent-soft)] shadow-[0_0_0_1px_rgb(255_255_255_/_0.34)_inset]" />
+                  <span className="absolute inset-0 bg-black/[0.14]" />
                 )}
                 {isSelected && (
-                  <span className="absolute inset-1 rounded border-2 border-[var(--color-accent)] bg-[var(--color-accent-soft)] shadow-[0_0_0_2px_rgb(255_255_255_/_0.28)_inset]" />
+                  <span className="absolute inset-0 border-[3px] border-[#1b1b1b] bg-black/10" />
                 )}
                 {isCheckSquare && (
                   <span className="absolute inset-0 rounded-sm bg-[radial-gradient(circle,rgb(239_68_68_/_0.75)_0%,rgb(239_68_68_/_0.35)_55%,transparent_75%)]" />
@@ -334,7 +334,7 @@ export default function ChessBoard({
                   <span
                     className={clsx(
                       'absolute left-1 top-1 text-[9px] font-bold leading-none sm:left-1.5 sm:top-1.5 sm:text-[10px]',
-                      isLight ? 'text-[#7a9a86]' : 'text-white/80',
+                      isLight ? 'text-[#8a8a8a]' : 'text-white/85',
                     )}
                   >
                     {rank}
@@ -344,7 +344,7 @@ export default function ChessBoard({
                   <span
                     className={clsx(
                       'absolute bottom-1 right-1 text-[9px] font-bold leading-none sm:bottom-1.5 sm:right-1.5 sm:text-[10px]',
-                      isLight ? 'text-[#7a9a86]' : 'text-white/80',
+                      isLight ? 'text-[#8a8a8a]' : 'text-white/85',
                     )}
                   >
                     {file}
@@ -355,8 +355,8 @@ export default function ChessBoard({
                     className={clsx(
                       'absolute z-10 rounded-full transition',
                       piece
-                        ? 'inset-[13%] border-[2px] border-[var(--color-accent)]/70 shadow-[0_0_0_1px_rgb(255_255_255_/_0.28)_inset]'
-                        : 'left-1/2 top-1/2 h-[22%] w-[22%] -translate-x-1/2 -translate-y-1/2 bg-[var(--color-accent)]/42 shadow-[0_1px_3px_rgb(0_0_0_/_0.18)]',
+                        ? 'inset-[10%] border-[3px] border-[#1b1b1b]/45'
+                        : 'left-1/2 top-1/2 h-[24%] w-[24%] -translate-x-1/2 -translate-y-1/2 bg-[#1b1b1b]/35',
                     )}
                   />
                 )}
@@ -384,7 +384,7 @@ export default function ChessBoard({
               >
                 <span
                   className={clsx(
-                    'flex h-full w-full select-none items-center justify-center drop-shadow-[0_2px_2px_rgb(15_23_42_/_0.22)] transition-[transform,filter] duration-200 motion-reduce:transition-none',
+                    'flex h-full w-full select-none items-center justify-center drop-shadow-[0_1px_1.5px_rgb(0_0_0_/_0.25)] transition-[transform,filter] duration-200 motion-reduce:transition-none',
                     canDrag && 'cursor-grab active:cursor-grabbing',
                     isSelected && 'scale-110 -translate-y-0.5 brightness-110',
                     isLastMovePiece && 'scale-[1.04]',

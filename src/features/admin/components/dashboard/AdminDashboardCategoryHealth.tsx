@@ -22,7 +22,7 @@ export default function AdminDashboardCategoryHealth({
       </div>
 
       {categoryStats.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)]">
+        <div className="overflow-x-auto rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)]">
           <div className="min-w-[680px]">
             <div className="grid grid-cols-[1.2fr_0.6fr_0.7fr_0.9fr_auto] gap-3 bg-[var(--window-titlebar)] px-4 py-3 text-xs font-bold text-[var(--color-text-subtle)]">
               <span>카테고리</span>
