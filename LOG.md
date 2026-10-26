@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-26 (blog writing principles and first article revision)
+
+- Saved the agreed article-writing, editing, and metadata-preservation rules in `docs/blog-writing-principles.md`; `AGENTS.md` requires reading the document before drafting and reviewing blog articles. Added the same reference to the workspace instructions and project memory.
+- Rewrote only post 32, 「객체의 추상화에 대해 공부해보자」, through the existing MCP update tool. Retained the animal illustration and clarified purpose-based abstraction, interfaces, and the limits of inheritance-based reuse, using Oracle's Java tutorials as references.
+- Backed up the original Markdown, metadata, comments, and image under `/Users/wypark/blog/.blog-content-backups/2026-10-26/post-32/` before updating. The backup also contains the revision and readback receipt; no credentials were saved.
+- Validation: MCP readback exactly matched the revised body. ID, title, slug, category, tags, views, comments, and image reference were unchanged; the original `2022-10-11T18:23:20` creation time was preserved and only the modification time advanced. Documentation paths and `git diff --check` passed. Application builds/tests were not rerun because no application code changed.
+- Recommended next task: collect the user's feedback on this single revised article before rewriting additional posts.
+
 ## 2026-10-26 (restore color in profile photos)
 
 - Removed the `grayscale` filter from the sidebar profile photo and the post author avatar. The monochrome system applies to UI chrome only; photos and post images keep their original color. `DESIGN.md` now states this rule.

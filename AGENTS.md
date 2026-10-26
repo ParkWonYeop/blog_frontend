@@ -180,6 +180,8 @@ Admin destructive operations must remain confirmed and visually distinct. Preser
 
 ### Markdown And User Content
 
+Before writing or rewriting blog articles, read `docs/blog-writing-principles.md` in full and use it again when reviewing the draft. It records the user's agreed writing style and body-only update requirements. Do not apply UI label brevity rules to article prose.
+
 Render post bodies through `src/features/post/components/MarkdownRenderer.tsx`.
 
 Do not remove `rehype-sanitize` without an explicit security review. When adding Markdown features, validate:
