@@ -88,7 +88,9 @@ export function proxy(request: NextRequest) {
   const contentSecurityPolicy = buildContentSecurityPolicy(nonce, isLocal);
 
   if ((!isLocal && hostname !== PRODUCTION_HOSTNAME) || (!isLocal && protocol !== 'https')) {
-    const redirectUrl = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, PRODUCTION_ORIGIN);
+    const redirectUrl = new URL(PRODUCTION_ORIGIN);
+    redirectUrl.pathname = request.nextUrl.pathname;
+    redirectUrl.search = request.nextUrl.search;
     return applySecurityHeaders(NextResponse.redirect(redirectUrl, 301), contentSecurityPolicy, false);
   }
 

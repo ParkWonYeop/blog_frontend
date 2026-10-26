@@ -37,3 +37,38 @@ test('login return path stays on the blog origin after URL normalization', () =>
   assert.equal(getSafeRedirectPath('https://evil.example'), '/');
   assert.equal(getSafeRedirectPath('/login'), '/');
 });
+
+test('canonical redirect keeps protocol-relative paths on the blog origin', () => {
+  const proxyPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/proxy.ts');
+  const proxyCode = ts.transpileModule(fs.readFileSync(proxyPath, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText;
+  const proxyModule = { exports: {} };
+
+  vm.runInNewContext(proxyCode, {
+    module: proxyModule,
+    exports: proxyModule.exports,
+    require: (name) => {
+      assert.equal(name, 'next/server');
+      return {
+        NextResponse: {
+          redirect: (url, status) => ({ url, status, headers: new Headers() }),
+        },
+      };
+    },
+    URL,
+    Headers,
+    crypto: { randomUUID: () => '00000000-0000-0000-0000-000000000000' },
+    process: { env: { NODE_ENV: 'production', NEXT_PUBLIC_API_URL: 'https://api.wypark.me' } },
+  }, { filename: proxyPath });
+
+  const response = proxyModule.exports.proxy({
+    headers: new Headers({ host: 'blog.wypark.me', 'x-forwarded-proto': 'http' }),
+    nextUrl: new URL('https://blog.wypark.me//evil.example/path?q=1'),
+  });
+
+  assert.equal(response.status, 301);
+  assert.equal(response.url.origin, siteUrl);
+  assert.equal(response.url.pathname, '//evil.example/path');
+  assert.equal(response.url.search, '?q=1');
+});
