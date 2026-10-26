@@ -43,7 +43,7 @@ export default function AdminDashboardPostPerformance({
   const secondaryPosts = risingPosts.length > 0 ? risingPosts : stalePopularPosts;
 
   return (
-    <Surface as="section" className="p-5">
+    <Surface as="section" outlined className="p-5">
       <div className="mb-5 flex items-center gap-2">
         <Flame size={19} className="text-[var(--color-accent)]" />
         <h2 className="text-lg font-bold text-[var(--color-text)]">콘텐츠 성과</h2>

@@ -37,7 +37,7 @@ export default function PostDeleteDialog({
             type="button"
             onClick={onCancel}
             disabled={isDeleting}
-            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed"
+            className="rounded-md p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed"
             aria-label={isBulk ? '대량 삭제 확인 닫기' : '삭제 확인 닫기'}
           >
             <X size={18} />

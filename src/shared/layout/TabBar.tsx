@@ -107,7 +107,7 @@ export default function TabBar({ onOpenExplore }: TabBarProps) {
           isMoreOpen ? 'translate-y-0 duration-250 ease-enter' : 'translate-y-full duration-200 ease-exit',
         )}
       >
-        <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-[var(--stroke-weak)]" aria-hidden="true" />
+        <div className="mx-auto mb-4 h-1 w-9 rounded-sm bg-[var(--stroke-weak)]" aria-hidden="true" />
         <p className="px-3 pb-2 text-title4 font-bold text-[var(--color-text)]">더보기</p>
 
         <div className="flex min-h-14 items-center justify-between gap-3 px-3">

@@ -76,7 +76,7 @@ export default function CommentItem({ comment, postSlug, depth = 0 }: CommentIte
         <span
           aria-hidden="true"
           className={clsx(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-body2 font-bold',
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-body2 font-bold',
             comment.isPostAuthor ? 'bg-[var(--color-inverse)] text-[var(--color-on-inverse)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)]',
           )}
         >

@@ -195,7 +195,7 @@ function SidebarContent({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 md:pt-6">
           <Link href="/" onClick={closeSidebar} className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-[var(--color-hover)]">
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[var(--color-surface)]">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[var(--color-surface)]">
               {!isProfileLoading && (
                 <Image
                   src={displayProfile.imageUrl || defaultProfile.imageUrl!}
@@ -221,7 +221,7 @@ function SidebarContent({
           )}
 
           <div id="blog-search" className="mt-5">
-            <PostSearch onSearch={handleSearch} placeholder="글 검색" initialKeyword={keyword} />
+            <PostSearch onSearch={handleSearch} placeholder="글 검색" initialKeyword={keyword} shortcutKey="/" />
           </div>
 
           <nav aria-label="카테고리" className="mt-7">

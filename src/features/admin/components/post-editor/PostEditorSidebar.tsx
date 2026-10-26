@@ -123,7 +123,7 @@ export default function PostEditorSidebar({
           <button
             type="button"
             onClick={onToggleDraftList}
-            className="rounded-full border border-[var(--control-border)] bg-[var(--color-control)] px-2.5 py-1 text-xs font-bold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
+            className="rounded-md border border-[var(--control-border)] bg-[var(--color-control)] px-2.5 py-1 text-xs font-bold text-[var(--color-text-muted)] transition hover:bg-[var(--card-bg-strong)] hover:text-[var(--color-text)]"
           >
             {drafts.length}/10
           </button>

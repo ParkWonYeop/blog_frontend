@@ -381,14 +381,14 @@ export default function AdminPostsPanel() {
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/posts/${post.slug}`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
                     aria-label={`${post.title} 보기`}
                   >
                     <Eye size={16} />
                   </Link>
                   <Link
                     href={`/admin/posts/${post.slug}/edit`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition hover:bg-[var(--color-hover)] hover:text-[var(--color-text)]"
                     aria-label={`${post.title} 수정`}
                   >
                     <Edit2 size={16} />
@@ -396,7 +396,7 @@ export default function AdminPostsPanel() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(post)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                     aria-label={`${post.title} 삭제`}
                   >
                     <Trash2 size={16} />

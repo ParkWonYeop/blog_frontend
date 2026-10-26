@@ -157,7 +157,7 @@ export default function ChessMaiaLobbyClient() {
                 <label htmlFor="chess-rating" className="text-sm font-semibold text-[var(--color-text)]">
                   레이팅
                 </label>
-                <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm font-bold tabular-nums text-[var(--color-accent)]">
+                <span className="rounded-md bg-[var(--color-accent-soft)] px-3 py-1 text-sm font-bold tabular-nums text-[var(--color-accent)]">
                   {form.rating}
                 </span>
               </div>

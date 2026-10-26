@@ -31,7 +31,7 @@ export default function MetricCard({
   const isPositive = hasChange && changeRate >= 0;
 
   return (
-    <Surface className={clsx('p-5', disabled && 'opacity-70', className)}>
+    <Surface outlined className={clsx('p-5', disabled && 'opacity-70', className)}>
       <div className="flex items-center justify-between gap-3 text-[var(--color-text-subtle)]">
         <span className="text-body2 font-medium text-[var(--color-text-muted)]">{label}</span>
         {icon}

@@ -86,7 +86,7 @@ function NoticeList({ notices }: { notices: Post[] }) {
   if (notices.length === 0) return null;
 
   return (
-    <section aria-label="공지" className="mb-6 overflow-hidden rounded-2xl bg-[var(--color-surface)]">
+    <section aria-label="공지" className="mb-6 overflow-hidden rounded-2xl border border-[var(--card-border)]">
       {notices.slice(0, 3).map((notice) => (
         <Link
           key={notice.id}
@@ -149,7 +149,7 @@ function PopularPosts({ posts }: { posts: Post[] }) {
             href={`/posts/${post.slug}`}
             className="-mx-2 flex min-w-0 items-start gap-4 rounded-xl px-2 py-3 transition-colors hover:bg-[var(--color-hover)] active:bg-[var(--color-pressed)]"
           >
-            <span className="w-5 shrink-0 text-title4 font-bold tabular-nums text-[var(--color-text)]">{index + 1}</span>
+            <span className="w-6 shrink-0 font-pixel text-pixel-m text-[var(--color-text)]">{index + 1}</span>
             <span className="min-w-0 flex-1">
               <span className="line-clamp-2 break-words text-body1 font-semibold text-[var(--color-text)]">{post.title}</span>
               <span className="mt-0.5 block text-caption1 tabular-nums text-[var(--color-text-subtle)]">

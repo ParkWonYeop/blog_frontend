@@ -37,11 +37,33 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return () => window.cancelAnimationFrame(frameId);
   }, [pathname]);
 
-  const handleSidebarToggle = () => {
-    const nextValue = !isSidebarCollapsed;
+  const setSidebarCollapsed = (nextValue: boolean) => {
     setIsSidebarCollapsed(nextValue);
     window.localStorage.setItem(SIDEBAR_COLLAPSED_STORAGE_KEY, String(nextValue));
   };
+
+  useEffect(() => {
+    if (isFocused) return undefined;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+
+      event.preventDefault();
+      if (window.matchMedia('(min-width: 768px)').matches) {
+        if (isSidebarCollapsed) setSidebarCollapsed(false);
+      } else {
+        setIsMobileSidebarOpen(true);
+      }
+      window.requestAnimationFrame(() => {
+        document.querySelector<HTMLInputElement>('#blog-search input')?.focus({ preventScroll: true });
+      });
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isFocused, isSidebarCollapsed]);
 
   const handleFocusChange = (focused: boolean) => {
     setFocusedPath(focused ? pathname : null);
@@ -54,7 +76,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <PageFocusContext value={{ isFocused, setFocused: handleFocusChange }}>
       {!isFocused && (
         <>
-          <AppBar isSidebarCollapsed={isSidebarCollapsed} onToggleSidebar={handleSidebarToggle} />
+          <AppBar isSidebarCollapsed={isSidebarCollapsed} onToggleSidebar={() => setSidebarCollapsed(!isSidebarCollapsed)} />
           <Sidebar
             isDesktopCollapsed={isSidebarCollapsed}
             isMobileOpen={isMobileSidebarOpen}

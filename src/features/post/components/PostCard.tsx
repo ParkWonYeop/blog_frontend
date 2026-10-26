@@ -10,7 +10,7 @@ export default function PostCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group flex h-full min-h-52 flex-col rounded-3xl bg-[var(--color-surface)] p-6 transition-colors hover:bg-[var(--color-surface-strong)]"
+      className="group flex h-full min-h-52 flex-col rounded-3xl border border-[var(--card-border)] p-6 transition-colors hover:border-[var(--color-text)]"
     >
       <p className="text-caption1 font-semibold text-[var(--color-text-muted)]">
         {isNotice ? '공지' : post.categoryName || '미분류'}

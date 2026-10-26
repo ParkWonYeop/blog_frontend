@@ -37,7 +37,7 @@ export default function ThemeToggle() {
             title={`${option.label} 모드`}
             onClick={() => setMode(option.value)}
             className={clsx(
-              'inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors',
+              'inline-flex h-8 w-8 items-center justify-center rounded-sm transition-colors',
               isSelected
                 ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
                 : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',

@@ -113,7 +113,7 @@ function PlayerBar({
           {isMe && <span className="ml-1 text-xs font-medium text-[var(--color-text-subtle)]">(나)</span>}
         </span>
         {!player.connected && game.status === 'IN_PROGRESS' && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-transparent bg-[var(--color-danger-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-danger)]">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-transparent bg-[var(--color-danger-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-danger)]">
             <WifiOff size={12} />
             연결 끊김{forfeitSeconds !== null && ` · ${forfeitSeconds}초`}
           </span>

@@ -14,6 +14,13 @@ const pretendard = localFont({
   display: 'swap',
 });
 
+const galmuri = localFont({
+  src: './fonts/Galmuri11-Bold.woff2',
+  variable: '--font-galmuri',
+  weight: '700',
+  display: 'swap',
+});
+
 // Per-request CSP nonces require dynamic rendering so Next can nonce its scripts.
 export const dynamic = 'force-dynamic';
 
@@ -47,7 +54,7 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="cFJSK1ayy2Y4lqRKNv8wZ_vybg5De22zYCdbKSfvAJA" />
       </head>
-      <body className={`${pretendard.variable} ${pretendard.className} text-[var(--color-text)] antialiased`}>
+      <body className={`${pretendard.variable} ${galmuri.variable} ${pretendard.className} text-[var(--color-text)] antialiased`}>
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>

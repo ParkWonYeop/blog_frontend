@@ -49,7 +49,7 @@ function DeleteCommentDialog({
             type="button"
             onClick={onCancel}
             disabled={isDeleting}
-            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed"
+            className="rounded-md p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed"
             aria-label="댓글 삭제 닫기"
           >
             <X size={18} />
@@ -135,7 +135,7 @@ export default function AdminCommentsPanel() {
           </h2>
           <p className="mt-1 text-sm text-gray-500">최근 댓글을 확인하고 관리자 권한으로 삭제합니다.</p>
         </div>
-        <span className="rounded-full bg-gray-50 px-3 py-1 text-sm font-semibold text-gray-500">
+        <span className="rounded-md bg-gray-50 px-3 py-1 text-sm font-semibold text-gray-500">
           {meta.totalElements.toLocaleString()}개
         </span>
       </div>
@@ -179,7 +179,7 @@ export default function AdminCommentsPanel() {
                   {comment.postSlug && (
                     <Link
                       href={`/posts/${comment.postSlug}`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
                       aria-label="댓글이 달린 글 보기"
                     >
                       <ExternalLink size={16} />
@@ -188,7 +188,7 @@ export default function AdminCommentsPanel() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(comment)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                     aria-label="댓글 삭제"
                   >
                     <Trash2 size={16} />

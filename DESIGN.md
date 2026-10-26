@@ -27,7 +27,7 @@
 
 ## 타이포그래피
 
-Pretendard 하나만 쓴다. 숫자는 `tabular-nums`로 맞추고 모노스페이스는 코드에만 쓴다.
+본문 글꼴은 Pretendard다. 숫자는 `tabular-nums`로 맞춘다. 모노스페이스는 코드에만 쓴다.
 
 | 클래스 | 크기 / 줄높이 | 출처 |
 | --- | --- | --- |
@@ -43,17 +43,31 @@ Pretendard 하나만 쓴다. 숫자는 `tabular-nums`로 맞추고 모노스페�
 
 글 본문은 `.article-body`(17px, 줄높이 1.85)에서 한 번에 정의한다. 코드 블록은 색 없는 Prism 테마를 쓴다.
 
+### 픽셀 폰트
+
+`font-pixel`은 갈무리11 Bold(Galmuri11-Bold, OFL, 한글 11,172자)다. 12px 격자 폰트라 12의 배수에서만 선명하다.
+
+| 클래스 | 크기 / 줄높이 |
+| --- | --- |
+| `text-pixel-s` | 12 / 16 |
+| `text-pixel-m` | 24 / 30 |
+| `text-pixel-l` | 36 / 44 |
+| `text-pixel-xl` | 48 / 60 |
+
+- 쓰는 곳: 워드마크, 페이지 큰 제목(아카이브, 카테고리 이름, 체스, 관리자), 아카이브 연도, 인기 글 순위, 체스 시계, 404, 단축키 배지
+- 쓰지 않는 곳: 글 제목, 본문, 날짜·카테고리 같은 메타 정보
+- 글꼴 변수(`--font-apple-sans` 등)는 `body`에서 정의한다. next/font 변수가 `body`에 붙기 때문이다.
+
 ## 반경과 높이
+
+모서리는 작게 유지한다. 반경 0은 쓰지 않는다.
 
 | 클래스 | 값 | 주 용도 |
 | --- | --- | --- |
-| `rounded-md` | 8 | 32px 컨트롤, 인라인 코드 |
-| `rounded-lg` | 10 | 36~40px 버튼, 목록 행 |
-| `rounded-xl` | 14 | 44~48px 입력, 세그먼트 트랙 |
-| `rounded-2xl` | 16 | 56px CTA, 코드 블록, 표 |
-| `rounded-3xl` | 20 | 카드, 패널 |
-| `rounded-4xl` | 24 | 홈 최신 글 블록, 바텀시트 |
-| `rounded-full` | - | 칩, 아바타 |
+| `rounded-sm` | 2 | 세그먼트 안쪽 칩, 키 배지, 작은 배지 |
+| `rounded-md` / `-lg` / `-xl` | 4 | 버튼, 입력, 칩, 목록 행, 아바타 |
+| `rounded-2xl` / `-3xl` / `-4xl` | 6 | 카드, 패널, 코드 블록, 홈 최신 글 블록, 바텀시트 |
+| `rounded-full` | - | 체스 상태 점과 이동 표시 점 |
 
 ## 모션
 
@@ -72,12 +86,14 @@ Pretendard 하나만 쓴다. 숫자는 `tabular-nums`로 맞추고 모노스페�
 
 ## 컴포넌트
 
-- `WindowSurface`: 도구 화면 패널. 흰 바탕, `--color-line` 외곽선, 선택적 헤더.
-- `Surface`: 패널 안 묶음. 회색 면, 테두리 없음.
+- 카드: 1px `--card-border` 테두리, 바탕 없음. hover 때 테두리가 먹색이 된다.
+- `WindowSurface`: 도구 화면 패널. `--card-border` 외곽선, 선택적 헤더.
+- `Surface`: 패널 안 묶음은 회색 면이다. 독립 카드로 쓸 때는 `outlined`를 켠다.
 - `PostListItem`: 목록 행(`<li>`). 부모는 `<ul>`로 감싼다.
 - `SegmentedControl`, `ThemeToggle`: 회색 트랙 위 raised 칩.
-- `StatusBadge`: 6px 반경의 각진 배지.
-- 칩: 높이 36px, `rounded-full`, 선택 시 반전.
+- `StatusBadge`: 2px 반경의 각진 배지.
+- 칩: 높이 36px, 4px 반경, 선택 시 반전.
+- 검색: `/` 키로 사이드바 검색창에 포커스한다. 입력 중이거나 체스 집중 모드에서는 동작하지 않는다.
 
 한 화면의 채운 먹색 버튼은 하나다. 나머지 액션은 회색 면 버튼이나 텍스트 버튼으로 둔다.
 

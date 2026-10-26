@@ -59,7 +59,7 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-6">
       <div>
-        <h1 className="text-title2 font-bold text-[var(--color-text)] md:text-title1">관리자</h1>
+        <h1 className="font-pixel text-pixel-m text-[var(--color-text)] md:text-pixel-l">관리자</h1>
         <nav
           className="-mx-4 mt-4 flex overflow-x-auto border-b border-[var(--stroke-muted)] px-4 scrollbar-hide md:mx-0 md:px-0"
           aria-label="관리자 메뉴"

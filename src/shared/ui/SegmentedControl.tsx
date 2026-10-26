@@ -36,7 +36,7 @@ export default function SegmentedControl<T extends string>({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={clsx(
-              'min-w-14 flex-1 rounded-lg px-3 text-body2 font-semibold transition-colors',
+              'min-w-14 flex-1 rounded-sm px-3 text-body2 font-semibold transition-colors',
               isSelected
                 ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
                 : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',

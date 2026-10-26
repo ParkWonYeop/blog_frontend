@@ -9,6 +9,7 @@ interface PostSearchProps {
   placeholder?: string;
   className?: string;
   initialKeyword?: string;
+  shortcutKey?: string;
 }
 
 export default function PostSearch({
@@ -16,6 +17,7 @@ export default function PostSearch({
   placeholder = '검색어를 입력해 주세요',
   className,
   initialKeyword = '',
+  shortcutKey,
 }: PostSearchProps) {
   const inputId = useId();
   const [keyword, setKeyword] = useState(initialKeyword);
@@ -55,7 +57,8 @@ export default function PostSearch({
         onChange={(e) => setKeyword(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="h-11 w-full rounded-xl border pl-10 pr-10 text-body2 text-[var(--color-text)] outline-none [&::-webkit-search-cancel-button]:hidden"
+        aria-keyshortcuts={shortcutKey}
+        className="peer h-11 w-full rounded-xl border pl-10 pr-10 text-body2 text-[var(--color-text)] outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
@@ -64,6 +67,14 @@ export default function PostSearch({
       >
         <Search size={18} />
       </button>
+      {shortcutKey && !keyword && (
+        <kbd
+          aria-hidden="true"
+          className="pointer-events-none absolute right-3 top-1/2 hidden h-6 min-w-6 -translate-y-1/2 items-center justify-center rounded-sm border border-[var(--card-border)] bg-[var(--color-page)] px-1.5 font-pixel text-pixel-s text-[var(--color-text-subtle)] peer-focus:hidden md:flex"
+        >
+          {shortcutKey}
+        </kbd>
+      )}
       {keyword && (
         <button
           type="button"

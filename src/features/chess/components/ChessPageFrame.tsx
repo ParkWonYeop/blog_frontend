@@ -30,7 +30,7 @@ export default function ChessPageFrame({ title, backHref, backLabel, actions, ch
       {title && !isFocused && (
         <section className="flex min-w-0 flex-col gap-1 px-2 pb-1 sm:px-0 sm:pb-3">
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-            <h1 className="min-w-0 break-words text-title2 font-bold text-[var(--color-text)] md:text-title1">
+            <h1 className="min-w-0 break-words font-pixel text-pixel-m text-[var(--color-text)] md:text-pixel-l">
               {title}
             </h1>
             {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}

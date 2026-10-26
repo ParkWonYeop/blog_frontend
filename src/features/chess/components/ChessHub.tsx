@@ -20,7 +20,7 @@ export default function ChessHub() {
           <Link
             key={href}
             href={href}
-            className="flex min-h-32 flex-col justify-between rounded-3xl bg-[var(--color-surface)] p-5 transition-colors hover:bg-[var(--color-surface-strong)] sm:min-h-44 sm:p-6"
+            className="flex min-h-32 flex-col justify-between rounded-3xl border border-[var(--card-border)] p-5 transition-colors hover:border-[var(--color-text)] sm:min-h-44 sm:p-6"
           >
             <Icon size={28} strokeWidth={1.8} className="text-[var(--color-text)]" />
             <span className="text-title4 font-bold text-[var(--color-text)]">{label}</span>

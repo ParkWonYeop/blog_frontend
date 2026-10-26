@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-10-26 (sharper corners, outlined cards, pixel accents)
+
+- Reduced the radius scale to 2/4/6px (`--radius-*` in `globals.css`) and replaced pill shapes with 4px corners on chips, toggles, avatars, and admin icon buttons. Only chess status dots and move markers stay circular.
+- Content cards (post grid, notices, previous/next posts, chess hub tiles, admin dashboard cards via `Surface outlined`) now use a 1px `--card-border` outline with an ink border on hover. `Surface` keeps its gray fill for groupings inside panels.
+- Added Galmuri11 Bold (OFL, license in `src/app/fonts/Galmuri-OFL.txt`, 166 KB) as `font-pixel` with 12px-grid sizes `text-pixel-s/m/l/xl`. Used for the wordmark, page titles (archive, category, chess, admin), archive years, popular-post ranks, the chess clock, the new `not-found` page, and the search shortcut badge.
+- Fixed a pre-existing token bug: `--font-apple-sans` was defined on `:root` but referenced `--font-pretendard`, which next/font sets on `body`, so the variable was invalid at computed-value time and any utility using it (`font-sans`, and the new `font-pixel` fallback) was dropped. The font variables now live on `body`.
+- Pressing `/` outside editable fields focuses the sidebar search, expanding the desktop sidebar or opening the mobile drawer first. The search field shows a `/` badge on desktop and exposes `aria-keyshortcuts`.
+- Validation: `npm run check`, `node --test tests/*.test.mjs` (25 passed), and `npm run build` against the public API passed. Playwright (system Chrome) at 1440×900 and 390×844 in light/dark for `/`, `/archive`, `/category/Kotlin`, `/chess`, a post, and an unknown route: no horizontal overflow, no duplicate IDs, no console errors besides the stubbed auth refresh and the intended 404. A keyboard probe confirmed `/` focuses search with the sidebar open, collapsed, and on mobile, and still types `/` inside inputs. Admin and authenticated chess screens were not exercised.
+- Recommended next task: check the admin dashboard and an in-progress chess game (clock) in a logged-in session.
+
 ## 2026-10-26 (blog writing principles and first article revision)
 
 - Saved the agreed article-writing, editing, and metadata-preservation rules in `docs/blog-writing-principles.md`; `AGENTS.md` requires reading the document before drafting and reviewing blog articles. Added the same reference to the workspace instructions and project memory.

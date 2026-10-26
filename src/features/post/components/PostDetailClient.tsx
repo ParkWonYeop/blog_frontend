@@ -36,7 +36,7 @@ const getPostErrorInfo = (error: unknown) => {
   };
 };
 
-const neighborClass = 'group flex min-h-24 min-w-0 flex-col justify-center gap-1 rounded-2xl bg-[var(--color-surface)] px-5 py-4 transition-colors hover:bg-[var(--color-surface-strong)]';
+const neighborClass = 'group flex min-h-24 min-w-0 flex-col justify-center gap-1 rounded-2xl border border-[var(--card-border)] px-5 py-4 transition-colors hover:border-[var(--color-text)]';
 
 export default function PostDetailClient({ slug, initialPost }: PostDetailClientProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -112,7 +112,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
               {post.title}
             </h1>
             <div className="mt-7 flex min-w-0 items-center gap-3">
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[var(--color-surface)]">
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-[var(--color-surface)]">
                 {profile?.imageUrl && (
                   <Image src={profile.imageUrl} alt="" fill sizes="40px" className="object-cover" unoptimized />
                 )}

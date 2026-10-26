@@ -37,7 +37,7 @@ export default function AppBar({ isSidebarCollapsed, onToggleSidebar }: AppBarPr
             {isSidebarCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
           </button>
 
-          <Link href="/" className="mr-4 shrink-0 rounded-md px-1 text-title4 font-bold text-[var(--color-text)] md:ml-1">
+          <Link href="/" className="mr-4 shrink-0 rounded-sm px-1 font-pixel text-pixel-m text-[var(--color-text)] md:ml-1">
             WYPark
           </Link>
 

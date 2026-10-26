@@ -7,12 +7,14 @@ interface SurfaceProps extends HTMLAttributes<HTMLElement> {
   as?: SurfaceElement;
   strong?: boolean;
   interactive?: boolean;
+  outlined?: boolean;
 }
 
 export default function Surface({
   as: Component = 'div',
   strong = false,
   interactive = false,
+  outlined = false,
   className,
   ...props
 }: SurfaceProps) {
@@ -20,8 +22,10 @@ export default function Surface({
     <Component
       className={clsx(
         'rounded-2xl',
-        strong ? 'bg-[var(--color-surface-strong)]' : 'bg-[var(--color-surface)]',
-        interactive && 'transition-colors hover:bg-[var(--color-surface-strong)]',
+        outlined
+          ? 'border border-[var(--card-border)]'
+          : strong ? 'bg-[var(--color-surface-strong)]' : 'bg-[var(--color-surface)]',
+        interactive && (outlined ? 'transition-colors hover:border-[var(--color-text)]' : 'transition-colors hover:bg-[var(--color-surface-strong)]'),
         className,
       )}
       {...props}

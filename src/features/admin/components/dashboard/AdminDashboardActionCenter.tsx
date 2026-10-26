@@ -35,7 +35,7 @@ export default function AdminDashboardActionCenter({
   ];
 
   return (
-    <Surface as="section" className="p-5">
+    <Surface as="section" outlined className="p-5">
       <div className="mb-5 flex items-center gap-2">
         <AlertCircle size={19} className="text-[var(--color-accent)]" />
         <h2 className="text-lg font-bold text-[var(--color-text)]">액션 센터</h2>

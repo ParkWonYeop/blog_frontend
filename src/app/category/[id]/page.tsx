@@ -85,7 +85,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   if (error) {
     return (
       <div className="mx-auto max-w-[1040px]">
-        <h1 className="text-title1 font-bold text-[var(--color-text)]">{apiCategoryName}</h1>
+        <h1 className="break-words font-pixel text-pixel-l text-[var(--color-text)]">{apiCategoryName}</h1>
         <EmptyState title="글을 불러오지 못했어요" className="mt-6" />
       </div>
     );
@@ -105,7 +105,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   };
 
   const viewButtonClass = (mode: 'grid' | 'list') => clsx(
-    'flex h-8 w-9 items-center justify-center rounded-lg transition-colors',
+    'flex h-8 w-9 items-center justify-center rounded-sm transition-colors',
     activeViewMode === mode
       ? 'bg-[var(--color-raised)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
       : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text)]',
@@ -116,7 +116,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
     <div className="mx-auto min-w-0 max-w-[1040px]">
       <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <h1 className="break-words text-title1 font-bold text-[var(--color-text)] md:text-display">{apiCategoryName}</h1>
+          <h1 className="break-words font-pixel text-pixel-l text-[var(--color-text)] md:text-pixel-xl">{apiCategoryName}</h1>
           <p className="mt-1 text-body2 text-[var(--color-text-subtle)]">
             {keyword ? `‘${keyword}’ 검색 결과 ` : '글 '}
             <span className="font-semibold tabular-nums text-[var(--color-text)]">{totalElements.toLocaleString()}</span>개

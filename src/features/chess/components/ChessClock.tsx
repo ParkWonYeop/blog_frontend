@@ -46,7 +46,7 @@ export default function ChessClock({ millis, receivedAt, running, active }: Ches
   return (
     <span
       className={clsx(
-        'inline-flex min-w-[4.5rem] items-center justify-center rounded-lg border px-2.5 py-1 font-mono text-lg font-bold tabular-nums leading-none',
+        'inline-flex min-w-[5.5rem] items-center justify-center rounded-lg border px-2.5 py-1.5 font-pixel text-pixel-m',
         active
           ? isLow
             ? 'border-transparent bg-[var(--color-danger-soft)] text-[var(--color-danger)]'

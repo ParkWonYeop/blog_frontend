@@ -88,7 +88,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="group relative h-28 w-28 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm"
+          className="group relative h-28 w-28 overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm"
           aria-label="프로필 이미지 변경"
         >
           <Image

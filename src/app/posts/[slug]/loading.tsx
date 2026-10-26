@@ -5,7 +5,7 @@ export default function Loading() {
       <div className="mt-4 h-10 w-4/5 rounded-lg bg-[var(--color-surface)]" />
       <div className="mt-3 h-10 w-3/5 rounded-lg bg-[var(--color-surface)]" />
       <div className="mt-8 flex items-center gap-3">
-        <div className="h-10 w-10 rounded-full bg-[var(--color-surface)]" />
+        <div className="h-10 w-10 rounded-md bg-[var(--color-surface)]" />
         <div className="h-4 w-32 rounded-md bg-[var(--color-surface)]" />
       </div>
       <div className="mt-12 space-y-3">

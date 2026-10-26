@@ -105,7 +105,7 @@ export default function ArchiveExplorer({ posts }: ArchiveExplorerProps) {
   const sortedYears = Object.keys(groupedPosts).sort((a, b) => Number(b) - Number(a));
   const withSummary = density === 'comfortable';
   const chipClass = (selected: boolean) => clsx(
-    'inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-body2 font-medium transition-colors',
+    'inline-flex h-9 shrink-0 items-center rounded-md px-3.5 text-body2 font-medium transition-colors',
     selected
       ? 'bg-[var(--color-inverse)] text-[var(--color-on-inverse)]'
       : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-text)]',
@@ -164,9 +164,9 @@ export default function ArchiveExplorer({ posts }: ArchiveExplorerProps) {
             return (
               <section key={year} aria-labelledby={`archive-${year}`} className="min-w-0 md:grid md:grid-cols-[140px_minmax(0,1fr)] md:gap-8">
                 <div className="mb-4 md:mb-0">
-                  <h2 id={`archive-${year}`} className="text-title2 font-bold tabular-nums text-[var(--color-text)] md:sticky md:top-24">
+                  <h2 id={`archive-${year}`} className="font-pixel text-pixel-l text-[var(--color-text)] md:sticky md:top-24">
                     {year}
-                    <span className="ml-2 text-body2 font-medium text-[var(--color-text-subtle)]">{yearCount}개</span>
+                    <span className="ml-2 font-sans text-body2 font-medium text-[var(--color-text-subtle)]">{yearCount}개</span>
                   </h2>
                 </div>
 

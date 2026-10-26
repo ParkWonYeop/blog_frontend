@@ -147,7 +147,7 @@ function RecentActivity({
 }) {
   return (
     <section className="grid gap-6 xl:grid-cols-2">
-      <Surface className="p-5">
+      <Surface outlined className="p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-[var(--color-text)]">최근 글</h2>
@@ -174,7 +174,7 @@ function RecentActivity({
         )}
       </Surface>
 
-      <Surface className="p-5">
+      <Surface outlined className="p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-[var(--color-text)]">최근 댓글</h2>

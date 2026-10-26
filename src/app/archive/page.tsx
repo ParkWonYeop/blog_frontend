@@ -31,7 +31,7 @@ export default async function ArchivePage() {
 
   return (
     <div className="mx-auto min-w-0 max-w-[1040px]">
-      <h1 className="text-title1 font-bold text-[var(--color-text)] md:text-display">아카이브</h1>
+      <h1 className="font-pixel text-pixel-l text-[var(--color-text)] md:text-pixel-xl">아카이브</h1>
       <p className="mt-1 text-body2 text-[var(--color-text-subtle)]">
         글 <span className="font-semibold tabular-nums text-[var(--color-text)]">{totalPosts.toLocaleString()}</span>개
       </p>

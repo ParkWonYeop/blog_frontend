@@ -26,7 +26,7 @@ export default function WindowSurface({
   return (
     <Component
       className={clsx(
-        'w-full min-w-0 overflow-hidden rounded-3xl border border-[var(--color-line)] bg-[var(--color-page)]',
+        'w-full min-w-0 overflow-hidden rounded-3xl border border-[var(--card-border)] bg-[var(--color-page)]',
         className,
       )}
       {...props}

@@ -35,7 +35,7 @@ export default function AdminDashboardTrafficChart({
   const hasTraffic = points.some((point) => point.views > 0);
 
   return (
-    <Surface as="section" className="p-5">
+    <Surface as="section" outlined className="p-5">
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">

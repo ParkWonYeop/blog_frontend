@@ -162,7 +162,7 @@ function SelectedCategoryEditor({
           <h3 className="text-sm font-bold text-gray-900">선택한 카테고리</h3>
           <p className="mt-1 text-xs text-gray-500">이름 변경과 부모 카테고리 이동을 여기서 처리합니다.</p>
         </div>
-        <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-500">
+        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-gray-500">
           #{category.id}
         </span>
       </div>
@@ -220,7 +220,7 @@ function SelectedCategoryEditor({
                 type="button"
                 onClick={() => setDeleteArmed(false)}
                 disabled={isBusy}
-                className="rounded-full px-3 py-2 text-sm font-semibold text-gray-500 transition hover:bg-white"
+                className="rounded-md px-3 py-2 text-sm font-semibold text-gray-500 transition hover:bg-white"
               >
                 취소
               </button>
