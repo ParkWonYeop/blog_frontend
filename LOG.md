@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-10-26 (all article revisions, source dates, and prose)
+
+- Rewrote all 104 published articles through the existing administrator MCP update tool, including the latest monitoring and voice-server posts. Kept the original post IDs, creation dates, titles, slugs, categories, tags, comments, and all 55 occurrences of 54 images. Verified the saved body of every article against its draft; modification dates advanced as expected.
+- Compared citations and technical content with each article's original publication date. Replaced later sources with historical official versions or fixed commits, removed later developments from older articles, and removed rewrite notices from all bodies. The notes retain source-date evidence and the limits of verification.
+- Reviewed all 104 articles again for paired contrasts, proportional slogans, and vague headings; refined 70 articles. Replaced the user's examples with concrete headings about editing AI-generated code and restoring deleted users/reusing phone numbers. This prose pass preserved every code block and linked URL, including order and image occurrence counts. Added these criteria and the historical-source rules to `docs/blog-writing-principles.md`.
+- Saved original content, metadata, comments, image files, intermediate revisions, and final readbacks under `/Users/wypark/blog/.blog-content-backups/2026-10-26/all-posts/`. No administrator key is stored in the backup. See `docs/blog-rewrite-2026-10-26.md` for the result and restoration notes.
+- Validation: all 104 body/metadata/comment/image checks passed, with no rewrite notices; all 247 saved mutation receipts retained the immediate pre-update view count. Natural view-count increases were not reset. JS/TS/JSX snippet checks, selected algorithm and Promise checks, and Kotlin compilation/execution passed as detailed in the report. Homepage and backend health returned HTTP 200. Documentation paths and `git diff --check` passed. Full application integration tests and a frontend build were not rerun for this content/documentation task.
+- Recommended next task: use feedback on specific revised paragraphs to refine the writing principles and the corresponding articles.
+
 ## 2026-10-26 (frontend security audit)
 
 - Reproduced a login return-path open redirect: the old `getSafeRedirectPath('/\\evil.example')` returned the value unchanged, while a browser URL parser resolves it to `https://evil.example/`. Return paths now resolve against the fixed blog origin and retain only same-origin pathname, search, and hash. Added a regression test for the backslash, protocol-relative, absolute, login, and ordinary internal paths. Impact is redirection after a user completes login; access tokens remain in memory and are not placed in the redirect URL.
