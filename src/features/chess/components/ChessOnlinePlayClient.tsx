@@ -103,7 +103,7 @@ function PlayerBar({
         <span
           className={clsx(
             'h-2.5 w-2.5 shrink-0 rounded-full border',
-            color === 'white' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#1b1b1b]',
+            color === 'white' ? 'border-black/20 bg-white' : 'border-white/30 bg-[#000000]',
             onTurn && 'ring-2 ring-[var(--color-text)]',
           )}
           aria-hidden="true"

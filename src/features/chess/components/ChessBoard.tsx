@@ -315,7 +315,7 @@ export default function ChessBoard({
                   canDrag ? 'touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]' : 'touch-manipulation',
                   !disabled && 'hover:brightness-[1.04] focus-visible:z-20',
                   disabled && 'cursor-not-allowed',
-                  activeDrag?.target === square && isTarget && 'ring-4 ring-inset ring-[#1b1b1b]',
+                  activeDrag?.target === square && isTarget && 'ring-4 ring-inset ring-[#000000]',
                 )}
                 aria-label={`${getSquareLabel(square, piece)}${isCheckSquare ? ' 체크' : ''}${isTarget ? ' 이동 가능' : ''}`}
                 aria-pressed={isSelected}
@@ -325,7 +325,7 @@ export default function ChessBoard({
                   <span className="absolute inset-0 bg-black/[0.14]" />
                 )}
                 {isSelected && (
-                  <span className="absolute inset-0 border-[3px] border-[#1b1b1b] bg-black/10" />
+                  <span className="absolute inset-0 border-[3px] border-[#000000] bg-black/10" />
                 )}
                 {isCheckSquare && (
                   <span className="absolute inset-0 rounded-sm bg-[radial-gradient(circle,rgb(239_68_68_/_0.75)_0%,rgb(239_68_68_/_0.35)_55%,transparent_75%)]" />
@@ -355,8 +355,8 @@ export default function ChessBoard({
                     className={clsx(
                       'absolute z-10 rounded-full transition',
                       piece
-                        ? 'inset-[10%] border-[3px] border-[#1b1b1b]/45'
-                        : 'left-1/2 top-1/2 h-[24%] w-[24%] -translate-x-1/2 -translate-y-1/2 bg-[#1b1b1b]/35',
+                        ? 'inset-[10%] border-[3px] border-[#000000]/45'
+                        : 'left-1/2 top-1/2 h-[24%] w-[24%] -translate-x-1/2 -translate-y-1/2 bg-[#000000]/35',
                     )}
                   />
                 )}

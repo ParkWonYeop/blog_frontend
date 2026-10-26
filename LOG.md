@@ -1,5 +1,12 @@
 # Work Log
 
+## 2026-10-26 (pixel W favicon and pure black)
+
+- Changed light `--grey-1000` from `#1b1b1b` to pure `#000000` at the user's request. It drives text, the home latest-post block, primary buttons, and selection. Chess pieces, board markers, and player swatches moved to `#000000` as well. `--grey-900` (`#2e2e2e`) stays as the hover shade, and the dark-mode surfaces `#161616`/`#1e1e1e` stay so they remain distinct from the pure-black dark page.
+- Replaced the old 256px favicon with a pixel "W" taken bit-for-bit from the Galmuri11 Bold bitmap (BDF) used by the wordmark: a white W on a 16×16 `#000` tile with 1px corner cuts. Added `src/app/icon.svg` (crisp edges), a three-size `favicon.ico` (16/32/48, integer scales only), and a 180px `apple-icon.png`. Next.js emits all three link tags with version hashes, so cached copies of the old icon are replaced.
+- Validation: `npm run check`, `node --test tests/*.test.mjs` (25 passed), and `npm run build` passed. A local `next start` served all three icon files with the expected types; a Chrome render at 16/32/48px on light and dark tab colors showed crisp edges; computed colors of the home block, body text, and wordmark were `rgb(0, 0, 0)`.
+- Recommended next task: confirm the icon in a real browser tab and on an iOS home screen after deploy.
+
 ## 2026-10-26 (sharper corners, outlined cards, pixel accents)
 
 - Reduced the radius scale to 2/4/6px (`--radius-*` in `globals.css`) and replaced pill shapes with 4px corners on chips, toggles, avatars, and admin icon buttons. Only chess status dots and move markers stay circular.
