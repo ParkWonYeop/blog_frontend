@@ -1,5 +1,11 @@
 # Work Log
 
+## 2026-10-26 (pixel home headings)
+
+- Set the home section headings in `font-pixel`: 최근 글 and 많이 읽은 글 at `text-pixel-m` (24px), and the inline 공지 and 새로 올라온 글 labels at `text-pixel-s` (12px, the font's native size). Post titles, summaries, and metadata stay in Pretendard. `DESIGN.md` lists the new placements.
+- Validation: `npm run check`, `node --test tests/*.test.mjs` (25 passed), and `npm run build` passed. Playwright screenshots of `/` at 1440×900 (light/dark) and 390×844 showed no horizontal overflow, duplicate IDs, or console errors beyond the stubbed auth refresh.
+- Recommended next task: check the 12px labels on a low-DPI Windows display after deploy.
+
 ## 2026-10-26 (pixel W favicon and pure black)
 
 - Changed light `--grey-1000` from `#1b1b1b` to pure `#000000` at the user's request. It drives text, the home latest-post block, primary buttons, and selection. Chess pieces, board markers, and player swatches moved to `#000000` as well. `--grey-900` (`#2e2e2e`) stays as the hover shade, and the dark-mode surfaces `#161616`/`#1e1e1e` stay so they remain distinct from the pure-black dark page.

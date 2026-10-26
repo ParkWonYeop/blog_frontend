@@ -93,7 +93,7 @@ function NoticeList({ notices }: { notices: Post[] }) {
           href={`/posts/${notice.slug}`}
           className="flex min-h-12 min-w-0 items-center gap-3 border-b border-[var(--stroke-subtle)] px-4 transition-colors last:border-b-0 hover:bg-[var(--color-hover)]"
         >
-          <span className="shrink-0 text-body2 font-bold text-[var(--color-text)]">공지</span>
+          <span className="shrink-0 font-pixel text-pixel-s text-[var(--color-text)]">공지</span>
           <span className="min-w-0 flex-1 truncate text-body2 text-[var(--color-text-muted)]">{notice.title}</span>
           <ChevronRight size={16} className="shrink-0 text-[var(--color-text-placeholder)]" />
         </Link>
@@ -111,7 +111,7 @@ function LatestPost({ post }: { post: Post }) {
       className="group block min-w-0 rounded-4xl bg-[var(--color-inverse)] px-6 pb-8 pt-7 text-[var(--color-on-inverse)] transition-colors hover:bg-[var(--color-accent-hover)] md:px-10 md:pb-12 md:pt-10"
     >
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body2 text-[var(--color-on-inverse-muted)]">
-        <span className="font-bold text-[var(--color-on-inverse)]">새로 올라온 글</span>
+        <span className="font-pixel text-pixel-s text-[var(--color-on-inverse)]">새로 올라온 글</span>
         <span>{post.categoryName || '미분류'}</span>
         <time dateTime={post.createdAt}>{formatKoreanDate(post.createdAt)}</time>
       </p>
@@ -130,7 +130,7 @@ function LatestPost({ post }: { post: Post }) {
 function SectionHeader({ title, action }: { title: string; action?: ReactNode }) {
   return (
     <div className="mb-2 flex min-h-10 items-center justify-between gap-3">
-      <h2 className="text-title4 font-bold text-[var(--color-text)]">{title}</h2>
+      <h2 className="font-pixel text-pixel-m text-[var(--color-text)]">{title}</h2>
       {action}
     </div>
   );
