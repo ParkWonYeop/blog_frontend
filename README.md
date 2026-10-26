@@ -50,16 +50,16 @@
 | Client state | Zustand 5 |
 | HTTP | Axios |
 | Forms | React Hook Form |
-| Markdown | React Markdown, remark/rehype, KaTeX, React Syntax Highlighter |
+| Markdown | React Markdown, remark/rehype, React Syntax Highlighter |
 | Editor | `@uiw/react-md-editor` |
 | Icons | Lucide React |
-| Runtime | Node.js 20 |
+| Runtime | Node.js 24.22.1 LTS |
 
 ## 빠른 시작
 
 ### 사전 요구사항
 
-- Node.js 20
+- Node.js 24.22.1 LTS
 - npm
 - 게시글·댓글·인증 기능을 확인하려면 실행 가능한 백엔드 API
 
@@ -135,7 +135,7 @@ src/
 - `DESIGN.md`: UI 시스템과 반응형 원칙
 - `AGENTS.md`: 자동화 도구와 기여자를 위한 저장소 작업 규칙
 - `LOG.md`: 작업 내역, 검증 결과, 권장 후속 작업
-- `DockerFile`: Node 20 기반 standalone 이미지
+- `DockerFile`: Node 24.22.1 LTS 기반 standalone 이미지
 - `.github/workflows/deploy.yml`: GitHub Actions 배포 파이프라인
 
 ## 아키텍처 원칙

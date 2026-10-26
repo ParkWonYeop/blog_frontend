@@ -10,7 +10,7 @@ When a task is a refactor, preserve routes, API endpoints, storage keys, query b
 
 ## Runtime And Source Of Truth
 
-- Production runtime: Node.js 20 (`node:20-alpine` in `DockerFile`).
+- Production runtime: Node.js 24.22.1 LTS (`node:24.22.1-alpine` in `DockerFile`).
 - Package manager: npm.
 - Framework: Next.js 16 App Router with React 19.
 - Production site: `https://blog.wypark.me`.

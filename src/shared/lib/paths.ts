@@ -1,3 +1,5 @@
+import { SITE_URL } from '@/shared/lib/site';
+
 export const decodePathSegment = (value: string) => {
   try {
     return decodeURIComponent(value);
@@ -13,7 +15,13 @@ export const encodePathSegment = (value: string) => {
 export const getSafeRedirectPath = (value: string | null, fallback = '/') => {
   if (!value) return fallback;
   if (!value.startsWith('/') || value.startsWith('//')) return fallback;
-  if (value.startsWith('/login') || value.includes('://')) return fallback;
 
-  return value;
+  try {
+    const target = new URL(value, SITE_URL);
+    if (target.origin !== SITE_URL || target.pathname.startsWith('/login')) return fallback;
+
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return fallback;
+  }
 };
