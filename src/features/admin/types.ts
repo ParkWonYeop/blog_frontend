@@ -1,6 +1,29 @@
 import type { AdminComment } from '@/features/comment/types';
 import type { Post } from '@/features/post/types';
 
+export type McpKeyPermission = 'READ_ONLY' | 'READ_WRITE';
+
+export interface McpKey {
+  id: number;
+  name: string;
+  tokenPrefix: string;
+  permission: McpKeyPermission;
+  createdAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+}
+
+export interface McpKeyCreateRequest {
+  name: string;
+  permission: McpKeyPermission;
+  expiresInDays: number;
+}
+
+export interface McpKeyCreateResponse {
+  key: McpKey;
+  token: string;
+}
+
 export type DashboardRange = '7d' | '30d' | '90d';
 
 export interface DashboardMetric {

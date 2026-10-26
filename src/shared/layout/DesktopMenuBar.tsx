@@ -27,6 +27,7 @@ const getAppTitle = (pathname: string) => {
   if (pathname.startsWith('/admin/comments')) return 'Comment Center';
   if (pathname.startsWith('/admin/categories')) return 'Category Studio';
   if (pathname.startsWith('/admin/profile')) return 'Profile Panel';
+  if (pathname.startsWith('/admin/mcp')) return 'MCP Settings';
   if (pathname.startsWith('/admin')) return 'Admin Console';
   if (pathname.startsWith('/archive')) return 'Archive';
   if (pathname.startsWith('/category')) return getCategoryTitle(pathname);

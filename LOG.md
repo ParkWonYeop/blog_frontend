@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-26 (administrator MCP connections)
+
+- Added `/admin/mcp` and its administrator navigation entry for managing the current admin's MCP keys. The page shows the HTTP connection URL, Bearer authentication guidance, read-only/read-write permission selection, a 1–365 day expiry, key status/history, and an explicit revoke confirmation.
+- Added typed MCP API wrappers and per-member query keys. Creation defaults to read-only with a 90-day expiry. The full key is shown once in component state with explicit copy/dismiss controls; creation bypasses the React Query mutation cache, no secret is written to browser storage or logs, and switching accounts remounts the settings state. List invalidation follows creation/revocation, with loading, error/retry, pending, and success states retained.
+- Validation: `npm run check`, `npm run build`, and `git diff --check` passed. The build included `/admin/mcp`; the existing Node deprecation and unavailable public-post API warnings were non-fatal. Browser checks at 1440px and 390px confirmed unauthenticated `/admin/mcp` redirects to `/login?redirect=%2Fadmin%2Fmcp`, with one main landmark, no duplicate IDs, no horizontal overflow, and no captured console warnings/errors.
+- Limitations: authenticated settings layout, live key creation, copying a real key, and revocation could not be exercised without an administrator session. No product mocks or temporary authentication bypasses were added.
+- Recommended next task: verify the settings page with a real administrator session and connect a read-only client before testing write permissions and key revocation end to end.
+
 ## 2026-10-01 (production availability hotfix)
 
 - Restored the frontend container's host-wide `3005:3000` port publication because the production reverse proxy reaches the frontend host over the private network rather than through host loopback. The prior loopback-only mapping left the container healthy while making `https://blog.wypark.me` time out.

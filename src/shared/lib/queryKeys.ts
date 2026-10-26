@@ -42,6 +42,10 @@ export const queryKeys = {
   dashboard: {
     admin: (range: string) => ['admin-dashboard', range] as const,
   },
+  mcp: {
+    all: ['admin-mcp-keys'] as const,
+    keys: (memberId: number) => ['admin-mcp-keys', memberId] as const,
+  },
   chess: {
     today: (timezone: string) => ['chess-puzzle', 'today', timezone] as const,
     games: {

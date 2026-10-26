@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { BarChart3, FileText, FolderTree, Loader2, MessageSquareText, UserRound } from 'lucide-react';
+import { BarChart3, FileText, FolderTree, KeyRound, Loader2, MessageSquareText, UserRound } from 'lucide-react';
 import { clsx } from 'clsx';
 import WindowSurface from '@/shared/ui/WindowSurface';
 import { useAuthStore } from '@/features/auth/store';
@@ -15,6 +15,7 @@ const navItems = [
   { href: '/admin/comments', label: '댓글', icon: MessageSquareText },
   { href: '/admin/categories', label: '카테고리', icon: FolderTree },
   { href: '/admin/profile', label: '프로필', icon: UserRound },
+  { href: '/admin/mcp', label: 'MCP 연결', icon: KeyRound },
 ];
 
 const getCurrentPath = (pathname: string) => {
@@ -71,6 +72,7 @@ export default function AdminRouteShell({ children }: { children: React.ReactNod
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? 'page' : undefined}
                 className={clsx(
                   'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition',
                   isActive
