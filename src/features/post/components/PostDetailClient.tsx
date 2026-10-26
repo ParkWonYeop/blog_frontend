@@ -114,7 +114,7 @@ export default function PostDetailClient({ slug, initialPost }: PostDetailClient
             <div className="mt-7 flex min-w-0 items-center gap-3">
               <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[var(--color-surface)]">
                 {profile?.imageUrl && (
-                  <Image src={profile.imageUrl} alt="" fill sizes="40px" className="object-cover grayscale" unoptimized />
+                  <Image src={profile.imageUrl} alt="" fill sizes="40px" className="object-cover" unoptimized />
                 )}
               </div>
               <div className="min-w-0">

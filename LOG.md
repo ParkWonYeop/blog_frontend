@@ -1,5 +1,11 @@
 # Work Log
 
+## 2026-10-26 (restore color in profile photos)
+
+- Removed the `grayscale` filter from the sidebar profile photo and the post author avatar. The monochrome system applies to UI chrome only; photos and post images keep their original color. `DESIGN.md` now states this rule.
+- Validation: `npm run check` and `node --test tests/*.test.mjs` (25 passed).
+- Recommended next task: review the admin and authenticated chess screens in a logged-in browser session.
+
 ## 2026-10-26 (black and white redesign with TDS/SEED foundations)
 
 - Replaced the macOS desktop metaphor with a monochrome system based on Toss TDS and Daangn SEED values. Tokens live in `src/app/globals.css`: a desaturated SEED gray ramp (light `--grey-700` darkened to #737373 for 4.5:1 contrast), SEED-style fg/bg/stroke semantic tokens mapped onto the existing `--color-*` names, a TDS type scale (`text-display`, `text-title1`–`4`, `text-body1`–`2`, `text-caption1`–`2`), a redefined radius scale, and SEED easing/duration defaults. `DESIGN.md` documents the system and the avoided AI-generated UI patterns.
