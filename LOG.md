@@ -1,5 +1,12 @@
 # Work Log
 
+## 2026-10-26 (migration notice work history)
+
+- Updated only the work-history section of post 132, 「블로그 마이그레이션 작업 공지」. Retained the three original December 2025 entries and added nine dated entries covering May–October 2026: admin/dashboard work, daily chess puzzles, Maia games, structural refactoring, GitHub Actions deployment, online chess, mobile reading/play improvements, security, and the latest visual/MCP/article updates.
+- Read both repositories' original feature commits and their work logs. Used original change dates instead of reconstructed commit timestamps; the July refactor is grouped at its recorded completion. Saved the selected commit evidence with the original and revised article under `/Users/wypark/blog/.blog-content-backups/2026-10-26/migration-notice-history/`.
+- Validation: administrator MCP readback matched the revision. Creation date, ID, title, slug, category, tags, images, comments, and immediate view count were preserved. The introduction and original history entries are byte-for-byte unchanged. `git diff --check` passed; application tests/build were not rerun because no application code changed.
+- Recommended next task: append major completed work to this notice when future feature groups are finished, using their actual dates.
+
 ## 2026-10-26 (all article revisions, source dates, and prose)
 
 - Rewrote all 104 published articles through the existing administrator MCP update tool, including the latest monitoring and voice-server posts. Kept the original post IDs, creation dates, titles, slugs, categories, tags, comments, and all 55 occurrences of 54 images. Verified the saved body of every article against its draft; modification dates advanced as expected.
