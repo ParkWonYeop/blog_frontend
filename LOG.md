@@ -1,5 +1,11 @@
 # Work Log
 
+## 2026-10-26 (MCP deployment dependency fixes)
+
+- The first MCP deployment passed lint/type checking but was blocked by the existing high/critical dependency audit findings. Updated Next.js to 16.4.3 and only the affected follow-redirects, source-map-js, and zod lock entries. Preserved the existing ESLint configuration and React Hooks plugin versions; no application behavior or audit thresholds were changed.
+- Validation: clean `npm ci`, `npm run check`, `npm audit --audit-level=high`, and a production build against the public API passed. The remaining audit findings are four low and two moderate issues in the existing Markdown/CSS dependency trees; their broader upgrades are outside this MCP deployment fix.
+- Recommended next task: address the remaining Markdown/CSS advisories with focused rendering regression checks.
+
 ## 2026-10-26 (administrator MCP connections)
 
 - Added `/admin/mcp` and its administrator navigation entry for managing the current admin's MCP keys. The page shows the HTTP connection URL, Bearer authentication guidance, read-only/read-write permission selection, a 1–365 day expiry, key status/history, and an explicit revoke confirmation.
