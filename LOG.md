@@ -1,5 +1,11 @@
 # Work Log
 
+## 2026-10-28 (concrete noun-phrase subheadings)
+
+- Added the user's rule that article subheadings use explicit words or noun phrases naming the section's subject. Excluded sentence/question forms, action prompts, and vague impressions; added concrete examples. Clarified that rhetorical questions belong in body prose and removed the conflicting “마치며” heading example.
+- Validation: reviewed the complete writing principles for consistency, confirmed the existing AGENTS.md references, and passed `git diff --check`. Application tests/build were skipped for this documentation-only change; published articles were not edited.
+- Recommended next task: apply the heading rule when drafting or revising the next requested article.
+
 ## 2026-10-26 (migration notice work history)
 
 - Updated only the work-history section of post 132, 「블로그 마이그레이션 작업 공지」. Retained the three original December 2025 entries and added nine dated entries covering May–October 2026: admin/dashboard work, daily chess puzzles, Maia games, structural refactoring, GitHub Actions deployment, online chess, mobile reading/play improvements, security, and the latest visual/MCP/article updates.
