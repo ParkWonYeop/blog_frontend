@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-28 (PHP2Shell article)
+
+- Published post 143, 「PHP2Shell 취약점의 원인과 대응」, in the existing `개발 공부 > Infra` category (40), with PHP, 보안, PHP2Shell, and RCE tags: https://blog.wypark.me/posts/php2shell-2026-rce.
+- Read PHP's October 21/23 advisories, both upstream security reports and the fix commit, CERT-EU, NCSC-NL's October 23 update, and the PHP configuration manuals. Explained the two memory-lifecycle vulnerabilities, confirmed mod_php/conditional FPM paths, worker privileges, fixed releases, vendor backports, CLI/runtime differences, and the separately disclosed session issue. Applied the agreed writing principles and concrete noun-phrase headings; no exploit testing or personal experience was claimed.
+- Saved the draft, metadata, source/date notes, initial inventory, publication receipt, and administrator/list readbacks under `/Users/wypark/blog/.blog-content-backups/2026-10-28/php2shell-article/`. No credential was saved. Existing posts were not edited.
+- Validation: administrator readback exactly matched the body, title, slug, category, and tags; the public list increased from 104 to 105 posts and reported creation time `2026-10-28T09:16:22.081975`. Reviewed source dates, CVE distinctions, mitigation limits, links, headings, and Markdown fences. An initial local validation expected seven sections instead of the intended six; corrected that assertion and all checks passed without changing the published body. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: update this article when PHP publishes the full CVE-2026-115560 advisory and its fixed release.
+
 ## 2026-10-28 (concrete noun-phrase subheadings)
 
 - Added the user's rule that article subheadings use explicit words or noun phrases naming the section's subject. Excluded sentence/question forms, action prompts, and vague impressions; added concrete examples. Clarified that rhetorical questions belong in body prose and removed the conflicting “마치며” heading example.
