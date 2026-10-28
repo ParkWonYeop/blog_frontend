@@ -1,5 +1,13 @@
 # Work Log
 
+## 2026-10-28 (CPython JIT article)
+
+- Published post 144, 「CPython JIT 개발 중단과 PEP 836 철회」: https://blog.wypark.me/posts/cpython-jit-pep-836-withdrawal. Created `개발 공부 > Language > Python` (41, parent 24) after confirming there was no existing Python category, and assigned Python, CPython, JIT, PEP, and 성능 최적화 tags.
+- Compared current developer-news topics and all 105 existing articles. Selected the renewed discussion of PEP 836's withdrawal; checked the original October 19/20 announcements, PEPs 744/774/836/659, the steering council's June/September statements, and Python 3.15 documentation. Distinguished main-repository development from installed runtimes, proposed performance targets from measurements, and JIT from free-threading. Followed the agreed prose and noun-phrase heading rules.
+- Saved candidate/source/date notes, draft, category and post metadata, creation receipts, and readbacks under `/Users/wypark/blog/.blog-content-backups/2026-10-28/current-it-article/`. Existing posts and the recurring automation schedule were unchanged; no credential was saved.
+- Validation: exact administrator readback matched body/title/slug/category/tags; public inventory grew from 105 to 106 posts with creation time `2026-10-28T09:38:38.513431`. Confirmed the new category hierarchy, source dates, Markdown fences, and duplicate prevention. Executed the article's query snippet with local Python 3.13.9 and verified its absent-API branch; an enabled JIT build and performance were not tested. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: select the next scheduled article using fresh issue research and the updated post inventory, without repeating this topic.
+
 ## 2026-10-28 (PHP2Shell article)
 
 - Published post 143, 「PHP2Shell 취약점의 원인과 대응」, in the existing `개발 공부 > Infra` category (40), with PHP, 보안, PHP2Shell, and RCE tags: https://blog.wypark.me/posts/php2shell-2026-rce.
