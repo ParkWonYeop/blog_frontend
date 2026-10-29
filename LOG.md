@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-10-29 (Ghostty 1.4 article)
+
+- Published post 145, 「Ghostty 1.4의 스크롤백과 SSH 개선」: https://blog.wypark.me/posts/ghostty-1-4-scrollback-ssh. Created `개발 공부 > Engineering > Tools` (42, parent 23) because the existing tree had no development-tool category, and assigned Ghostty, 터미널, 개발 도구, and SSH tags.
+- Researched current GeekNews/Hacker News topics and checked all 106 existing articles. Read the latest five full bodies (144, 143, 141, 139, 135) through administrator MCP; the recent runtime/security/operations articles were dense, so selected a practical terminal-tool article with less background knowledge required. Ghostty's October 27 release had current discussion on both communities and no existing article overlap. No fixed depth rotation was introduced.
+- Checked the official 1.4/1.3 release notes, compression implementation, version-pinned configuration source, and SSH documentation. Explained history limits/search, terminfo setup, and platform requirements; distinguished compressed-page memory savings from whole-app memory and existing search from the new wraparound behavior. Reviewed the draft against the full writing principles and noun-phrase heading rule.
+- Saved candidate/flow/source/date notes, initial inventory, latest-five bodies, draft, metadata, category/post creation receipts, and verification under `/Users/wypark/blog/.blog-content-backups/2026-10-29/ghostty-1-4-article/`. No credential was saved. Existing posts and the daily automation were unchanged.
+- Validation: exact administrator readback matched body/title/slug/category/tags. Public inventory grew from 106 to 107, with only ID 145 added at `2026-10-29T09:11:32.549222`; existing article metadata was preserved. Confirmed the category hierarchy, source dates, Markdown fences, and duplicate checks without opening the public detail page. Shell examples passed `bash -n`; configuration examples matched the v1.4.0 definitions. Ghostty was not installed, so GUI/SSH behavior and performance were not executed or claimed as personal tests. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: reassess the latest posts and current issues at the next daily run, using this lighter tool article as context rather than automatically choosing the opposite depth.
+
 ## 2026-10-28 (CPython JIT article)
 
 - Published post 144, 「CPython JIT 개발 중단과 PEP 836 철회」: https://blog.wypark.me/posts/cpython-jit-pep-836-withdrawal. Created `개발 공부 > Language > Python` (41, parent 24) after confirming there was no existing Python category, and assigned Python, CPython, JIT, PEP, and 성능 최적화 tags.
