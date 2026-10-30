@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-10-30 (Mistral Large 4 article)
+
+- Published post 146, 「Mistral Large 4 가중치 공개와 자체 호스팅 조건」: https://blog.wypark.me/posts/mistral-large-4-open-weights-self-hosting. Used the existing `개발 공부 > Infra` category (40) and Mistral, LLM, MoE, vLLM, and 자체 호스팅 tags.
+- Compared current GeekNews/Hacker News topics and checked all 107 existing articles. Read the latest five administrator bodies (145, 144, 143, 141, 139) plus the potentially overlapping AI article 134. Selected the October 29 weight release for its current discussion and concrete hosting implications. The medium-depth explanation introduces a different field after the lighter terminal article; it does not impose a fixed depth rotation.
+- Checked the official announcement, Hugging Face introduction/model cards, initial release commit and license, and vLLM deployment/memory documentation. Explained total versus active parameters, FP8/NVFP4 weight memory versus runtime memory, the 256k validated context versus the model's 1M limit, the dedicated serving image, and license conditions/exceptions. Reviewed the completed draft against the full writing principles, including noun-phrase headings and source-date rules. No benchmark ranking, invented experience, or editorial notice was added.
+- Saved topic/flow/source/date notes, primary-source snapshots, inventories, administrator bodies, draft, metadata, creation request/response, and readback verification under `/Users/wypark/blog/.blog-content-backups/2026-10-30/mistral-large-4-article/`. No credential was saved. Existing posts, categories, and the daily automation were unchanged.
+- Validation: exact administrator readback matched the body/title/slug/category/tags. Public inventory grew from 107 to 108, with only ID 146 added at `2026-10-30T09:14:11.052344`; existing public article fields were unchanged apart from permitted natural counters (none changed in this check). Confirmed the category, dates, parameter-unit conversions, Markdown structure, body hash, and immediate duplicate check without opening a public detail page. No executable code is included; model inference, performance tests, and paid APIs were not run. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: review fresh issues and the latest article bodies at the next daily run, selecting the next topic and depth from their actual flow without repeating model-hosting coverage.
+
 ## 2026-10-29 (Ghostty 1.4 article)
 
 - Published post 145, 「Ghostty 1.4의 스크롤백과 SSH 개선」: https://blog.wypark.me/posts/ghostty-1-4-scrollback-ssh. Created `개발 공부 > Engineering > Tools` (42, parent 23) because the existing tree had no development-tool category, and assigned Ghostty, 터미널, 개발 도구, and SSH tags.
