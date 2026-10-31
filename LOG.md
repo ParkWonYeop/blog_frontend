@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-10-31 (Cursor extension incident article)
+
+- Published post 147, 「Cursor의 Claude Code 확장 변조와 SSH 백도어」: https://blog.wypark.me/posts/cursor-claude-code-extension-ssh-backdoor. Used the existing `개발 공부 > Engineering > Tools` category (42), with Cursor, Claude Code, 보안, SSH, and 개발 도구 tags.
+- Researched current GeekNews/Hacker News topics, checked all 108 articles, and read the latest five full administrator bodies (146, 145, 144, 143, 141). Chose the officially confirmed extension incident for its corrected affected-version scope and practical implications. The medium-depth explanation covers IDE permissions, SSH authentication, and recovery scope; it differs from the existing PHP runtime vulnerability and terminal/SSH setup articles without imposing a fixed topic-depth cycle.
+- Checked Cursor's October 29 advisory and October 30 11:30 PT update, Phorion's original analysis, Cursor's extension-distribution documentation, VS Code's runtime-security documentation, and the versioned OpenSSH manual. Used both affected versions (2.1.312/2.1.313), specified the Cursor distribution channel and macOS/Windows scope, and verified all PT-to-KST conversions. Distinguished environment-variable names from values and payload execution from successful SSH access. Omitted unconfirmed intrusion details and victim counts; reviewed the draft against the full writing principles.
+- Saved inventories, current MCP schemas/categories, latest-five bodies, draft, metadata, topic/flow/date notes, primary-source snapshots, creation request/response, and verification under `/Users/wypark/blog/.blog-content-backups/2026-10-31/cursor-extension-incident/`. GeekNews was read with the web tool; its optional curl snapshot returned 403, which is recorded. No credential was saved. Existing posts, categories, and the daily automation were unchanged.
+- Validation: exact administrator readback matched body/title/slug/category/tags. Public inventory grew from 108 to 109, with only ID 147 added at `2026-10-31T09:05:10.07657`; existing public fields were unchanged. Checked source dates, current advisory revision, noun-phrase headings, Markdown structure, duplicate prevention, and body hash without a public detail request. The article contains no executable snippets. No malicious extension, cleanup script, or attacker endpoint was downloaded/executed/contacted; research fetched source documents only. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: reassess current issues and recent article bodies at the next daily run, avoiding repeated security coverage unless new facts justify it.
+
 ## 2026-10-30 (Mistral Large 4 article)
 
 - Published post 146, 「Mistral Large 4 가중치 공개와 자체 호스팅 조건」: https://blog.wypark.me/posts/mistral-large-4-open-weights-self-hosting. Used the existing `개발 공부 > Infra` category (40) and Mistral, LLM, MoE, vLLM, and 자체 호스팅 tags.
