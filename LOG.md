@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-11-01 (HackerTube article)
+
+- Published post 148, 「HackerTube의 댓글 기반 영상 추천」: https://blog.wypark.me/posts/hackertube-hacker-news-video-recommendations. Used the existing `개발 공부 > Engineering > Tools` category (42), with HackerTube, Hacker News, 추천 시스템, and 개발 도구 tags.
+- Compared current GeekNews/Hacker News discussions, checked all 109 existing articles, and read the latest five full administrator bodies (147, 146, 145, 144, 143). Selected the newly discussed HackerTube service for a lighter explanation after security and model-hosting coverage. The article covers comment classification, repeated recommendations, video discovery, and the public data without imposing a fixed topic-depth rotation.
+- Checked the creator's introduction, the service's About page, official DATA.md/export/stats, and the live distributed-systems search. The introduction showed October 31 in the web tool and November 1 in Chrome; omitted an exact announcement date rather than infer the cause. The data export is dated October 31, and current undated functionality was observed before publication. Reviewed the completed draft against the full writing principles. No personal experience, benchmark, refresh cadence, full-source release, or zero-server-transfer claim was invented.
+- Saved inventories, current MCP schemas/categories, latest-five bodies, draft, metadata, topic/flow/date notes, primary-source snapshots, creation request/response, and readback verification under `/Users/wypark/blog/.blog-content-backups/2026-11-01/hackertube-article/`. The optional announcement curl snapshot returned 404, while its complete text was available in Chrome; recorded this limitation. No credential was saved. Existing posts, categories, and the daily automation were unchanged.
+- Validation: exact administrator readback matched body/title/slug/category/tags. Public inventory grew from 109 to 110, with only ID 148 added at `2026-11-01T09:03:34.957584`; all existing public fields were unchanged. Checked source dates, noun-phrase headings, duplicate prevention, Markdown structure, and body hash without a public detail request. The search returned relevant technical talks; no video playback or saved-list mutation was needed. The article contains no executable snippets, and no paid APIs or source-provided scripts were run. `git diff --check` passed. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: review fresh issues and recent full article bodies at the next daily run, avoiding another discovery-tool article unless a distinct development warrants it.
+
+
 ## 2026-10-31 (Cursor extension incident article)
 
 - Published post 147, 「Cursor의 Claude Code 확장 변조와 SSH 백도어」: https://blog.wypark.me/posts/cursor-claude-code-extension-ssh-backdoor. Used the existing `개발 공부 > Engineering > Tools` category (42), with Cursor, Claude Code, 보안, SSH, and 개발 도구 tags.
