@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-11-03 (Cloudflare DNS targeted builds article)
+
+- Published post 150, 「Cloudflare의 DNS 설정 배포 개선」: https://blog.wypark.me/posts/cloudflare-dns-targeted-zone-builds. Used the existing `개발 공부 > Engineering > Architecture` category (27), with Cloudflare, DNS, Kafka, 분산 시스템, and 메모리 최적화 tags.
+- Compared current GeekNews/Hacker News discussions, checked all 111 articles and the category tree, and read the latest five full administrator bodies (149, 148, 147, 146, 145), plus the potentially overlapping voice-server article 139. Selected Cloudflare's November 2 implementation report for a medium-depth backend article after several AI/tool topics. Considered Weight-Space Programming, PostHog's DuckDB migration, and Ubuntu coverage without imposing a fixed depth rotation.
+- Checked Cloudflare's current report and 2022 implementation history, the versioned Kafka Consumer API, and RFC 1035. Explained partial rebuilds, deletion of old record names, and contiguous Kafka commit positions. Kept the aggregate peak working-set change (79 to 12 GiB, approximately 85%) separate from subsequent timer tuning (median delay 7.7 to 3.3 seconds); the latter ends at Quicksilver writes and excludes global replication and DNS query latency. Verified publication/revision dates and recorded the unavailable date of the versioned API page without inventing one. Reviewed the completed draft against the full writing principles.
+- Saved inventories, current MCP schema/categories, six administrator bodies, draft, metadata, source/date/flow notes, source snapshots, draft review, creation request/response, and readbacks under `/Users/wypark/blog/.blog-content-backups/2026-11-03/cloudflare-dns-targeted-builds/`. GeekNews was read with the web tool; the optional curl snapshot returned 403 and was recorded. Removed unverified source-link fragments. No credential was saved. Existing posts, categories, and the daily automation were unchanged.
+- Validation: numeric rounding and source measurement scopes were checked; the Kafka offset example was reviewed conceptually. Exact administrator readback matched body/title/slug/category/tags. Public inventory grew from 111 to 112, with only ID 150 added at `2026-11-03T09:10:35.336641`; all existing public fields were unchanged. Checked source dates, noun-phrase headings, Markdown structure, duplicate prevention, and body hash without a public detail request. `git diff --check` passed. No Kafka broker experiment, DNS configuration change, or performance reproduction was run; the article contains no executable snippets. Application tests/build were skipped for this article/log-only task.
+- Recommended next task: reassess fresh issues and recent full article bodies at the next daily run, avoiding another DNS rebuild or closely related infrastructure case without a distinct development.
+
+
 ## 2026-11-02 (AI framework cost benchmark article)
 
 - Published post 149, 「AI 코딩 에이전트의 프레임워크별 구현 비용」: https://blog.wypark.me/posts/ai-coding-agent-framework-cost-benchmark. Used the existing `개발 공부 > Engineering > Testing` category (32), with AI, JavaScript, 벤치마크, 테스트, and Lighthouse tags.
