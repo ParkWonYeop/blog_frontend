@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-11-07 (Discord Rust client article)
+
+- Published post 154, 「Discord의 Rust 전환과 데스크톱 앱 구조」: https://blog.wypark.me/posts/discord-rust-desktop-client-gpui. Used the existing `개발 공부 > Engineering > Tools` category (42), with Discord, Rust, Electron, GPUI, and 데스크톱 앱 tags.
+- Compared current GeekNews/Hacker News discussions, checked all 115 articles and the category tree, and read the latest five full administrator bodies (153, 152, 151, 150, 149), plus potentially overlapping voice-server and Ghostty articles (139, 145). Selected the Discord CTO's Rust client announcement and fresh desktop/mobile demonstrations for a familiar application topic after SSH authentication and JSON compatibility. Considered GitHub's new Git storage architecture, Window Sweaters, and PyLings. Used the recent subject flow and reading burden without a fixed depth rotation.
+- Checked the CTO's original posts directly in Chrome, Electron's version-pinned v42.0.0 process documentation, Discord's September patch notes, GPUI's official introduction, and Zed's dated rendering explanation. Distinguished development/user-testing plans from general release, desktop GPUI from mobile native UI, and shared Rust application code from identical screens. Omitted the screenshot's memory figure because comparison conditions were unavailable. Recorded source publication/revision dates and undated-page limitations, then reviewed the finished draft against the full writing principles.
+- Saved current MCP schema/categories, inventories, seven administrator bodies, draft, metadata, topic/flow/date notes, source snapshots and direct-browser observations, review, creation request/response, and readback results under `/Users/wypark/blog/.blog-content-backups/2026-11-07/discord-rust-client/`. X returned 403 through the web tool but its original posts were readable in Chrome; GeekNews was read through the web tool while the optional curl snapshot returned 403. No credential was saved. Existing articles, categories, and the daily automation were unchanged.
+- Validation: checked source dates, noun-phrase headings, source coverage, duplicate prevention, category, and body hash. Exact administrator readback matched body/title/slug/category/tags. Public inventory grew from 115 to 116, with only ID 154 added at `2026-11-07T09:12:05.966692`; existing public fields were unchanged and the new view count remained zero. No public detail request, new-client installation/runtime test, or performance measurement was performed. The article contains no executable code blocks. `git diff --check` passed; application tests/build were skipped for this article/log-only task.
+- Recommended next task: reassess current issues and recent full article bodies at the next daily run, avoiding another client-rewrite article without a distinct development.
+
+
 ## 2026-11-06 (Alpine OpenSSH authentication article)
 
 - Published post 153, 「Alpine OpenSSH의 비밀번호 인증 우회와 수정 범위」: https://blog.wypark.me/posts/alpine-openssh-password-authentication-bypass. Used the existing `개발 공부 > Infra` category (40), with Alpine Linux, OpenSSH, 보안, 인증, and 서버 운영 tags.
